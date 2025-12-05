@@ -9,8 +9,8 @@ ANALISI DEI REQUISITI
 ========================================
 
 ATTORI DEL SISTEMA:
-    - Amministratore: Gestisce oggetti, prestiti, utenti, configurazioni sistema
-
+    - Utenti: Gestisce oggetti, prestiti, configurazioni sistema
+    - Clienti: Richiedono prestiti
 REQUISITI FUNZIONALI:
 
 RF1. GESTIONE INVENTARIO OGGETTI
@@ -42,13 +42,13 @@ RF2. GESTIONE PRESTITI
         - Lista prestiti attivi e storico
         - Filtri combinabili:
             * Data inizio/fine prestito
-            * Utente prestatario
+            * Cliente
             * Tipologia oggetto
             * Stato prestito (attivo, scaduto, completato, annullato)
     
     RF2.2 Operazioni prestiti (solo Amministratore)
         - Creazione nuovo prestito:
-            * Selezione utente prestatario
+            * Selezione cliente
             * Selezione oggetto/i (max 5 oggetti per prestito)
             * Data inizio e data prevista restituzione
             * Note aggiuntive
@@ -57,23 +57,22 @@ RF2. GESTIONE PRESTITI
             - Base: prenotazione senza allungamento
             - Avanzato: prenotazione con allungamento
         - Annullamento prestito
-        - Segnalazione oggetto danneggiato al rientro
+        - Segnalazione oggetto danneggiato al rientro -> damaged e' un campo di LoanedObjects che viene inizializzato a false di default
+            e puo' essere messo a true nel momento della restituzione e successivamente, se true, bisogna aggiornare lo stato dell'oggetto in Objects
     
     RF2.3 Vincoli prestiti
         - Massimo 5 oggetti contemporaneamente per utente
         - Durata massima prestito: 30 giorni
         - Non è possibile prestare oggetti in stato "rotto" o "in manutenzione"
         - Invio notifica automatica 3 giorni prima della scadenza
-        - Blocco nuovi prestiti per utenti con prestiti scaduti
+        - Blocco nuovi prestiti per utenti con prestiti scaduti o che hanno rotto x oggetti
 
 RF3. STORICO MANUTENZIONE
     RF3.1 Registrazione interventi (Amministratore)
         - Data intervento
         - Tipo intervento (riparazione, manutenzione preventiva, upgrade, sostituzione)
         - Tecnico responsabile
-        - Descrizione problema e soluzione
-        - Stato post-intervento
-        - Parti sostituite
+        - Descrizione problema e soluzione e parti sostituite
     
     RF3.2 Visualizzazione storico
         - Lista completa interventi per oggetto
@@ -82,15 +81,13 @@ RF3. STORICO MANUTENZIONE
 
 RF4. STORICO OGGETTI
     RF4.1 Tracciamento completo
-        - Log di tutte le modifiche all'oggetto (data, utente, campo modificato)
         - Storico prestiti associati all'oggetto
-        - Storico manutenzioni
         - Calcolo tempo totale in prestito
         - Numero totale prestiti effettuati
 
-RF5. GESTIONE UTENTI
-    RF5.1 Operazioni utenti (solo Amministratore)
-        - Creazione utente (nome, cognome, email)
+RF5. GESTIONE CLIENTI
+    RF5.1 Operazioni (solo Amministratore)
+        - Creazione cliente (nome, cognome, email)
         - Modifica informazioni cliente
         - Blocco/sblocco cliente (impedisce nuovi prestiti)
 
@@ -130,10 +127,10 @@ RNF4. USABILITÀ
     - Supporto ricerca rapida con autocomplete?
 
 RNF5. MANUTENIBILITÀ (DA RIVEDERE CON DESIGN PATTERN ETC)
-    - Codice deve seguire convenzioni Java standard (Google Java Style Guide)
+    - Codice deve seguire convenzioni
     - Architettura a layer (Presentation, Business Logic, Data Access)
-    - Documentazione JavaDoc per classi e metodi pubblici
-    - Design patterns appropriati (MVC, DAO, Singleton, Factory)
+    - Documentazione JavaDoc
+    - Design patterns appropriati (MVC, DAO, Factory)
     - Code coverage test > 70%
     - Naming convention chiaro e consistente
 
@@ -154,18 +151,17 @@ VINCOLI
 ========================================
 
 V1. VINCOLI TECNOLOGICI
-    - Linguaggio: Js, php
+    - Linguaggio: HTML, CSS, Js, php
     - Database relazionale: MySQL o PostgreSQL
-    - Build tool: Maven o Gradle
+    - Tool: Docker
     - Version control: Git
 
 V2. VINCOLI DI PROGETTO
     - Sviluppo in team (indicare numero membri)
-    - Utilizzo metodologia agile (Scrum/Kanban)
-    - Sprint duration: 2 settimane
     - Code review obbligatoria prima del merge
 
 V3. VINCOLI OPERATIVI
     - Sistema deve essere disponibile 24/7
     - Manutenzione programmata possibile solo in orari notturni
     - Backup dati conservati per almeno 90 giorni 
+    - Logging rotation
