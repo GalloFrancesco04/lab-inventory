@@ -1,0 +1,45 @@
+INGSW-2526-T14/
+├── compose.yml
+├── .env
+├── .gitignore
+├── README.md
+│
+├── backend/                    # Server PHP
+│   ├── config/
+│   │   └── database.php       # Configurazione DB
+│   ├── api/
+│   │   ├── items.php          # CRUD attrezzature
+│   │   ├── loans.php          # Gestione prestiti
+│   │   ├── maintenance.php    # Storico manutenzione
+│   │   └── users.php          # Gestione utenti
+│   ├── models/
+│   │   ├── Item.php
+│   │   ├── Loan.php
+│   │   └── Maintenance.php
+│   ├── index.php              # Entry point
+│   └── .htaccess              # Routing
+│
+├── frontend/                   # Applicazione JS (HTML/CSS/JS)
+│   ├── index.html
+│   ├── css/
+│   │   ├── style.css
+│   │   └── responsive.css
+│   ├── js/
+│   │   ├── main.js
+│   │   ├── api.js             # Chiamate AJAX
+│   │   ├── items.js
+│   │   ├── loans.js
+│   │   └── utils.js
+│   ├── pages/
+│   │   ├── items.html
+│   │   ├── loans.html
+│   │   └── maintenance.html
+│   └── assets/
+│       └── images/
+│
+├── database/                   # Script SQL
+│   ├── init.sql               # Schema iniziale
+│   └── migrations/
+│
+└── docs/                       # Documentazione
+    └── api.md
