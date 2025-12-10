@@ -1,0 +1,64 @@
+This glossary provides definitions of key terms used throughout the project.
+
+Users: The actor who manages objects, loans, clients, and system configurations. The user (administrator) has full permissions, including CRUD operations, loan creation, maintenance management, and client blocking/unblocking.
+
+Client: The person who requests and receives borrowed items from the laboratory. A client is subject to loan constraints such as maximum loan duration and maximum number of items.
+
+Object: Any equipment or resource tracked in the laboratory, such as PCs, hardware components, peripherals, or other technical tools.
+
+Inventory Status: The current condition of an inventory item. Possible states include:
+
+    - Available
+
+    - Loaned
+
+    - Under Maintenance
+
+    - Broken
+
+    - Out of Service
+
+Loan: A temporary assignment of one or more objects (up to five) to a client for a specific period. Each loan includes start date, expected return date, selected objects, and optional notes.
+
+Loan Status: The current state of a loan. Possible statuses include:
+
+    - Active
+
+    - Expired
+
+    - Completed
+
+    - Cancelled
+
+Loaned Object: An individual object included in a loan. Each loaned object has its own attributes, such as a damaged flag (true/false).
+
+Maintenance Record: A documented intervention performed on an object, including the date, type of intervention (repair, preventive maintenance, upgrade, replacement), responsible technician, and problem description.
+
+Maintenance History: The complete list of maintenance records associated with a specific object.
+
+Client Management: Administrative operations for creating, modifying, blocking, or unblocking clients.
+
+Loan Constraints: Rules applied to the loan system, such as:
+
+    - Maximum of 5 items per client
+
+    - Maximum duration of 30 days
+
+    - Objects marked as Broken or Under Maintenance cannot be loaned
+
+    - Automatic notification 3 days before expiration
+
+    - Clients may be blocked if they have expired loans or have damaged multiple objects
+
+Authentication: The process through which a user logs into the system using username and password.
+
+Authorization: The mechanism that grants or restricts access to system functionalities based on user roles.
+
+Session Management: Controls user login sessions, including mandatory logout after inactivity.
+
+Search Filters: Combinable criteria used to refine displayed results (e.g., by status, type, location, date).
+
+Object History: A complete record of all past loans and usage statistics for an object, including total loan time and number of completed loans.
+
+Technological Constraints: Required technologies for system development, including HTML, CSS, JavaScript, PHP, a relational database (MySQL/PostgreSQL), Docker, and Git.
+
