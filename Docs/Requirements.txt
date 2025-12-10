@@ -73,6 +73,8 @@ RF3. STORICO MANUTENZIONE
         - Tipo intervento (riparazione, manutenzione preventiva, upgrade, sostituzione)
         - Tecnico responsabile
         - Descrizione problema e soluzione e parti sostituite
+            - IDEA: tecnico come utente a parte, che ha accesso a tutti gli oggetti in manutenzione assegnati a lui, 
+                    Possibilità di aggiungere nella manutenzione le operazioni effettuate e modificare gli oggetti 
     
     RF3.2 Visualizzazione storico
         - Lista completa interventi per oggetto
@@ -90,6 +92,8 @@ RF5. GESTIONE CLIENTI
         - Creazione cliente (nome, cognome, email)
         - Modifica informazioni cliente
         - Blocco/sblocco cliente (impedisce nuovi prestiti)
+            - L'amministratore deciderà quando bloccare un utente e per quanto tempo, in automatico verrà sbloccato in data x
+        - Visualizzazione lista clienti 
 
 
 RF6. AUTENTICAZIONE E AUTORIZZAZIONE
