@@ -4,6 +4,7 @@ erDiagram
         int id PK
         string email
         string pass
+        int roleId FK
     }
 
     CLIENT {
@@ -12,8 +13,11 @@ erDiagram
         string name
         string surname
         int state
-        date startBlockDate
-        date endBlockDate
+    }
+
+    ROLES{
+        int id PK
+        string name
     }
 
     OBJECT {
@@ -57,10 +61,19 @@ erDiagram
         date startDate
         date endDate
         string type
-        string technician
+        int technicianId FK
         int phoneNumber
         float cost
     }
+
+     OPERATIONS{
+        int id PK
+        int maintenanceId FK
+        string description
+        date startDate
+        date endDate
+        float cost
+     }
 
     %% RELAZIONI CON CARDINALITÀ FORMALI
 
@@ -73,3 +86,7 @@ erDiagram
     OBJECT ||--o{ LOANEDOBJECTS : "1 oggetto può apparire in N prestiti"
 
     OBJECT ||--o{ MAINTENANCE : "1 oggetto ha N interventi"
+
+    MAINTENANCE || --o{ OPERATIONS : "1 manutenzione ha N operazioni"
+
+    USER }o--|| ROLES : "1 utente ha 1 ruolo"
