@@ -4,7 +4,7 @@ erDiagram
         int id PK
         string email
         string pass
-        int roleId FK
+        int role
     }
 
     CLIENT {
@@ -13,11 +13,6 @@ erDiagram
         string name
         string surname
         int state
-    }
-
-    ROLES{
-        int id PK
-        string name
     }
 
     OBJECT {
@@ -89,4 +84,3 @@ erDiagram
 
     MAINTENANCE || --o{ OPERATIONS : "1 manutenzione ha N operazioni"
 
-    USER }o--|| ROLES : "1 utente ha 1 ruolo"

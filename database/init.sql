@@ -4,27 +4,14 @@ USE laboratorio_inventario;
 -- Schema SQL (MySQL). Esegui nell'ordine: prima tabelle "padre", poi "figlie".
 
 -- =========================
--- ROLES, USER
+-- USER
 -- =========================
-CREATE TABLE roles (
-  id          INT AUTO_INCREMENT PRIMARY KEY,
-  name        VARCHAR(100) NOT NULL UNIQUE
-);
-
 CREATE TABLE `user` (
   id          INT AUTO_INCREMENT PRIMARY KEY,
   email       VARCHAR(255) NOT NULL UNIQUE,
   pass        VARCHAR(255) NOT NULL,
-  role_id     INT NOT NULL,
-  CONSTRAINT fk_user_role
-    FOREIGN KEY (role_id) REFERENCES roles(id)
-    ON UPDATE CASCADE
-    ON DELETE RESTRICT
+  role        INT NOT NULL,
 );
-
--- Insert sample roles
-INSERT INTO roles (name) VALUES ('Admin');
-INSERT INTO roles (name) VALUES ('Technician');
 
 -- =========================
 -- CLIENT
@@ -86,7 +73,7 @@ CREATE TABLE loans (
 );
 
 -- =========================
--- LOANEDOBJECTS (tabella ponte)
+-- LOANEDOBJECTS
 -- =========================
 CREATE TABLE loanedobjects (
   object_type_code VARCHAR(50) NOT NULL,
