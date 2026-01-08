@@ -37,7 +37,7 @@ CREATE TABLE objecttype (
   model       VARCHAR(120),
   brand       VARCHAR(120),
   quantity    INT NOT NULL DEFAULT 0,
-  CONSTRAINT ck_objecttype_quantity_nonneg CHECK (quantity >= 0)
+  CONSTRAINT ck_objecttype_quantity_nonneg CHECK (quantity > 0)
 );
 
 CREATE TABLE object_ (
