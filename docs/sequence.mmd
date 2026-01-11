@@ -1,3 +1,6 @@
+//Sostiuire maintenance con under maintenance dove serve
+
+
 Sequence DIagram
 LOGIN
 sequenceDiagram
@@ -188,7 +191,7 @@ MS-->>UI: Object list
 UI-->>T: Show list
 
 
-=======SHOW MAINTENANCES=====
+=======VIEW MAINTENANCES LIST=====
 sequenceDiagram
 autonumber
 actor T as Technician
@@ -356,7 +359,7 @@ DB-->>MS: ok
 MS-->>UI: closeOK
 UI-->>T: Maintenance closed
 
-=====SHOW CLIENTS====
+=====VIEW CLIENTS====
 sequenceDiagram
 autonumber
 actor A as Administrator
@@ -383,3 +386,150 @@ UI->>LS: searchLoans(query)
 LS->>DB: findLoans(query)
 DB-->>LS: loanList
 LS-->>UI: Results
+
+====VIEW OBJECTS====
+
+sequenceDiagram
+autonumber
+actor A as Administrator
+participant UI as UI
+participant LS as ObjectService
+participant DB as Database
+
+A->>UI: Show Objects
+UI->>LS: searchObjects(query)
+LS->>DB: findObjects(query)
+DB-->>LS: ObjectList
+LS-->>UI: Results
+
+==== CREATE OBJECT ====
+
+sequenceDiagram
+    autonumber
+    actor A as Administrator
+    participant UI as UI
+    participant IS as InventoryService
+    participant OTS as ObjectTypeService
+    participant DB as Database
+
+    A->>UI: Open "Create Object"
+
+    UI->>OTS: getObjectTypes()
+    OTS->>DB: findAllObjectTypes()
+    DB-->>OTS: objectTypeList
+    OTS-->>UI: objectTypeList
+
+    A->>UI: Insert object data
+    
+
+    UI->>IS: createObject(objectData)
+
+    IS->>OTS: checkObjectTypeExists(typeCode)
+    OTS->>DB: findObjectType(typeCode)
+    DB-->>OTS: objectType / null
+
+    alt Object type exists
+        OTS-->>IS: valid type
+        IS->>DB: insertObject(objectData)
+        DB-->>IS: objectId
+        IS-->>UI: objectCreated(objectId)
+        UI-->>A: Object successfully created
+    else Object type not exists
+        OTS-->>IS: type not found
+        IS-->>UI: requestCreateObjectType
+        UI-->>A: Object type not present
+    end
+
+=== Update Object ===
+sequenceDiagram
+autonumber
+actor A as Administrator
+participant UI as UI
+participant IS as InventoryService
+participant DB as Database
+
+
+A->>UI: Update Object
+UI->>IS: getObjects(query)
+IS->>DB: findObjects(query)
+DB-->>IS: ObjectList
+IS-->>UI: Results
+
+A->>UI: Select Object
+UI->>IS: getObject(ObjectId)
+IS->>DB: getObjectById(ObjectId)
+DB-->>IS: Object
+IS-->>UI: Object details
+
+A->>UI: Edit fields and save
+UI->>IS: updateObject(ObjectId, newData)
+IS->>DB: UpdateObject("Under Maintenance")
+DB-->>IS: ok
+IS-->>UI: Confirmation
+UI-->>A: Object updated 
+
+=== SEND OBJECT TO MAINTENANCE ===
+sequenceDiagram
+autonumber
+actor A as Administrator
+participant UI as UI
+participant IS as InventoryService
+participant DB as Database
+
+A->>UI: Show Objects
+UI->>IS: getObjects(query)
+IS->>DB: findObjects(query)
+DB-->>IS: ObjectList
+IS-->>UI: Results
+
+A->>UI: Select Object
+UI->>IS: getObject(ObjectId)
+IS->>DB: getObjectById(ObjectId)
+DB-->>IS: Object
+IS-->>UI: Object details
+
+A->>UI: Edit fields and save
+UI->>IS: SendObjectToMaintenance(ObjectId,"Under Maintenance")
+IS->>DB: UpdateObject("Under Maintenance")
+DB-->>IS: ok
+IS-->>UI: Confirmation
+UI-->>A: Object updated 
+
+=== VIEW MAINTENANCE LIST ADMIN ===
+sequenceDiagram 
+autonumber
+actor A as Administrator
+participant UI as UI
+participant MS as MaintenanceService
+participant IS as InventoryService
+participant DB as Database
+
+
+A->>UI: Show Objects
+UI->>IS: searchObjects(query)
+IS->>DB: findObjects(query)
+DB-->>IS: ObjectList
+IS-->>UI: Results
+
+
+A->>UI:  Apply Filter "Maintenance"
+A->>UI: Show Objects "Maintenance"
+UI->>IS: searchObjects("Maintenance")
+IS->>DB: findObjects("Maintenance")
+DB-->>IS: ObjectList
+IS-->>UI: Results
+
+A->>UI: Select Object
+UI->>IS: getObject(objectId)
+IS->>DB: getObject(objectId)
+DB-->>IS: Object
+IS-->>UI: Object
+
+
+A->>UI: Show Maintenances
+UI->>MS: getMaintenance(ObjectId)
+MS->>DB: getMaintenance(query)
+DB-->>MS: maintenanceList
+MS-->>UI: Results
+
+
