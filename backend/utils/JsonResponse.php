@@ -1,20 +1,46 @@
 <?php
 
+// Send JSON responses for API requests
+//Format: { "data": ... }
 Class JsonResponse {
 
-    public static function success($data=null, $message=null, $statusCode=200){
+    public static function success($data = null, $statusCode = 200){
 
         http_response_code($statusCode);
         header('Content-Type: application/json');
 
-        $response=['status'=>'success'];   
-        if($message)
-            $response['message']=$message;
-        if($data)
-            $response['data']=$data;
+        
+       $response= [ 'data'=>$data ];
 
         echo json_encode($response);
         exit;
+        
+    }
+
+    //Sends a JSON error response
+    //Format: { "error": { "code": "...", "message": "...", "details": ... } }
+    public static function error ( $message=null,$errorCode="GENERIC _ERROR" $statusCode=400, $details=null){
+
+    http_response_code($statusCode);
+
+    header('Content-Type: application/json');
+
+    $errorBody = [
+            'code' => $errorCode,
+            'message' => $message
+        ];
+
+        if ($details) {
+            $errorBody['details'] = $details;
+        }
+
+        $response = [
+            'error' => $errorBody
+        ];
+
+        echo json_encode($response);
+        exit;
+       
         
     }
 }
