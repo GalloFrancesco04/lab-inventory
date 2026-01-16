@@ -13,6 +13,9 @@ require_once __DIR__ . '/../../Application/Handlers/ObjectTypes/CreateObjectType
 require_once __DIR__ . '/../../Application/Commands/ObjectTypes/UpdateObjectTypeCommand.php';
 require_once __DIR__ . '/../../Application/Handlers/ObjectTypes/UpdateObjectTypeHandler.php';
 
+require_once __DIR__ . '/../../Application/Commands/ObjectTypes/DeleteObjectTypeCommand.php'; 
+require_once __DIR__ . '/../../Application/Handlers/ObjectTypes/DeleteObjectTypeHandler.php';
+
 //***CONTROLLER DEFINITION */
 class ObjectTypesController {
 
@@ -27,7 +30,8 @@ class ObjectTypesController {
 
         // register commands and their handlers
         $this->mediator->register('CreateObjectTypeCommand', 'CreateObjectTypeHandler');
-        $this->mediator->register('UpdateObjectTypeCommand', 'UpdateObjectTypeHandler'); // Nuovo
+        $this->mediator->register('UpdateObjectTypeCommand', 'UpdateObjectTypeHandler'); 
+        $this->mediator->register('DeleteObjectTypeCommand', 'DeleteObjectTypeHandler');
     }
 
     /**
@@ -99,4 +103,18 @@ class ObjectTypesController {
             Response::error($e->getMessage(), "UPDATE_ERROR", 400);
         }
     }
+    /**
+     * DELETE /api/objecttypes/{code}
+     * Deletes an existing object type.
+     */
+    public function delete($code) {
+    try {
+        $command = new DeleteObjectTypeCommand($code);
+        $this->mediator->send($command);
+        Response::success(["message" => "Object Type deleted successfully"]);
+    } catch (Exception $e) {
+        Response::error($e->getMessage(), "DELETE_ERROR", 400);
+    }
+}
+
 }
