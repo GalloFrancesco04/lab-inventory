@@ -12,6 +12,10 @@ require_once __DIR__ . '/../../Application/Mediator/Mediator.php';
 require_once __DIR__ . '/../../Application/Commands/Clients/CreateClientCommand.php';
 require_once __DIR__ . '/../../Application/Handlers/Clients/CreateClientHandler.php';
 
+// Import specific Command and Handler for Client Update
+require_once __DIR__ . '/../../Application/Commands/Clients/UpdateClientCommand.php';
+require_once __DIR__ . '/../../Application/Handlers/Clients/UpdateClientHandler.php';
+
 class ClientsController {
 
     private $mediator;
@@ -28,6 +32,7 @@ class ClientsController {
         // REGISTRATION: Map the Command to its Handler
         // When 'CreateClientCommand' is dispatched, 'CreateClientHandler' handles it.
         $this->mediator->register('CreateClientCommand', 'CreateClientHandler');
+        $this->mediator->register('UpdateClientCommand', 'UpdateClientHandler');
     }
 
     /**
@@ -78,6 +83,33 @@ class ClientsController {
         } catch (Exception $e) {
             // Catch validation or database errors from the Handler
             Response::error($e->getMessage(), "CREATE_ERROR", 400);
+        }
+    }
+
+    /**
+     * PUT /api/clients/{id}
+     * Updates an existing client using the CQRS pattern.
+     */
+    public function update($id) {
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        try {
+            // Creiamo il comando di aggiornamento
+            $command = new UpdateClientCommand(
+                $id, // L'ID arriva dall'URL (tramite il Router)
+                $data['name'] ?? null,
+                $data['email'] ?? null,
+                $data['phone'] ?? null,
+                $data['address'] ?? null
+            );
+
+            // Inviamo al Mediator
+            $this->mediator->send($command);
+
+            Response::success(["message" => "Client updated successfully"]);
+
+        } catch (Exception $e) {
+            Response::error($e->getMessage(), "UPDATE_ERROR", 400);
         }
     }
 
