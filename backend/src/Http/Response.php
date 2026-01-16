@@ -2,7 +2,7 @@
 
 // Send JSON responses for API requests
 //Format: { "data": ... }
-Class JsonResponse {
+Class Response {
 
     public static function success($data = null, $statusCode = 200){
 

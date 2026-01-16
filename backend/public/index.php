@@ -13,18 +13,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Load Core Classes
-require_once __DIR__ . '/utils/JsonResponse.php';
-require_once __DIR__ . '/database/Database.php';
-require_once __DIR__ . '/Router.php';
+require_once __DIR__ . '/../src/Http/Response.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../src/Http/Router.php';
 require_once __DIR__ . '/Mediator.php';
-require_once __DIR__ . '/controllers/ClientController.php';
+require_once __DIR__ . '/../src/Http/Controllers/ClientsController.php';
+require_once __DIR__ . '/../src/Application/Mediator/Mediator.php';
 
 // Initialize Components
 $router = new Router();
 $mediator = new Mediator();
 
 // --- ROUTES REGISTRATION ---
-$router->add('GET', '/api/clients', ['ClientController', 'getAll']);
+$router->add('GET', '/api/clients', ['ClientsController', 'getAll']);
 
 
 // Dispatch Request
@@ -32,6 +33,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 $uri = $_SERVER['REQUEST_URI'];
 
 // Test without mod_rewrite
+//$uri = str_replace('/public', '', $uri);
 //$uri = str_replace('/index.php', '', $uri);
 
 $router->dispatch($method, $uri);
