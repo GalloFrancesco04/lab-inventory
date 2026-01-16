@@ -19,7 +19,7 @@ Class JsonResponse {
 
     //Sends a JSON error response
     //Format: { "error": { "code": "...", "message": "...", "details": ... } }
-    public static function error ( $message=null,$errorCode="GENERIC _ERROR" $statusCode=400, $details=null){
+    public static function error ( $message=null,$errorCode="GENERIC _ERROR", $statusCode=400, $details=null){
 
     http_response_code($statusCode);
 

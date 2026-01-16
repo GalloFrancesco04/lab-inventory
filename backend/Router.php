@@ -7,14 +7,14 @@ class Router {
     public function add($method,$path,$handler){
 
         // Convert path with parameters to regex
-        $pathRegex = preg_replace('/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/', '(?P<\1>[^/]+)', $path);
+       $pathRegex = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([a-zA-Z0-9_]+)', $path);
         
         // Add start and end delimiters
         $pathRegex = '#^' . $pathRegex . '$#';
 
         $this->routes[] = [
             'method' => $method,
-            'pathRegex' => $pathRegex,
+            'path' => $pathRegex,
             'handler' => $handler
         ];
     }
@@ -47,8 +47,9 @@ class Router {
                 }
             }
         }
-    }
-    // No matching route found
+         // No matching route found
     require_once __DIR__ . '/utils/JsonResponse.php';
         JsonResponse::error("Endpoint not found", "ROUTE_NOT_FOUND", 404);
 }
+    }
+   
