@@ -20,6 +20,12 @@ require_once __DIR__ . '/../../Application/Handlers/Clients/UpdateClientHandler.
 require_once __DIR__ . '/../../Application/Commands/Clients/DeleteClientCommand.php';
 require_once __DIR__ . '/../../Application/Handlers/Clients/DeleteClientHandler.php';
 
+// Import specific Commands and Handlers for Blocking/Unblocking Clients
+require_once __DIR__ . '/../../Application/Commands/Clients/BlockClientCommand.php';
+require_once __DIR__ . '/../../Application/Handlers/Clients/BlockClientHandler.php';
+require_once __DIR__ . '/../../Application/Commands/Clients/UnblockClientCommand.php';
+require_once __DIR__ . '/../../Application/Handlers/Clients/UnblockClientHandler.php';
+
 
 //******** CONTROLLER DEFINITION */
 class ClientsController {
@@ -40,6 +46,8 @@ class ClientsController {
         $this->mediator->register('CreateClientCommand', 'CreateClientHandler');
         $this->mediator->register('UpdateClientCommand', 'UpdateClientHandler');
         $this->mediator->register('DeleteClientCommand', 'DeleteClientHandler');
+        $this->mediator->register('BlockClientCommand', 'BlockClientHandler');
+        $this->mediator->register('UnblockClientCommand', 'UnblockClientHandler');
     }
 
     /**
@@ -144,6 +152,25 @@ class ClientsController {
      * Blocks or Unblocks a client.
      */
     public function toggleBlock() {
-      
+      $data = json_decode(file_get_contents("php://input"), true);
+        try {
+            $id = $data['id'] ?? null;
+            $state = $data['state'] ?? 0; // Default a 0 (Blocco) se non specificato
+
+            if ($state == 0) {
+                // BLOCCO
+                $command = new BlockClientCommand($id);
+                $this->mediator->send($command);
+                Response::success(["message" => "Client blocked successfully"]);
+            } else {
+                // SBLOCCO
+                $command = new UnblockClientCommand($id);
+                $this->mediator->send($command);
+                Response::success(["message" => "Client unblocked successfully"]);
+            }
+
+        } catch (Exception $e) {
+            Response::error($e->getMessage(), "BLOCK_ERROR", 400);
+        }
     }
 }
