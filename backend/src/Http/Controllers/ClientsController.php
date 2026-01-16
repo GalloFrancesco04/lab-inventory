@@ -1,25 +1,55 @@
 <?php
 
+
+// Import utility and config files
+require_once __DIR__ . '/../Response.php'; 
 require_once __DIR__ . '/../../../config/database.php';
-require_once __DIR__ . '/../Response.php';
+
+//  Import Mediator components
+require_once __DIR__ . '/../../Application/Mediator/Mediator.php';
+
+//  Import specific Command and Handler for Client Creation
+require_once __DIR__ . '/../../Application/Commands/Clients/CreateClientCommand.php';
+require_once __DIR__ . '/../../Application/Handlers/Clients/CreateClientHandler.php';
 
 class ClientsController {
 
-    // Retrieve all clients
-    public function getAll (){
-        $db=new Database();
-        $conn=$db->getConnection();
+    private $mediator;
+    private $conn; // Required for getAll (until refactored to Query pattern)
 
-        // Fetch all clients from the database
+    public function __construct() {
+        // Initialize Database connection (Legacy for getAll)
+        $db = new Database();
+        $this->conn = $db->getConnection();
+
+        // Initialize Mediator
+        $this->mediator = new Mediator();
+
+        // REGISTRATION: Map the Command to its Handler
+        // When 'CreateClientCommand' is dispatched, 'CreateClientHandler' handles it.
+        $this->mediator->register('CreateClientCommand', 'CreateClientHandler');
+    }
+
+    /**
+     * GET /api/clients
+     * Retrieves the list of all clients.
+     */
+    public function getAll() {
         try {
-
-            $stmt = $conn->prepare("SELECT id, name, email FROM clients");
+            // Execute direct query (To be refactored to separate Query class later)
+            $stmt = $this->conn->prepare("SELECT id, name, email, phone, address FROM clients");
             $stmt->execute();  
-            $clients = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all clients as associative array
-        
+            $clients = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch as associative array
+            
+            // Return successful JSON response
+            Response::success($clients);
+
         } catch (Exception $e) {
-            JsonResponse::error("Errore nel recupero dei clienti", "DB_ERROR", 500);
+            // Handle errors using standardized Response
+            Response::error("Error retrieving clients: " . $e->getMessage(), "DB_ERROR", 500);
         }
     }
 
+  
+    
 }
