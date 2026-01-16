@@ -17,13 +17,14 @@ require_once __DIR__ . '/utils/JsonResponse.php';
 require_once __DIR__ . '/database/Database.php';
 require_once __DIR__ . '/Router.php';
 require_once __DIR__ . '/Mediator.php';
+require_once __DIR__ . '/controllers/ClientController.php';
 
 // Initialize Components
 $router = new Router();
 $mediator = new Mediator();
 
 // --- ROUTES REGISTRATION ---
-
+$router->add('GET', '/api/clients', ['ClientController', 'getAll']);
 
 
 // Dispatch Request
