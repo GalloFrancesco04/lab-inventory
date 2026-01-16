@@ -1,4 +1,3 @@
-
 <?php
 // Router class to map HTTP requests to handlers and extract path parameters so that they can be passed to the handlers
 class Router {

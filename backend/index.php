@@ -31,4 +31,7 @@ $router->add('GET', '/api/clients', ['ClientController', 'getAll']);
 $method = $_SERVER['REQUEST_METHOD'];
 $uri = $_SERVER['REQUEST_URI'];
 
+// Test without mod_rewrite
+//$uri = str_replace('/index.php', '', $uri);
+
 $router->dispatch($method, $uri);

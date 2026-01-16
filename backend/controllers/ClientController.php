@@ -1,4 +1,3 @@
-
 <?php
 
 require_once __DIR__ . '/../database/Database.php';
@@ -7,7 +6,7 @@ require_once __DIR__ . '/../utils/JsonResponse.php';
 class ClientController {
 
     // Retrieve all clients
-    public function getAll {
+    public function getAll (){
         $db=new Database();
         $conn=$db->getConnection();
 
