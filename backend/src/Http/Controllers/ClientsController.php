@@ -1,6 +1,6 @@
 <?php
 
-
+//******** REQUIRED IMPORTS */
 // Import utility and config files
 require_once __DIR__ . '/../Response.php'; 
 require_once __DIR__ . '/../../../config/database.php';
@@ -16,6 +16,12 @@ require_once __DIR__ . '/../../Application/Handlers/Clients/CreateClientHandler.
 require_once __DIR__ . '/../../Application/Commands/Clients/UpdateClientCommand.php';
 require_once __DIR__ . '/../../Application/Handlers/Clients/UpdateClientHandler.php';
 
+// Import specific Command and Handler for Client Deletion
+require_once __DIR__ . '/../../Application/Commands/Clients/DeleteClientCommand.php';
+require_once __DIR__ . '/../../Application/Handlers/Clients/DeleteClientHandler.php';
+
+
+//******** CONTROLLER DEFINITION */
 class ClientsController {
 
     private $mediator;
@@ -33,6 +39,7 @@ class ClientsController {
         // When 'CreateClientCommand' is dispatched, 'CreateClientHandler' handles it.
         $this->mediator->register('CreateClientCommand', 'CreateClientHandler');
         $this->mediator->register('UpdateClientCommand', 'UpdateClientHandler');
+        $this->mediator->register('DeleteClientCommand', 'DeleteClientHandler');
     }
 
     /**
@@ -110,6 +117,25 @@ class ClientsController {
 
         } catch (Exception $e) {
             Response::error($e->getMessage(), "UPDATE_ERROR", 400);
+        }
+    }
+
+    /**
+     * DELETE /api/clients/{id}
+     * Deletes a client.
+     */
+    public function delete($id) {
+        try {
+            // Create command with ID
+            $command = new DeleteClientCommand($id);
+            
+            // Dispatch to Mediator
+            $this->mediator->send($command);
+
+            Response::success(["message" => "Client deleted successfully"]);
+
+        } catch (Exception $e) {
+            Response::error($e->getMessage(), "DELETE_ERROR", 400);
         }
     }
 
