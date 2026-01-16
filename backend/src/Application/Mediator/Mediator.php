@@ -1,4 +1,3 @@
-
 <?php
 
 // Mediator pattern implementation for command handling
