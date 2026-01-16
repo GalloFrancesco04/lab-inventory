@@ -3,13 +3,13 @@
 class CreateClientCommand {
     public $name;
     public $email;
-    public $phone;
-    public $address;
+    public $surname;
+    public $state;
 
-    public function __construct($name, $email, $phone = null, $address = null) {
+    public function __construct($name, $email, $surname, $state=1) {
         $this->name = $name;
         $this->email = $email;
-        $this->phone = $phone;
-        $this->address = $address;
+        $this->surname = $surname;
+        $this->state = $state;
     }
 }

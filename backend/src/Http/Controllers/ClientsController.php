@@ -57,7 +57,7 @@ class ClientsController {
     public function getAll() {
         try {
             // Execute direct query (To be refactored to separate Query class later)
-            $stmt = $this->conn->prepare("SELECT id, name, email, phone, address FROM clients");
+            $stmt = $this->conn->prepare("SELECT id, email, name, surname, state FROM client");
             $stmt->execute();  
             $clients = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch as associative array
             
@@ -82,10 +82,10 @@ class ClientsController {
             //  Instantiate the Command with raw data
             // (Using null coalescing '??' for optional fields)
             $command = new CreateClientCommand(
-                $data['name'] ?? null,
                 $data['email'] ?? null,
-                $data['phone'] ?? null,
-                $data['address'] ?? null
+                $data['name'] ?? null,
+                $data['surname'] ?? null,
+                $data['state'] ?? 1
             );
 
             //  Dispatch the command to the Mediator
@@ -112,10 +112,9 @@ class ClientsController {
             // Creiamo il comando di aggiornamento
             $command = new UpdateClientCommand(
                 $id, // L'ID arriva dall'URL (tramite il Router)
-                $data['name'] ?? null,
                 $data['email'] ?? null,
-                $data['phone'] ?? null,
-                $data['address'] ?? null
+                $data['name'] ?? null,
+                $data['surname'] ?? null
             );
 
             // Inviamo al Mediator
@@ -155,7 +154,7 @@ class ClientsController {
       $data = json_decode(file_get_contents("php://input"), true);
         try {
             $id = $data['id'] ?? null;
-            $state = $data['state'] ?? 0; // Default a 0 (Blocco) se non specificato
+            $state = $data['state'] ?? 0; 
 
             if ($state == 0) {
                 // BLOCCO

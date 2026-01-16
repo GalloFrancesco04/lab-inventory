@@ -19,7 +19,7 @@ class DeleteClientHandler {
         }
 
         // Query DELETE
-        $sql = "DELETE FROM clients WHERE id = :id";
+        $sql = "DELETE FROM client WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         
         $stmt->execute([':id' => $command->id]);

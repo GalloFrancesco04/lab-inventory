@@ -14,20 +14,20 @@ class CreateClientHandler {
 
     // Handle the CreateClientCommand
     public function handle(CreateClientCommand $command) {
-        if (empty($command->name) || empty($command->email)) {
-             throw new Exception("Nome ed Email sono obbligatori");
+        if (empty($command->name) || empty($command->email)|| empty($command->surname)) {
+             throw new Exception("Nome, Email e Cognome sono obbligatori");
         }
 
         // Insert new client into the database
-        $sql = "INSERT INTO clients (name, email, phone, address) VALUES (:name, :email, :phone, :address)";
+        $sql = "INSERT INTO client (email, name, surname, state) VALUES (:email, :name, :surname, :state)";
         $stmt = $this->conn->prepare($sql);
         
         // Bind parameters and execute
         $stmt->execute([
             ':name' => $command->name,
             ':email' => $command->email,
-            ':phone' => $command->phone,
-            ':address' => $command->address
+            ':surname' => $command->surname,
+            ':state' => $command->state
         ]);
 
         // Return the ID of the newly created client

@@ -20,8 +20,8 @@ class UpdateClientHandler {
         }
 
         // Update client in the database
-        $sql = "UPDATE clients 
-                SET name = :name, email = :email, phone = :phone, address = :address 
+        $sql = "UPDATE client
+                SET name = :name, email = :email, surname = :surname  
                 WHERE id = :id";
         
         $stmt = $this->conn->prepare($sql);
@@ -31,8 +31,7 @@ class UpdateClientHandler {
             ':id' => $command->id,
             ':name' => $command->name,
             ':email' => $command->email,
-            ':phone' => $command->phone,
-            ':address' => $command->address
+            ':surname' => $command->surname,
         ]);
 
        
