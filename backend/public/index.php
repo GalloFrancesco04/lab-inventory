@@ -16,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once __DIR__ . '/../src/Http/Response.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../src/Http/Router.php';
-require_once __DIR__ . '/Mediator.php';
 require_once __DIR__ . '/../src/Http/Controllers/ClientsController.php';
 require_once __DIR__ . '/../src/Application/Mediator/Mediator.php';
 
