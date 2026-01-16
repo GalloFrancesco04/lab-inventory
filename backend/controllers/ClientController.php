@@ -4,7 +4,7 @@
 require_once __DIR__ . '/../database/Database.php';
 require_once __DIR__ . '/../utils/JsonResponse.php';
 
-class ClientCController {
+class ClientController {
 
     // Retrieve all clients
     public function getAll {
