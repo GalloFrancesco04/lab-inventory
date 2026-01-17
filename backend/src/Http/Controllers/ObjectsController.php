@@ -6,6 +6,12 @@ require_once __DIR__ . '/../../Application/Mediator/Mediator.php';
 
 require_once __DIR__ . '/../../Application/Commands/Inventory/CreateObjectCommand.php';
 require_once __DIR__ . '/../../Application/Handlers/Inventory/CreateObjectHandler.php';
+require_once __DIR__ . '/../../Application/Commands/Inventory/SendToMaintenanceCommand.php';
+require_once __DIR__ . '/../../Application/Handlers/Inventory/SendToMaintenanceHandler.php';
+require_once __DIR__ . '/../../Application/Commands/Inventory/UpdateObjectCommand.php';
+require_once __DIR__ . '/../../Application/Handlers/Inventory/UpdateObjectHandler.php';
+require_once __DIR__ . '/../../Application/Commands/Inventory/DeleteObjectCommand.php';
+require_once __DIR__ . '/../../Application/Handlers/Inventory/DeleteObjectHandler.php';
 
 // Database connection
 class ObjectsController {
@@ -20,6 +26,9 @@ class ObjectsController {
 
         
         $this->mediator->register(CreateObjectCommand::class, CreateObjectHandler::class);
+        $this->mediator->register(UpdateObjectCommand::class, UpdateObjectHandler::class);
+        $this->mediator->register(DeleteObjectCommand::class, DeleteObjectHandler::class);
+        $this->mediator->register(SendToMaintenanceCommand::class, SendToMaintenanceHandler::class);
     }
 
     // POST /api/objects
@@ -31,6 +40,41 @@ class ObjectsController {
             Response::success(["message" => "Oggetto fisico creato", "id" => $id], 201);
         } catch (Exception $e) {
             Response::error($e->getMessage(), "CREATE_ERROR", 400);
+        }
+    }
+
+    public function update($id) {
+        $data = json_decode(file_get_contents("php://input"), true);
+        try {
+            // Create and send the update command
+            $command = new UpdateObjectCommand((int)$id, $data);
+            $this->mediator->send($command);
+            Response::success(["message" => "Oggetto aggiornato correttamente"]);
+        } catch (Exception $e) {
+            Response::error($e->getMessage(), "UPDATE_ERROR", 400);
+        }
+    }
+
+    // DELETE /api/objects/{id}
+    public function delete($id) {
+        try {
+            $command = new DeleteObjectCommand((int)$id);
+            $this->mediator->send($command);
+            Response::success(["message" => "Oggetto eliminato correttamente"]);
+        } catch (Exception $e) {
+            Response::error($e->getMessage(), "DELETE_ERROR", 400);
+        }
+    }
+
+    // POST /api/objects/maintenance
+    public function sendMaintenance() {
+        $data = json_decode(file_get_contents("php://input"), true);
+        try {
+            $command = new SendToMaintenanceCommand($data);
+            $this->mediator->send($command);
+            Response::success(["message" => "Oggetto inviato in manutenzione"]);
+        } catch (Exception $e) {
+            Response::error($e->getMessage(), "MAINTENANCE_ERROR", 400);
         }
     }
 
