@@ -11,7 +11,8 @@ class Mediator {
     }
 
     // Send a command to its registered handler
-    public function send($commandName, $data=[]) {
+    public function send($command) {
+        $commandName = get_class($command);
         if(!isset($this->handlers[$commandName])) {
 
             error_log("Mediator Error: No handler for command '$commandName'");
@@ -21,7 +22,9 @@ class Mediator {
 
         $handler = $this->handlers[$commandName];
 
+        $handlerIstance = new $handler();
+
         
-        return call_user_func($handler, $data);
+        return $handlerIstance->handle($command);
     }
 }
