@@ -47,8 +47,8 @@ class Router {
             }
         }
          // No matching route found
-    require_once __DIR__ . '/utils/JsonResponse.php';
-        JsonResponse::error("Endpoint not found", "ROUTE_NOT_FOUND", 404);
+        require_once __DIR__ . '/Response.php';
+        Response::error("Endpoint not found", "ROUTE_NOT_FOUND", 404);
 }
     }
    
