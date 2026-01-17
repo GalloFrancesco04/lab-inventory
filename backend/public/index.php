@@ -20,25 +20,30 @@ require_once __DIR__ . '/../src/Http/Controllers/ClientsController.php';
 require_once __DIR__ . '/../src/Application/Mediator/Mediator.php';
 
 // Load Controllers
-require_once __DIR__ . '/../src/Http/Controllers/ClientsController.php';
 require_once __DIR__ . '/../src/Http/Controllers/ObjectTypesController.php';
+require_once __DIR__ . '/../src/Http/Controllers/ObjectsController.php';
 
 // Initialize Components
 $router = new Router();
 $mediator = new Mediator();
 
 // --- ROUTES REGISTRATION 
+// Client Routes
 $router->add('GET',    '/api/clients',              ['ClientsController', 'getAll']);
 $router->add('POST',   '/api/clients',              ['ClientsController', 'create']);
 $router->add('PUT',    '/api/clients/{id}',         ['ClientsController', 'update']);
 $router->add('DELETE', '/api/clients/{id}',         ['ClientsController', 'delete']);
 $router->add('POST',   '/api/clients/toggle-block', ['ClientsController', 'toggleBlock']);
 
-
+// Object Types Routes
 $router->add('GET',    '/api/objecttypes',        ['ObjectTypesController', 'getAll']);
 $router->add('POST',   '/api/objecttypes',        ['ObjectTypesController', 'create']);
 $router->add('PUT',    '/api/objecttypes/{code}', ['ObjectTypesController', 'update']);
 $router->add('DELETE', '/api/objecttypes/{code}', ['ObjectTypesController', 'delete']);
+
+// Physical Objects Routes
+$router->add('GET',  '/api/objects', ['ObjectsController', 'getAll']);
+$router->add('POST', '/api/objects', ['ObjectsController', 'create']);
 
 
 // Dispatch Request
