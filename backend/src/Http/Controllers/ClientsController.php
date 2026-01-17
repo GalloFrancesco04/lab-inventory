@@ -150,22 +150,36 @@ class ClientsController {
      * POST /api/clients/block
      * Blocks or Unblocks a client.
      */
-    public function toggleBlock() {
-      $data = json_decode(file_get_contents("php://input"), true);
+   public function toggleBlock() {
+        $data = json_decode(file_get_contents("php://input"), true);
+        
         try {
             $id = $data['id'] ?? null;
-            $state = $data['state'] ?? 0; 
+            if (!$id) {
+                throw new Exception("ID cliente mancante");
+            }
 
-            if ($state == 0) {
-                // BLOCCO
+            // obtain current state
+            $stmt = $this->conn->prepare("SELECT state FROM client WHERE id = :id");
+            $stmt->execute([':id' => $id]);
+            $currentState = $stmt->fetchColumn();
+
+            // if client not found
+            if ($currentState === false) {
+                throw new Exception("Cliente non trovato");
+            }
+
+            
+            if ($currentState == 1) {
+                // if it's unblocked (1), we Block it
                 $command = new BlockClientCommand($id);
                 $this->mediator->send($command);
-                Response::success(["message" => "Client blocked successfully"]);
+                Response::success(["message" => "Client blocked successfully", "new_state" => 0]);
             } else {
-                // SBLOCCO
+                // if it's blocked (0), we Unblock it
                 $command = new UnblockClientCommand($id);
                 $this->mediator->send($command);
-                Response::success(["message" => "Client unblocked successfully"]);
+                Response::success(["message" => "Client unblocked successfully", "new_state" => 1]);
             }
 
         } catch (Exception $e) {
