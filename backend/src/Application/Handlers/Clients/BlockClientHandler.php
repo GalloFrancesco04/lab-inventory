@@ -1,6 +1,6 @@
 <?php
 // Handler class to process BlockClientCommand
-require_once __DIR__ . '/../../../../config/database.php';
+require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../Commands/Clients/BlockClientCommand.php';
 // Import Database connection and Command class
 class BlockClientHandler {

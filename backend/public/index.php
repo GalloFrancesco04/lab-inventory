@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // Load Core Classes
 require_once __DIR__ . '/../src/Http/Response.php';
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../src/Http/Router.php';
 require_once __DIR__ . '/../src/Http/Controllers/ClientsController.php';
 require_once __DIR__ . '/../src/Application/Mediator/Mediator.php';

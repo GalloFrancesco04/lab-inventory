@@ -1,6 +1,6 @@
 <?php
 // Include necessary files and namespaces
-require_once __DIR__ . '/../../../../config/database.php';
+require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../Commands/ObjectTypes/CreateObjectTypeCommand.php';
 
 // Handler class to process CreateObjectTypeCommand

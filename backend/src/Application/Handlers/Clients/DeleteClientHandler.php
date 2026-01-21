@@ -1,6 +1,6 @@
 <?php
 // Handler class to process DeleteClientCommand
-require_once __DIR__ . '/../../../../config/database.php';
+require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../Commands/Clients/DeleteClientCommand.php';
 // Import Database connection and Command class
 class DeleteClientHandler {
