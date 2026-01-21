@@ -10,7 +10,7 @@ CREATE TABLE `user` (
   id          INT AUTO_INCREMENT PRIMARY KEY,
   email       VARCHAR(255) NOT NULL UNIQUE,
   pass        VARCHAR(255) NOT NULL,
-  role        INT NOT NULL,
+  role        INT NOT NULL
 );
 
 -- =========================
