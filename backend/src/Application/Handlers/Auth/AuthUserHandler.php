@@ -1,5 +1,6 @@
 <?php
 
+// require_once __DIR__ . '/../../../Infrastructure/UserRepository.php';
 require_once __DIR__ . '/../../Commands/Auth/AuthUserCommand.php';
 class AuthUserHandler {
 
@@ -14,7 +15,7 @@ class AuthUserHandler {
             throw new Exception("Id, Email e Password sono obbligatori");
         }
 
-        // $user = $repository.getUserFromEmail($command->email);
+        // $user = $this->repository.GetUserFromEmail($command->email);
 
         if (empty($user)) {
             return null;
