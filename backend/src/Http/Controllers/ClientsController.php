@@ -3,7 +3,7 @@
 //******** REQUIRED IMPORTS */
 // Import utility and config files
 require_once __DIR__ . '/../Response.php'; 
-require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../../config/Database.php';
 
 // Import Mediator components
 require_once __DIR__ . '/../../Application/Mediator/Mediator.php';

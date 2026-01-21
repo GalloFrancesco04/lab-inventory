@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../../../config/database.php';
+require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../Commands/Inventory/DeleteObjectCommand.php';
 
 // Handler class to process the DeleteObjectCommand

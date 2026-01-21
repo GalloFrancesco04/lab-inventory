@@ -1,6 +1,6 @@
 <?php
 // Handler class to process UpdateClientCommand
-require_once __DIR__ . '/../../../../config/database.php';
+require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../Commands/Clients/UpdateClientCommand.php';
 
 class UpdateClientHandler {
