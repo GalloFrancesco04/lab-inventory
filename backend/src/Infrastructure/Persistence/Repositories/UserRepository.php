@@ -5,7 +5,7 @@ use Application\Domain\Entities\User;
 
 class UserRepository
 {
-    private PDO $pdo;
+    private PDO $connection;
 
     public function __construct(PDO $connection)
     {
@@ -15,9 +15,10 @@ class UserRepository
     //Create a new User in the database
     public function create(User $user): void
     {
-        $stmt = this->connection->prepare("
+        $stmt = $this->connection->prepare("
         INSERT INTO user (email, pass,role)
-        VALUES (:email,:pass, :role)")
+        VALUES (:email,:pass, :role)
+        ");
 
         $stmt->execute([
             'email' => $user->getEmail(),
@@ -26,7 +27,7 @@ class UserRepository
         ]);
 
         //Set the generated ID to the User entity
-        $user->setId($this->connection->lastInsertId());
+        $user->setId((int) $this->connection->lastInsertId());
     }
 
     //Find User(Admn or Technician) by ID
@@ -45,7 +46,7 @@ class UserRepository
 
     public function findAdminById(int $id): ?User 
     {
-        $stmt = $this->connection->prepare("SELECT * FROM user WHERE id = :id AND role = 0 ");
+        $stmt = $this->connection->prepare("SELECT * FROM user WHERE id = :id AND role = 1 ");
         $stmt->execute(['id' => $id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC); 
 
@@ -58,7 +59,7 @@ class UserRepository
 
     public function findTechnicianById(int $id): ?User 
     {
-        $stmt = $this->connection->prepare("SELECT * FROM user WHERE id = :id AND role = 1 ");
+        $stmt = $this->connection->prepare("SELECT * FROM user WHERE id = :id AND role = 2 ");
         $stmt->execute(['id' => $id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC); 
 
@@ -85,7 +86,7 @@ class UserRepository
 
     public function findAdminByEmail(string $email): ?User 
     {
-        $stmt = $this->connection->prepare("SELECT * FROM user WHERE email = :email AND role = 0");
+        $stmt = $this->connection->prepare("SELECT * FROM user WHERE email = :email AND role = 1");
         $stmt->execute(['email' => $email]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC); 
 
@@ -98,7 +99,7 @@ class UserRepository
 
     public function findTechnicianByEmail(string $email): ?User 
     {
-        $stmt = $this->connection->prepare("SELECT * FROM user WHERE email = :email AND role = 1");
+        $stmt = $this->connection->prepare("SELECT * FROM user WHERE email = :email AND role = 2");
         $stmt->execute(['email' => $email]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC); 
 
@@ -112,8 +113,12 @@ class UserRepository
     //Convert a database row to a User entity
     private function mapRowToUser(array $row): User
     {
-        $user = new User($row['email'], $row['pass'], $row['role']);
-        $user->setId($row['id']);
+        $user = new User(
+            $row['email'], 
+            $row['pass'], 
+            $row['role']
+        );
+        $user->setId((int) $row['id']);
         return $user;
     }
 
