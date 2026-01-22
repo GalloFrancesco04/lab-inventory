@@ -99,7 +99,7 @@ class ClientRepository
         return null; // Client not found
     }
 
-    public function findAll(): array 
+    public function getAll(): array 
     {
         $stmt = $this->connection->prepare("SELECT * FROM client");
         $stmt->execute();
