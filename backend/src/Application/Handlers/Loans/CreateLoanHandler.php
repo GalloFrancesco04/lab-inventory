@@ -38,7 +38,7 @@ class CreateLoanHandler {
 
         //$transaction = new Transaction();
         // $transaction->start();
-        // try{
+        try{
             // $client = $this->repository->GetClient($command->client_id);
             // if(empty($client)) {
             //     throw new Exception("Il Cliente specificato non esiste");
@@ -65,10 +65,10 @@ class CreateLoanHandler {
 
            // $transaction->commit();
 
-        // }catch(Exception ex) {
+        }catch(Exception ex) {
             // $transaction->rollback();
-            // throw new Exception("Si e' verificato qualche problema nella creazione del Prestito");
-        // }
+            throw new Exception("Si e' verificato qualche problema nella creazione del Prestito");
+        }
 
         // return $createdLoan->Id;
     }

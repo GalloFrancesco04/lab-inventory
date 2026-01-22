@@ -1,6 +1,8 @@
 <?php
 
 // require_once __DIR__ . '/../../../Infrastructure/LoanRepository.php';
+// require_once __DIR__ . '/../../../Infrastructure/LoanedObjectRepository.php';
+// require_once __DIR__ . '/../../../Infrastructure/ObjectRepository.php';
 require_once __DIR__ . "../../Commands/CloseLoanCommand.php"
 
 class CloseLoanHandler {
@@ -12,17 +14,52 @@ class CloseLoanHandler {
 
     public function handle(CloseLoanCommand $command) {
        
-        if(empty($command->id) || empty($command->return_date)) {
-            throw new Exception("L'Id e la Data di restituzione non possono essere vuoti");
+        if(empty($command->id)) {
+            throw new Exception("L'Id non puo' essere vuoto");
         }
 
-        // devo chiudere il loan mettendo come return_date la data attuale, lo stato del loan viene aggiornato dal repo
+        // i close the loan and put the return date as today
+        // after that I mark the objects as available
 
-        // $result = $this->repository.CloseLoan($command->id, $command->return_date);
+        
+        // $loanToClose = $this->repository->GetLoan($command->id);
+        
+        // if(empty($loanToClose)){
+        //     throw new Exception("Il Prestito non e' stato trovato");
+        //}
+        
+        // $returnDate = new DateTime(now);
+          
+        // $transaction = new Transaction();
+        // $transaction->start();
+        try {
 
-        // if(empty($result)) {
-        //     throw new Exception("Si e' verificato qualche problema durante la chiusura del prestito");
-        // }
+            // $result = $this->repository->CloseLoan($loanToClose->id, $returnDate);
+            
+            // if(empty($result)) {
+            //     throw new Exception("Si e' verificato qualche problema durante la chiusura del Prestito");
+            // }
+                
+            // I want to mark the object state as 'available'
+            // $loanedObjects = $this->repository->GetLoanedObjectsFromLoanId($loanToClose->id)
+                
+            // foreach($loanedObjects as loanedObject) {
+                    
+            // $result = $this->repository->MarkObjectAsAvailable(loanedObject->object_id);
+                
+            // if(empty($result)){
+                // print if the object is not makrked as available
+                // continue;
+                //}
+                    
+            // $transaction->commit();   
+            //}
+
+            }catch(Exception ex) {
+
+            // $transaction->rollback();
+            // throw new Exception("Si e' verificato qualche problema nella chiusura del Prestito");
+            }
 
         // return $result;
     }
