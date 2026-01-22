@@ -31,6 +31,13 @@ class CreateLoanHandler {
             throw new Exception("La Data di fine non puo' essere successiva alla Data di inizio di piu' di 30 giorni")
         }
 
+        // loan fields are valid here
+
+        // $client = $repository.GetClient($command->client_id);
+        // if(empty($client)) {
+        //     throw new Exception("Il Cliente specificato non esiste");
+        // }
+
         // $createdLoan = $this->repository.CreateLoan($command);
       
         // if(empty($createdLoan))  {
