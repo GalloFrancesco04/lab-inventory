@@ -14,7 +14,19 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => navigateTo(btn.dataset.route));
   });
 
+  const newLoanBtn = document.getElementById("new-loan-btn");
+
+  function updateNewLoanVisibility() {
+    if (!newLoanBtn) return;
+    const current = window.location.hash || "#/loans";
+    const isLoansRoute = current === "#/loans";
+    newLoanBtn.classList.toggle("hidden", !isLoansRoute);
+  }
+
   initRouter(routes, "#/loans");
+
+  window.addEventListener("hashchange", updateNewLoanVisibility);
+  updateNewLoanVisibility();
 
   const loansPresenter = new LoansPresenter();
   initLoansView(loansPresenter);
