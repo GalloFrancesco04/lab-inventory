@@ -33,6 +33,13 @@ export function initLoansView(presenter) {
   const detailItems = document.getElementById("detail-loan-items");
   const closeLoanBtn = document.getElementById("detail-close-loan");
 
+  const closeLoanModal = document.getElementById("close-loan-modal");
+  const closeLoanCloseBtn = document.getElementById("close-loan-notes-close");
+  const closeLoanCancelBtn = document.getElementById("close-loan-cancel");
+  const closeLoanForm = document.getElementById("close-loan-form");
+  const closeLoanNotes = document.getElementById("close-loan-notes");
+  const closeLoanDamaged = document.getElementById("close-loan-damaged");
+
   function openNewLoanModal() {
     newLoanModal.classList.add("open");
   }
@@ -48,6 +55,15 @@ export function initLoansView(presenter) {
 
   function closeLoanDetailModal() {
     loanDetailModal.classList.remove("open");
+  }
+
+  function openCloseLoanModal() {
+    closeLoanModal?.classList.add("open");
+  }
+
+  function closeCloseLoanModal() {
+    closeLoanModal?.classList.remove("open");
+    closeLoanForm?.reset();
   }
 
   function showLoanDetails(loanId) {
@@ -115,12 +131,29 @@ export function initLoansView(presenter) {
   });
 
   // Loan detail modal events
-  closeLoanBtn?.addEventListener("click", () =>
-    console.log("Close loan (mock)"),
-  );
+  closeLoanBtn?.addEventListener("click", () => {
+    openCloseLoanModal();
+  });
   loanDetailClose?.addEventListener("click", closeLoanDetailModal);
   loanDetailModal?.addEventListener("click", (e) => {
     if (e.target === loanDetailModal) closeLoanDetailModal();
+  });
+
+  // Close Loan notes modal events
+  closeLoanCloseBtn?.addEventListener("click", closeCloseLoanModal);
+  closeLoanCancelBtn?.addEventListener("click", closeCloseLoanModal);
+  closeLoanModal?.addEventListener("click", (e) => {
+    if (e.target === closeLoanModal) closeCloseLoanModal();
+  });
+
+  closeLoanForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    console.log("Close loan notes (mock)", {
+      notes: closeLoanNotes?.value || "",
+      damaged: closeLoanDamaged?.checked || false,
+    });
+    closeCloseLoanModal();
+    closeLoanDetailModal();
   });
 
   // Close modals with Escape
@@ -128,6 +161,7 @@ export function initLoansView(presenter) {
     if (e.key === "Escape") {
       if (newLoanModal?.classList.contains("open")) closeNewLoanModal();
       if (loanDetailModal?.classList.contains("open")) closeLoanDetailModal();
+      if (closeLoanModal?.classList.contains("open")) closeCloseLoanModal();
     }
   });
 
