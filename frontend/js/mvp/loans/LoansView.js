@@ -68,13 +68,6 @@ export function initLoansView(presenter) {
       const loanId = e.currentTarget.dataset.loanId;
       showLoanDetails(loanId);
     });
-    btn.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        const loanId = e.currentTarget.dataset.loanId;
-        showLoanDetails(loanId);
-      }
-    });
   });
 
   // New Loan modal events
@@ -99,5 +92,13 @@ export function initLoansView(presenter) {
   loanDetailClose?.addEventListener("click", closeLoanDetailModal);
   loanDetailModal?.addEventListener("click", (e) => {
     if (e.target === loanDetailModal) closeLoanDetailModal();
+  });
+
+  // Close modals with Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (newLoanModal?.classList.contains("open")) closeNewLoanModal();
+      if (loanDetailModal?.classList.contains("open")) closeLoanDetailModal();
+    }
   });
 }
