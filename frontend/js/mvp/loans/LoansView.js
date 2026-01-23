@@ -68,6 +68,13 @@ export function initLoansView(presenter) {
       const loanId = e.currentTarget.dataset.loanId;
       showLoanDetails(loanId);
     });
+    btn.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        const loanId = e.currentTarget.dataset.loanId;
+        showLoanDetails(loanId);
+      }
+    });
   });
 
   // New Loan modal events

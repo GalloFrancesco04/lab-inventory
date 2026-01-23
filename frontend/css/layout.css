@@ -102,6 +102,20 @@
     text-align: right;
 }
 
+.table-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.table-row:hover td {
+    background: rgba(37, 99, 235, 0.06);
+}
+
+.table-row:focus-visible td {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+}
+
 .table-row.selected td {
     background: rgba(37,99,235,0.08);
 }
