@@ -24,6 +24,7 @@ export function initInventoryView(presenter) {
     return "badge";
   }
 
+  // Render maintenance entries as stacked cards instead of a table
   function renderMaintenance(list) {
     maintTbody.innerHTML = "";
     if (!list || list.length === 0) {
@@ -87,6 +88,7 @@ export function initInventoryView(presenter) {
     console.log("Send to maintenance (mock)");
   });
 
+  // Close with ESC for consistency with other modals
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && itemModal?.classList.contains("open"))
       closeItemModal();
