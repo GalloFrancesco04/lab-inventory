@@ -21,6 +21,7 @@ export function initLoansView(presenter) {
   const cancelLoanBtn = document.getElementById("cancel-loan-btn");
   const modalCloseBtn = document.querySelector("#new-loan-modal .modal-close");
   const newLoanForm = document.getElementById("new-loan-form");
+  const loansTbody = document.getElementById("loans-tbody");
 
   const loanDetailModal = document.getElementById("loan-detail-modal");
   const loanDetailClose = document.getElementById("loan-detail-close");
@@ -62,13 +63,41 @@ export function initLoansView(presenter) {
     openLoanDetailModal();
   }
 
-  // Wire table buttons
-  document.querySelectorAll("[data-loan-id]").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      const loanId = e.currentTarget.dataset.loanId;
-      showLoanDetails(loanId);
+  function getStatusBadgeClass(status) {
+    if (status === "Active") return "badge badge-success";
+    if (status === "Closed") return "badge badge-neutral";
+    return "badge";
+  }
+
+  function renderLoansTable() {
+    if (!loansTbody) return;
+    loansTbody.innerHTML = "";
+    presenter.getLoans().forEach((loan) => {
+      const row = document.createElement("tr");
+      row.className = "table-row";
+      row.dataset.loanId = loan.id;
+
+      const idCell = document.createElement("td");
+      idCell.textContent = loan.id;
+
+      const clientCell = document.createElement("td");
+      clientCell.textContent = loan.client;
+
+      const itemCell = document.createElement("td");
+      itemCell.textContent = loan.items?.join(", ") || "-";
+
+      const statusCell = document.createElement("td");
+      const statusBadge = document.createElement("span");
+      statusBadge.className = getStatusBadgeClass(loan.status);
+      statusBadge.textContent = loan.status;
+      statusCell.appendChild(statusBadge);
+
+      row.append(idCell, clientCell, itemCell, statusCell);
+      row.addEventListener("click", () => showLoanDetails(loan.id));
+
+      loansTbody.appendChild(row);
     });
-  });
+  }
 
   // New Loan modal events
   newLoanBtn?.addEventListener("click", openNewLoanModal);
@@ -101,4 +130,6 @@ export function initLoansView(presenter) {
       if (loanDetailModal?.classList.contains("open")) closeLoanDetailModal();
     }
   });
+
+  renderLoansTable();
 }
