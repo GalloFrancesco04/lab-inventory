@@ -27,6 +27,9 @@
     padding: var(--space-3) var(--space-5);
     background: var(--surface);
     border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 5;
 }
 
 .main-area {
