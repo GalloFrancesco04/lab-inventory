@@ -1,6 +1,8 @@
 import { initRouter, navigateTo } from "./mvp/core/Router.js";
 import { initLoansView } from "./mvp/loans/LoansView.js";
 import { LoansPresenter } from "./mvp/loans/LoansPresenter.js";
+import { initInventoryView } from "./mvp/inventory/InventoryView.js";
+import { InventoryPresenter } from "./mvp/inventory/InventoryPresenter.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const routes = {
@@ -29,5 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
   updateNewLoanVisibility();
 
   const loansPresenter = new LoansPresenter();
+  const inventoryPresenter = new InventoryPresenter();
+  initInventoryView(inventoryPresenter);
   initLoansView(loansPresenter);
 });
