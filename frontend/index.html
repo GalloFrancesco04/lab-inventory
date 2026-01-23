@@ -20,7 +20,7 @@
         <button class="btn btn-ghost" data-route="#/tech">Technician</button>
     </nav>
     <section class="toolbar">
-        <button class="btn btn-primary">New Loan</button>
+        <button class="btn btn-primary" id="new-loan-btn">New Loan</button>
         <input type="text" placeholder="Search" class="input">
         <button class="btn btn-ghost btn-icon" aria-label="Search">🔍</button>
         <button class="btn btn-ghost">Filters</button>
@@ -39,9 +39,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>10001</td><td>Mario Sale</td><td>Laptop</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-ghost">Details</button></td></tr>
-                    <tr><td>10002</td><td>Sale Mario</td><td>Tablet</td><td><span class="badge badge-neutral">Closed</span></td><td><button class="btn btn-ghost">Details</button></td></tr>
-                    <tr><td>10003</td><td>Marius Salis</td><td>Monitor</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-ghost">Details</button></td></tr>
+                    <tr class="table-row" data-loan-id="10001"><td>10001</td><td>Mario Sale</td><td>Laptop</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-ghost" data-loan-id="10001">Details</button></td></tr>
+                    <tr class="table-row" data-loan-id="10002"><td>10002</td><td>Sale Mario</td><td>Tablet</td><td><span class="badge badge-neutral">Closed</span></td><td><button class="btn btn-ghost" data-loan-id="10002">Details</button></td></tr>
+                    <tr class="table-row" data-loan-id="10003"><td>10003</td><td>Marius Salis</td><td>Monitor</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-ghost" data-loan-id="10003">Details</button></td></tr>
                 </tbody>
             </table>
         </div>
@@ -114,6 +114,45 @@
                     <button type="submit" class="btn btn-primary">Create Loan</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Loan Detail Modal -->
+    <div class="modal-overlay" id="loan-detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-detail-title">Loan Details</h2>
+                <button class="modal-close" aria-label="Close modal" id="loan-detail-close">&times;</button>
+            </div>
+            <div class="detail-card">
+                <div class="detail-header">
+                    <h3 class="section-title" id="detail-loan-title">Loan #</h3>
+                    <span class="badge badge-neutral" id="detail-loan-status">-</span>
+                </div>
+                <div class="detail-meta">
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Client</span>
+                        <span class="detail-meta-value" id="detail-loan-client">-</span>
+                    </div>
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Return Date</span>
+                        <span class="detail-meta-value" id="detail-loan-return">-</span>
+                    </div>
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Loan ID</span>
+                        <span class="detail-meta-value" id="detail-loan-id">-</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="detail-meta-label">Items</span>
+                    <div class="chip-list" id="detail-loan-items">
+                        <span class="chip">-</span>
+                    </div>
+                </div>
+                <div class="detail-actions">
+                    <button class="btn btn-primary" id="detail-close-loan">Close Loan</button>
+                </div>
+            </div>
         </div>
     </div>
 </body>
