@@ -2,14 +2,19 @@
 
 // require_once __DIR__ . '/../../../Infrastructure/LoanRepository.php';
 // require_once __DIR__ . '/../../../Infrastructure/ObjectRepository.php';
+// require_once __DIR__ . '/../../../Infrastructure/ClientRepository.php';
 // import Transaction
 require_once __DIR__ . '/../../Commands/Loans/CreateLoanCommand.php';
 class CreateLoanHandler {
-    // private $repository;
+    // private $loanRepository;
+    // private $objectRepository;
+    // private $clientRepository;
 
 
     public function __construct() {
-        // $repository = new LoanRepository();
+        // $loanRepository = new LoanRepository();
+        // $objectRepository = new ObjectRepository();
+        // $clientRepository = new ClientRepository();
     }
 
     // Handle the CreateLoanCommand
@@ -36,15 +41,15 @@ class CreateLoanHandler {
 
         // loan fields are valid here
 
-        //$transaction = new Transaction();
+        // $transaction = new Transaction();
         // $transaction->start();
         try{
-            // $client = $this->repository->GetClient($command->client_id);
+            // $client = $this->clientRepository->GetClient($command->client_id);
             // if(empty($client)) {
             //     throw new Exception("Il Cliente specificato non esiste");
             // }
                 
-            // $createdLoan = $this->repository->CreateLoan($command);
+            // $createdLoan = $this->loanRepository->CreateLoan($command);
                 
             // if(empty($createdLoan))  {
             //     throw new Exception("Si e' verificato qualche problema nella creazione del Prestito");
@@ -54,21 +59,21 @@ class CreateLoanHandler {
 
             // for each object of the loan I have to insert a new loanedObject
             // for($command->objects as $object){
-                // $createdLoanedObject = $this->repository->CreateLoanedObject($createdLoan->id, $object);
+                // $createdLoanedObject = $this->loanedObjectRepository->CreateLoanedObject($createdLoan->id, $object);
 
                 // $quantity++;
 
                 // if (empty($createdLoanedObject)){
-                //     // print loaned object not created without launchig an error
+                //  
                 //     continue;
                 //}
 
                 // mark object as loaned
-                // $this->repository->MarkObjectAsLoaned($createdLoanedObject->object_id);
+                // $this->objectRepository->MarkObjectAsLoaned($createdLoanedObject->object_id);
             //}
 
             // after I'm sure of the number of loanedObject successfully created I update the loan with the quantity
-            //$quantityUpdateResult = $this->repository->UpdateLoanQuantity($quantity);
+            //$quantityUpdateResult = $this->loanRepository->UpdateLoanQuantity($quantity);
 
             // if(empty($quantityUpdateResult)){
             //     throw new Exception("C'e' stato un errore durante la creazione del Prestito");

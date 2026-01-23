@@ -6,10 +6,12 @@
 require_once __DIR__ . "../../Commands/UpdateLoanCommand.php"
 
 class UpdateLoanHandler {
-    // private $repository;
+    // private $loanRepository;
+    // private $loanedObjectRepository;
 
     public function __construct() {
-    //    $this->repository = new LoanRepository();
+    //    $this->loanRepository = new LoanRepository();
+    //    $this->loanedObjectRepository = new LoanedObjectRepository();
     }
 
     public function handle(UpdateLoanCommand $command) {
@@ -19,7 +21,7 @@ class UpdateLoanHandler {
         }
 
         
-        // $loanToUpdate = $this->repository->GetLoan($command->id);
+        // $loanToUpdate = $this->loanRepository->GetLoan($command->id);
         
         // if(empty($loanToUpdate)){
         //     throw new Exception("Il Prestito non e' stato trovato");
@@ -36,14 +38,19 @@ class UpdateLoanHandler {
         
             // foreach($command->objects as $updatedObject) {
             
-            // $loanedObject = $this->repository->GetLoanedObject($updatedObject->object_id, $loanToUpdate->id);
+            // $loanedObject = $this->loanedObjectRepository->GetLoanedObject($updatedObject->object_id, $loanToUpdate->id);
             
             // the object is a new one so I have to add it
             // if(empty($loanedObject)) {
             
             //  if(count($loanToUpdate->quantity) < 5) {
              
-            //   insert new obj.
+            // $createdLoanedObject = $this->loanedObjectRepository->CreateLoanedObject($loanToUpdate->id, $updatedObject);
+
+            // if(empty($createdLoanedObject)){
+            // continue;
+            //}
+
             //   $loanToUpdate->quantity++;
             
             //   continue;
@@ -60,7 +67,7 @@ class UpdateLoanHandler {
 
             // here the object exists and only the status has changed
             // if ($loanedObject->damaged != $updatedObject->damaged){
-            //     $this->repository->UpdateLoanedObject($updatedObject);
+            //     $this->loanedObjectRepository->UpdateLoanedObject($updatedObject);
             // }
 
             //}   
@@ -72,6 +79,6 @@ class UpdateLoanHandler {
             // throw new Exception("Si e' verificato qualche problema nella chiusura del Prestito");
             }
 
-        // return $result;
+        // return $loanToUpdate;
     }
 }
