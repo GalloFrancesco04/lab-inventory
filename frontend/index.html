@@ -7,20 +7,20 @@
     <link rel="stylesheet" href="css/style.css">
     <script type="module" src="js/app.js"></script>
 </head>
-<body>
+<body class="page">
     <nav class="navbar">
-        <button id="button-loans">Loans</button>
-        <button id="button-inventory">Inventory</button>
-        <button id="button-clients">Clients</button>
-        <button id="button-menu">Menu</button>
+        <button class="btn btn-ghost" id="button-loans">Loans</button>
+        <button class="btn btn-ghost" id="button-inventory">Inventory</button>
+        <button class="btn btn-ghost" id="button-clients">Clients</button>
+        <button class="btn btn-ghost" id="button-menu">Menu</button>
     </nav>
     <section class="toolbar">
-        <button class="new-loan">New Loan</button>
-        <input type="text" placeholder="Search" class="search-box">
-        <button class="search-btn">🔍</button>
-        <button class="filters">Filters</button>
+        <button class="btn btn-primary">New Loan</button>
+        <input type="text" placeholder="Search" class="input">
+        <button class="btn btn-ghost btn-icon" aria-label="Search">🔍</button>
+        <button class="btn btn-ghost">Filters</button>
     </section>
-    <main>
+    <main class="main-area">
         <!-- Loans View -->
         <div class="table-container" id="loans-view">
             <table class="main-table">
@@ -34,9 +34,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>10001</td><td>Mario Sale</td><td>Laptop</td><td>Active</td><td><button>Details</button></td></tr>
-                    <tr><td>10002</td><td>Sale Mario</td><td>Tablet</td><td>Closed</td><td><button>Details</button></td></tr>
-                    <tr><td>10003</td><td>Marius Salis</td><td>Monitor</td><td>Active</td><td><button>Details</button></td></tr>
+                    <tr><td>10001</td><td>Mario Sale</td><td>Laptop</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-ghost">Details</button></td></tr>
+                    <tr><td>10002</td><td>Sale Mario</td><td>Tablet</td><td><span class="badge badge-neutral">Closed</span></td><td><button class="btn btn-ghost">Details</button></td></tr>
+                    <tr><td>10003</td><td>Marius Salis</td><td>Monitor</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-ghost">Details</button></td></tr>
                 </tbody>
             </table>
         </div>
@@ -54,9 +54,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>20001</td><td>Notebook</td><td>Electronics</td><td>Available</td><td>Lab 1</td><td><button>Details</button></td></tr>
-                    <tr><td>20002</td><td>Tablet</td><td>Electronics</td><td>Loaned</td><td>Lab 2</td><td><button>Details</button></td></tr>
-                    <tr><td>20003</td><td>Monitor</td><td>Electronics</td><td>Available</td><td>Lab 3</td><td><button>Details</button></td></tr>
+                    <tr><td>20001</td><td>Notebook</td><td>Electronics</td><td><span class="badge badge-success">Available</span></td><td>Lab 1</td><td><button class="btn btn-ghost">Details</button></td></tr>
+                    <tr><td>20002</td><td>Tablet</td><td>Electronics</td><td><span class="badge badge-warning">Loaned</span></td><td>Lab 2</td><td><button class="btn btn-ghost">Details</button></td></tr>
+                    <tr><td>20003</td><td>Monitor</td><td>Electronics</td><td><span class="badge badge-success">Available</span></td><td>Lab 3</td><td><button class="btn btn-ghost">Details</button></td></tr>
                 </tbody>
             </table>
         </div>
