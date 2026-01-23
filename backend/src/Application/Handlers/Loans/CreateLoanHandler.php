@@ -1,20 +1,23 @@
 <?php
 
 // require_once __DIR__ . '/../../../Infrastructure/LoanRepository.php';
-// require_once __DIR__ . '/../../../Infrastructure/ObjectRepository.php';
+// require_once __DIR__ . '/../../../Infrastructure/ItemRepository.php';
 // require_once __DIR__ . '/../../../Infrastructure/ClientRepository.php';
+// require_once __DIR__ . '/../../../Infrastructure/LoanedItemRepository.php';
 // import Transaction
 require_once __DIR__ . '/../../Commands/Loans/CreateLoanCommand.php';
 class CreateLoanHandler {
     // private $loanRepository;
-    // private $objectRepository;
+    // private $itemRepository;
     // private $clientRepository;
+    // private $loanedItemRepository;
 
 
     public function __construct() {
         // $loanRepository = new LoanRepository();
-        // $objectRepository = new ObjectRepository();
+        // $itemRepository = new ItemRepository();
         // $clientRepository = new ClientRepository();
+        // $loanedItemRepository = new LoanedItemRepository();
     }
 
     // Handle the CreateLoanCommand
@@ -59,7 +62,7 @@ class CreateLoanHandler {
 
             // for each object of the loan I have to insert a new loanedObject
             // for($command->objects as $object){
-                // $createdLoanedObject = $this->loanedObjectRepository->CreateLoanedObject($createdLoan->id, $object);
+                // $createdLoanedObject = $this->loanedItemRepository->CreateLoanedItem($createdLoan->id, $object);
 
                 // $quantity++;
 
@@ -69,7 +72,7 @@ class CreateLoanHandler {
                 //}
 
                 // mark object as loaned
-                // $this->objectRepository->MarkObjectAsLoaned($createdLoanedObject->object_id);
+                // $this->itemRepository->MarkObjectAsLoaned($createdLoanedObject->object_id);
             //}
 
             // after I'm sure of the number of loanedObject successfully created I update the loan with the quantity

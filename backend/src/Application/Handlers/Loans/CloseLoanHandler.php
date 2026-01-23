@@ -1,18 +1,20 @@
 <?php
 
 // require_once __DIR__ . '/../../../Infrastructure/LoanRepository.php';
-// require_once __DIR__ . '/../../../Infrastructure/LoanedObjectRepository.php';
-// require_once __DIR__ . '/../../../Infrastructure/ObjectRepository.php';
+// require_once __DIR__ . '/../../../Infrastructure/LoanedItemRepository.php';
+// require_once __DIR__ . '/../../../Infrastructure/ItemRepository.php';
 // require Transaction
 require_once __DIR__ . "../../Commands/CloseLoanCommand.php"
 
 class CloseLoanHandler {
     // private $repository;
-    // private $loanedObjectRepository;
-    // private $objectRepository
+    // private $loanedItemRepository;
+    // private $itemRepository
 
     public function __construct() {
     //    $this->loanRepository = new LoanRepository();
+    //    $this->loanedItemRepository = new LoanedItemRepository();
+    //    $this->itemRepository = new ItemRepository();
     }
 
     public function handle(CloseLoanCommand $command) {
@@ -44,13 +46,13 @@ class CloseLoanHandler {
             // }
                 
             // I want to mark the object state as 'available'
-            // $loanedObjects = $this->loanedObjectRepository->GetLoanedObjectsFromLoanId($loanToClose->id);
+            // $loanedObjects = $this->loanedItemRepository->GetLoanedObjectsFromLoanId($loanToClose->id);
                 
             // foreach($loanedObjects as $loanedObject) {
             
             // if ($loanedObject->is_damaged) 
             // {
-                // $damagedResult = $this->objectRepository->MarkObjectAsDamaged($loanedObject->object_id);
+                // $damagedResult = $this->itemRepository->MarkObjectAsDamaged($loanedObject->object_id);
 
                 // if(empty($damagedResult)) {
                 // the object is not marked as damaged
@@ -61,7 +63,7 @@ class CloseLoanHandler {
 
             //}
 
-            // $availableResult = $this->objectRepository->MarkObjectAsAvailable($loanedObject->object_id);
+            // $availableResult = $this->itemRepository->MarkObjectAsAvailable($loanedObject->object_id);
                 
             // if(empty($availableResult)){
             // the object is not makrked as available
