@@ -57,6 +57,12 @@ a {
     box-shadow: var(--shadow-sm);
 }
 
+.navbar .btn.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
 .toolbar {
     display: flex;
     align-items: center;
@@ -71,6 +77,24 @@ a {
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
+}
+
+.section-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
 }
 
 .table-container {
@@ -219,5 +243,11 @@ a {
 
 .hidden {
     display: none !important;
+}
+
+.view {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
 }
 

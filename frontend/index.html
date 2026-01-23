@@ -9,10 +9,10 @@
 </head>
 <body class="page">
     <nav class="navbar">
-        <button class="btn btn-ghost" id="button-loans">Loans</button>
-        <button class="btn btn-ghost" id="button-inventory">Inventory</button>
-        <button class="btn btn-ghost" id="button-clients">Clients</button>
-        <button class="btn btn-ghost" id="button-menu">Menu</button>
+        <button class="btn btn-ghost" data-route="#/loans">Loans</button>
+        <button class="btn btn-ghost" data-route="#/inventory">Inventory</button>
+        <button class="btn btn-ghost" data-route="#/clients">Clients</button>
+        <button class="btn btn-ghost" data-route="#/tech">Technician</button>
     </nav>
     <section class="toolbar">
         <button class="btn btn-primary">New Loan</button>
@@ -22,7 +22,7 @@
     </section>
     <main class="main-area">
         <!-- Loans View -->
-        <div class="table-container" id="loans-view">
+        <div class="view table-container" id="loans-view">
             <table class="main-table">
                 <thead>
                     <tr>
@@ -41,7 +41,7 @@
             </table>
         </div>
         <!-- Inventory View -->
-        <div class="table-container hidden" id="inventory-view">
+        <div class="view table-container hidden" id="inventory-view">
             <table class="main-table">
                 <thead>
                     <tr>
@@ -60,6 +60,18 @@
                 </tbody>
             </table>
         </div>
+        <!-- Clients View -->
+        <section class="view card hidden" id="clients-view">
+            <h2 class="section-title">Clients</h2>
+            <p>Client list placeholder. Add filters, list, and detail panel here.</p>
+            <button class="btn btn-primary" aria-label="Add new client">Add Client</button>
+        </section>
+
+        <!-- Technician View -->
+        <section class="view card hidden" id="tech-view">
+            <h2 class="section-title">Technician</h2>
+            <p>Assignments and operations placeholder. Show items under maintenance and actions.</p>
+        </section>
     </main>
 </body>
 </html>

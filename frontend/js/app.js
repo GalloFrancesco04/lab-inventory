@@ -1,10 +1,16 @@
-import { showView } from "./mvp/core/Router.js";
+import { initRouter, navigateTo } from "./mvp/core/Router.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Loans button
-  document.getElementById("button-loans").onclick = () =>
-    showView("loans-view");
-  // Inventory button
-  document.getElementById("button-inventory").onclick = () =>
-    showView("inventory-view");
+  const routes = {
+    "#/loans": "loans-view",
+    "#/inventory": "inventory-view",
+    "#/clients": "clients-view",
+    "#/tech": "tech-view",
+  };
+
+  document.querySelectorAll("[data-route]").forEach((btn) => {
+    btn.addEventListener("click", () => navigateTo(btn.dataset.route));
+  });
+
+  initRouter(routes, "#/loans");
 });
