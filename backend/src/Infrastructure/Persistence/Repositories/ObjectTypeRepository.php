@@ -80,6 +80,48 @@ class ObjectTypeRepository
         return null;
     }
 
+    public function findByName(string $name): ?ObjectType
+    {
+        $stmt = $this->connection->prepare("SELECT * FROM objecttype WHERE name = :name");
+        $stmt->execute(['name' => $name]);
+        
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            return $this->mapRowToObjectType($row);
+        }
+
+        return null;
+    }
+
+    public function findByModel(string $model): ?ObjectType
+    {
+        $stmt = $this->connection->prepare("SELECT * FROM objecttype WHERE model = :model");
+        $stmt->execute(['model' => $model]);
+        
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            return $this->mapRowToObjectType($row);
+        }
+
+        return null;
+    }
+
+    public function findByBrand(string $brand): ?ObjectType
+    {
+        $stmt = $this->connection->prepare("SELECT * FROM objecttype WHERE brand = :brand");
+        $stmt->execute(['brand' => $brand]);
+        
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            return $this->mapRowToObjectType($row);
+        }
+
+        return null;
+    }
+
     //Get all types of objects, not the single objects
     public function getAll(): array
     {

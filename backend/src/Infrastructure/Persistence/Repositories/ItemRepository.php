@@ -26,7 +26,7 @@ class ItemRepository
         ]);
 
         //Set the generated ID to the Item entity
-        $item->setId((int) $this->connection->lastInsertId())
+        $item->setId((int) $this->connection->lastInsertId());
     }
 
     public function updateState(int $id, string $newState): void
@@ -70,31 +70,76 @@ class ItemRepository
         return null; // Item not found
     }
 
-    public function findAll(): array
+    public function getAll(): array
     {
         $stmt = $this->connection->prepare("SELECT * FROM object_");
         $stmt->execute();
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC); 
 
         $items = [];
-        foreach ($rows as $row) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $items[] = $this->mapRowToItem($row);
         }
 
         return $items;
     }
 
-    // //input: array = [state,name,quantity,location]
-    // public function search(array $filters): array
-    // {
-    //     $query = "SELECT o.id, ot.code, ot.name, ot.description, ot.quantity, o.state, o.location
-    //         FROM object_ o JOIN objecttype ot ON o.object_type_code = ot.code
-    //         WHERE 1=1";
 
-    //     $params = [];
+//Input array of search function : 
+    //     $filters = [
+    //                                         // key => value (User input) 
+    //     'state'  (int)   =>    ,       
+    //     'name'   (string) =>    ,
+    //     'location' (string) =>    ,         
+    // ];
+    public function searchByStateNameLocation(array $filters): array
+    {
+        $query = "SELECT o.id, ot.code, ot.name, ot.description, o.state, o.location
+            FROM object_ o JOIN objecttype ot ON o.object_type_code = ot.code
+            WHERE 1=1";
 
-    //     ...
-    // }
+        $params = [];
+
+        //state could be '0' so we use isset to check if the key exists
+        if(isset($filters['state']) && $filters['state'] != ' '){
+            $query .= " AND o.state = :state";
+            $params['state'] = $filters['state'];
+        }
+
+        if(!empty($filters['name'])){
+            $query .= " AND ot.name LIKE :name";
+            $params['name'] = $filters['name'];         //match
+            // $params['name'] = $filters['name'] . '%'  ; //starts with
+        }
+
+        if(!empty($filters['location'])){
+            $query .= " AND o.location LIKE :location";
+            $params['location'] = $filters['location'];         
+        }
+ 
+        $stmt = $this->connection->prepare($query);
+        $stmt->execute($params);
+
+       return $stmt->fetchAll(PDO::FETCH_ASSOC); //return multidimensional array [[id, code, name, description, state, location], [...], ...]
+    }
+
+
+    public function searchQuantityAvailable(string $code): ? array
+    {
+        $query = "SELECT  ot.code, COUNT(o.id) AS available_quantity
+            FROM object_ o JOIN objecttype ot ON o.object_type_code = ot.code
+            WHERE ot.code = :code AND o.state = 1 GROUP BY ot.code"; 
+
+    
+        $stmt = $this->connection->prepare($query);
+        $stmt->execute(['code' => $code]);
+    
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if($row) {
+            return $row; //return array [code, quantity]
+        }
+
+        return null;
+    }
 
     private function mapRowToItem(array $row): InventoryItem
     {
