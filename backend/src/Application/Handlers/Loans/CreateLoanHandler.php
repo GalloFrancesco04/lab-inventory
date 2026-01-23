@@ -50,9 +50,13 @@ class CreateLoanHandler {
             //     throw new Exception("Si e' verificato qualche problema nella creazione del Prestito");
             // }
                     
+            //$quantity = 0;
+
             // for each object of the loan I have to insert a new loanedObject
             // for($command->objects as $object){
                 // $createdLoanedObject = $this->repository->CreateLoanedObject($createdLoan->id, $object);
+
+                // $quantity++;
 
                 // if (empty($createdLoanedObject)){
                 //     // print loaned object not created without launchig an error
@@ -62,6 +66,13 @@ class CreateLoanHandler {
                 // mark object as loaned
                 // $this->repository->MarkObjectAsLoaned($createdLoanedObject->object_id);
             //}
+
+            // after I'm sure of the number of loanedObject successfully created I update the loan with the quantity
+            //$quantityUpdateResult = $this->repository->UpdateLoanQuantity($quantity);
+
+            // if(empty($quantityUpdateResult)){
+            //     throw new Exception("C'e' stato un errore durante la creazione del Prestito");
+            // }
 
            // $transaction->commit();
 

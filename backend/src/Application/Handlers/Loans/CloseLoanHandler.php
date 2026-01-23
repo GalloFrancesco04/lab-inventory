@@ -41,19 +41,32 @@ class CloseLoanHandler {
             // }
                 
             // I want to mark the object state as 'available'
-            // $loanedObjects = $this->repository->GetLoanedObjectsFromLoanId($loanToClose->id)
+            // $loanedObjects = $this->repository->GetLoanedObjectsFromLoanId($loanToClose->id);
                 
-            // foreach($loanedObjects as loanedObject) {
-                    
-            // $result = $this->repository->MarkObjectAsAvailable(loanedObject->object_id);
-                
-            // if(empty($result)){
-                // print if the object is not makrked as available
+            // foreach($loanedObjects as $loanedObject) {
+            
+            // if ($loanedObject->is_damaged) 
+            // {
+                // $damagedResult = $this->repository->MarkObjectAsDamaged($loanedObject->object_id);
+
+                // if(empty($damagedResult)) {
+                // the object is not marked as damaged
                 // continue;
                 //}
-                    
-            // $transaction->commit();   
+
+                // continue;
+
             //}
+
+            // $availableResult = $this->repository->MarkObjectAsAvailable($loanedObject->object_id);
+                
+            // if(empty($availableResult)){
+            // the object is not makrked as available
+            // continue;
+            //}
+                    
+            //}
+            // $transaction->commit();   
 
             }catch(Exception ex) {
 

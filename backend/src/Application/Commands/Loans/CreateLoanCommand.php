@@ -1,21 +1,19 @@
 <?php
 
 class CreateLoanCommand {
-    private $start_date;
-    private $end_date;
-    private $client_id;
-    private $notes;
-    private $quantity;
-    private $state;
-    private $objects;
+    public $start_date;
+    public $end_date;
+    public $client_id;
+    public $notes;
+    public $state;
+    public $objects;
 
-    public function __construct($start_date, $end_date, $client_id, $notes, $quantity, $state=1, $objects) {
+    public function __construct($start_date, $end_date, $client_id, $notes, $objects) {
         $this->start_date = $start_date;
         $this->end_date = $end_date;
         $this->client_id = $client_id;
         $this->notes = $notes;
-        $this->quantity = $quantity;
-        $this->state = $state;
+        $this->state = 1; // this is the loan creation so the state has to be 1
         $this->objects = $objects;
     }
 
