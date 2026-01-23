@@ -50,27 +50,35 @@
                         <th>Type</th>
                         <th>Status</th>
                         <th>Location</th>
-                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>20001</td><td>Notebook</td><td>Electronics</td><td><span class="badge badge-success">Available</span></td><td>Lab 1</td><td><button class="btn btn-ghost">Details</button></td></tr>
-                    <tr><td>20002</td><td>Tablet</td><td>Electronics</td><td><span class="badge badge-warning">Loaned</span></td><td>Lab 2</td><td><button class="btn btn-ghost">Details</button></td></tr>
-                    <tr><td>20003</td><td>Monitor</td><td>Electronics</td><td><span class="badge badge-success">Available</span></td><td>Lab 3</td><td><button class="btn btn-ghost">Details</button></td></tr>
+                    <tr><td>20001</td><td>Notebook</td><td>Electronics</td><td><span class="badge badge-success">Available</span></td><td>Lab 1</td></tr>
+                    <tr><td>20002</td><td>Tablet</td><td>Electronics</td><td><span class="badge badge-warning">Loaned</span></td><td>Lab 2</td></tr>
+                    <tr><td>20003</td><td>Monitor</td><td>Electronics</td><td><span class="badge badge-success">Available</span></td><td>Lab 3</td></tr>
                 </tbody>
             </table>
         </div>
         <!-- Clients View -->
         <section class="view card hidden" id="clients-view">
             <h2 class="section-title">Clients</h2>
-            <p>Client list placeholder. Add filters, list, and detail panel here.</p>
-            <button class="btn btn-primary" aria-label="Add new client">Add Client</button>
+            <p style="color: var(--text-muted); margin: 0;">Static placeholder list, no actions wired.</p>
+            <ul style="margin: 0; padding-left: 1.2rem; color: var(--text);">
+                <li>Mario Sale — 2 active loans</li>
+                <li>Sale Mario — 1 closed loan</li>
+                <li>Marius Salis — no active loans</li>
+            </ul>
         </section>
 
         <!-- Technician View -->
         <section class="view card hidden" id="tech-view">
             <h2 class="section-title">Technician</h2>
-            <p>Assignments and operations placeholder. Show items under maintenance and actions.</p>
+            <p style="color: var(--text-muted); margin: 0;">Static maintenance queue preview.</p>
+            <ul style="margin: 0; padding-left: 1.2rem; color: var(--text);">
+                <li>Monitor #30001 — diagnostics pending</li>
+                <li>Laptop #30002 — waiting parts</li>
+                <li>Projector #30003 — ready for pickup</li>
+            </ul>
         </section>
     </main>
 
