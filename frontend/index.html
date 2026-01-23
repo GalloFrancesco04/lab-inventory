@@ -73,5 +73,43 @@
             <p>Assignments and operations placeholder. Show items under maintenance and actions.</p>
         </section>
     </main>
+
+    <!-- New Loan Modal -->
+    <div class="modal-overlay" id="new-loan-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Create New Loan</h2>
+                <button class="modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <form class="form" id="new-loan-form">
+                <div class="form-group">
+                    <label for="loan-client">Client</label>
+                    <select id="loan-client" required>
+                        <option value="">Select a client</option>
+                        <option value="1">Mario Sale</option>
+                        <option value="2">Sale Mario</option>
+                        <option value="3">Marius Salis</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="loan-item">Item</label>
+                    <select id="loan-item" required>
+                        <option value="">Select an item</option>
+                        <option value="1">Laptop</option>
+                        <option value="2">Tablet</option>
+                        <option value="3">Monitor</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="loan-date">Return Date</label>
+                    <input type="date" id="loan-date" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="cancel-loan-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Loan</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
