@@ -29,6 +29,58 @@ class ItemRepository
         $item->setId((int) $this->connection->lastInsertId());
     }
 
+    public function MarkObjectAsLoaned(int $id): void
+    {
+        $stmt = $this->connection->prepare("
+            UPDATE object_ 
+            SET state = 2
+            WHERE id = :id
+        ");
+
+        $stmt->execute([
+            'id'    => $id
+        ]);
+    }
+
+    public function MarkObjectAsAvailable(int $id): void
+    {
+        $stmt = $this->connection->prepare("
+            UPDATE object_ 
+            SET state = 1
+            WHERE id = :id
+        ");
+
+        $stmt->execute([
+            'id'    => $id
+        ]);
+    }
+
+    // public function MarkObjectAsBroken(int $id): void
+    // {
+    //     $stmt = $this->connection->prepare("
+    //         UPDATE object_ 
+    //         SET state = 4
+    //         WHERE id = :id
+    //     ");
+
+    //     $stmt->execute([
+    //         'id'    => $id
+    //     ]);
+    // }
+
+    // public function SendObjectToMaintenance(int $id): void
+    // {
+    //     $stmt = $this->connection->prepare("
+    //         UPDATE object_ 
+    //         SET state = 3
+    //         WHERE id = :id
+    //     ");
+
+    //     $stmt->execute([
+    //         'id'    => $id
+    //     ]);
+    // }
+
     public function updateState(int $id, string $newState): void
     {
         $stmt = $this->connection->prepare("
