@@ -6,6 +6,7 @@ services:
       - "${PHP_PORT:-8080}:80"
     volumes:
       - ./backend:/var/www/html
+      - ./frontend:/var/www/html/frontend
     environment:
       - DB_HOST=db
       - DB_USER=${DB_USER}
