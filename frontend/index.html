@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Main Page</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <button>Loans</button>
+        <button>Inventory</button>
+        <button>Clients</button>
+        <button>Menu</button>
+    </nav>
+    <section class="toolbar">
+        <button class="new-loan">New Loan</button>
+        <input type="text" placeholder="Search" class="search-box">
+        <button class="search-btn">🔍</button>
+        <button class="filters">Filters</button>
+    </section>
+    <main>
+        <div class="table-container">
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th>Loan ID</th>
+                        <th>Client</th>
+                        <th>Item</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>10001</td><td>Mario Sale</td><td>Laptop</td><td>Active</td><td><button>Details</button></td></tr>
+                    <tr><td>10002</td><td>Sale Mario</td><td>Tablet</td><td>Closed</td><td><button>Details</button></td></tr>
+                    <tr><td>10003</td><td>Marius Salis</td><td>Monitor</td><td>Active</td><td><button>Details</button></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>
