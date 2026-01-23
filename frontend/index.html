@@ -17,7 +17,7 @@
         <button class="btn btn-ghost" data-route="#/loans">Loans</button>
         <button class="btn btn-ghost" data-route="#/inventory">Inventory</button>
         <button class="btn btn-ghost" data-route="#/clients">Clients</button>
-        <button class="btn btn-ghost" data-route="#/tech">Technician</button>
+        <button class="btn btn-ghost" data-route="#/maintenance">Maintenance</button>
     </nav>
     <section class="toolbar">
         <button class="btn btn-primary" id="new-loan-btn">New Loan</button>
@@ -72,16 +72,25 @@
             </ul>
         </section>
 
-        <!-- Technician View -->
-        <section class="view card hidden" id="tech-view">
-            <h2 class="section-title">Technician</h2>
-            <p style="color: var(--text-muted); margin: 0;">Static maintenance queue preview.</p>
-            <ul style="margin: 0; padding-left: 1.2rem; color: var(--text);">
-                <li>Monitor #30001 — diagnostics pending</li>
-                <li>Laptop #30002 — waiting parts</li>
-                <li>Projector #30003 — ready for pickup</li>
-            </ul>
-        </section>
+        <!-- Maintenance View -->
+        <div class="view table-container hidden" id="maintenance-view">
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Object</th>
+                        <th>Type</th>
+                        <th>Technician</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="table-row"><td>21/01/2026</td><td>Laptop #20002</td><td><span class="badge badge-danger">Repair</span></td><td>Mario</td><td>Replaced keyboard, cleaned fans</td></tr>
+                    <tr class="table-row"><td>15/01/2026</td><td>Monitor #20003</td><td><span class="badge badge-warning">Replacement</span></td><td>Sale</td><td>Backlight panel replaced</td></tr>
+                    <tr class="table-row"><td>08/01/2026</td><td>Router #21001</td><td><span class="badge badge-success">Preventive</span></td><td>Marmotta</td><td>Firmware update, ports check</td></tr>
+                </tbody>
+            </table>
+        </div>
     </main>
 
     <!-- New Loan Modal -->

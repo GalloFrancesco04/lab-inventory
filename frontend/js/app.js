@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "#/loans": "loans-view",
     "#/inventory": "inventory-view",
     "#/clients": "clients-view",
-    "#/tech": "tech-view",
+    "#/maintenance": "maintenance-view",
   };
 
   document.querySelectorAll("[data-route]").forEach((btn) => {
