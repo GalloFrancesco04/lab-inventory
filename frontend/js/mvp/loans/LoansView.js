@@ -106,7 +106,7 @@ class LoansView extends BaseView {
     items.forEach((item) => {
       const span = document.createElement("span");
       span.className = "chip";
-      span.textContent = item;
+      span.textContent = item.name || item;
       container.appendChild(span);
     });
   }
@@ -132,7 +132,8 @@ class LoansView extends BaseView {
       clientCell.textContent = loan.client;
 
       const itemCell = document.createElement("td");
-      itemCell.textContent = loan.items?.join(", ") || "-";
+      itemCell.textContent =
+        loan.items?.map((item) => item.name).join(", ") || "-";
 
       const returnDateCell = document.createElement("td");
       returnDateCell.textContent = loan.returnDate || "-";
