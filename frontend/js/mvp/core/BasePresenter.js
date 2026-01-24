@@ -29,13 +29,6 @@ export class BasePresenter {
     this.notifyListeners();
     return true;
   }
-  update(id, updates) {
-    const index = this.data.findIndex((item) => item.id == id);
-    if (index === -1) return false;
-    this.data[index] = { ...this.data[index], ...updates };
-    this.notifyListeners();
-    return true;
-  }
 
   // Delete an item by id
   delete(id) {
