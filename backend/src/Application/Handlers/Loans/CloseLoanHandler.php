@@ -1,23 +1,31 @@
 <?php
 
-// require_once __DIR__ . '/../../../Infrastructure/LoanRepository.php';
-// require_once __DIR__ . '/../../../Infrastructure/LoanedItemRepository.php';
-// require_once __DIR__ . '/../../../Infrastructure/ItemRepository.php';
-// require_once __DIR__ L "/../../../Domain/States/AvailableState();
-// require_once __DIR__ L "/../../../Domain/States/DamagedState();
-// require Transaction
+require_once __DIR__ . '/../../../Infrastructure/Persistence/LoanRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/ItemRepository.php';
+// require_once __DIR__ . '/../../../Infrastructure/Persistence/LoanedItemRepository.php';
 
-require_once __DIR__ . "../../Commands/CloseLoanCommand.php"
+require_once __DIR__ . '/../../../config/Database.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Connection/TransactionManager.php';
+
+require_once __DIR__ . '/../../../Domain/States/AvailableState()';
+require_once __DIR__ . '/../../../Domain/States/DamagedState()';
+
+require_once __DIR__ . '../../Commands/CloseLoanCommand.php';
 
 class CloseLoanHandler {
-    // private $repository;
+    private $loanRepository;
     // private $loanedItemRepository;
-    // private $itemRepository
+    private $itemRepository
+    private $transaction;
 
     public function __construct() {
-    //    $this->loanRepository = new LoanRepository();
-    //    $this->loanedItemRepository = new LoanedItemRepository();
-    //    $this->itemRepository = new ItemRepository();
+        $db = new Database();
+
+        $loanRepository = new LoanRepository($db->conn);
+        $itemRepository = new ItemRepository($db->conn);
+        // $loanedItemRepository = new LoanedItemRepository();
+
+        $transaction = new TransactionManager($db->conn);
     }
 
     public function handle(CloseLoanCommand $command) {
@@ -27,54 +35,52 @@ class CloseLoanHandler {
         }
 
         // i close the loan and put the return date as today
-        // after that I mark the objects as available
-
+        // after that I mark the objects as available or damaged if the loanedObject is damaged
         
-        // $loanToClose = $this->loanRepository->GetLoan($command->id);
+        $loanToClose = $this->loanRepository->getLoanById($command->id);
         
-        // if(empty($loanToClose)){
-        //     throw new Exception("Il Prestito non e' stato trovato");
-        //}
+        if(empty($loanToClose)){
+            throw new Exception("Il Prestito non e' stato trovato");
+        }
         
-        // $returnDate = new DateTime(now);
+         $returnDate = new DateTime(now);
           
-        // $transaction = new Transaction();
-        // $transaction->start();
+        $transaction->begin();
         try {
 
-            // $result = $this->loanRepository->CloseLoan($loanToClose->id, $returnDate);
-            
-            // if(empty($result)) {
-            //     throw new Exception("Si e' verificato qualche problema durante la chiusura del Prestito");
-            // }
+            $result = $this->loanRepository->closeLoan($loanToClose->id, $returnDate);
                 
             // I want to mark the object state as 'available' or 'damaged' so first I get all the loanedObjects
-            // $loanedObjects = $this->loanedItemRepository->GetLoanedObjectsFromLoanId($loanToClose->id);
-                
-            // foreach($loanedObjects as $loanedObject) {
+            //$loanedObjects = $this->loanedItemRepository->getLoanedObjectsFromLoanId($loanToClose->id);
+              
+            $loanedObjects = null;
+
+            foreach($loanedObjects as $loanedObject) {
             
-            // if ($loanedObject->is_damaged) 
-            // {
-                // $loanedObject->state = 0;
+            if ($loanedObject->is_damaged) 
+            {
+                $loanedObject->state = 1;
 
-                // $this->loanedItemRepository->update($loanedObject);
-                // $this->itemRepository->update($loanedObject->object_id, new DamagedState()->getCode());
-                // continue;
+               // $this->loanedItemRepository->update($loanedObject);
 
-            //}
+                $this->itemRepository->updateState($loanedObject->object_id, new DamagedState()->getCode());
+                continue;
+
+            }
 
             // I release the non damaged objects
-            // $this->itemRepository->update($loanedObject->object_id, new AvailableState()->getCode());
+            $this->itemRepository->updateState($loanedObject->object_id, new AvailableState()->getCode());
                     
-            //}
-            // $transaction->commit();   
+            }
+
+            $transaction->commit();   
 
             }catch(Exception ex) {
 
-            // $transaction->rollback();
-            // throw new Exception("Si e' verificato qualche problema nella chiusura del Prestito");
+                $transaction->rollback();
+                throw new Exception("Si e' verificato qualche problema nella chiusura del Prestito");
             }
 
-        // return $result;
+        return $result;
     }
 }

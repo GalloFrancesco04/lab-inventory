@@ -1,14 +1,43 @@
 <?php
 
+require_once __DIR__ . '/../States/AvailableState.php';
+require_once __DIR__ . '/../States/LoanedState.php';
+require_once __DIR__ . '/../States/InMaintenanceState.php';
+require_once __DIR__ . '/../States/DamagedState.php';
+require_once __DIR__ . '/../States/OutOfServiceState.php';
+
 class InventoryItem {
     private ?int $id;
     private string $objectTypeCode;
     private ItemState $state;
     private ?string $location;
 
-    public function __construct(?int $id, string $objectTypeCode, ItemState $state, ?string $location = null) {
+    public function __construct(?int $id, string $objectTypeCode, int $state, ?string $location = null) {
         $this->id = $id;
         $this->objectTypeCode = $objectTypeCode;
+        
+        // I map the states
+        switch($state) {
+            case 1:
+                $this->state = new AvailableState();
+                break;
+            case 2:
+                $this->state = new LoanedState();
+                break;
+            case 3:
+                $this->state = new InMaintenanceState();
+                break;
+            case 4:
+                $this->state = new DamagedState();
+                break;
+            case 5:
+                $this->state = new OutOfServiceState();
+                break;
+            default:
+                $this->state = null;
+                break;
+        }
+
         $this->state = $state;
         $this->location = $location;
     }
