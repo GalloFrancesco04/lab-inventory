@@ -5,6 +5,8 @@ import { initInventoryView } from "./mvp/inventory/InventoryView.js";
 import { InventoryPresenter } from "./mvp/inventory/InventoryPresenter.js";
 import { initClientsView } from "./mvp/clients/ClientsView.js";
 import { ClientsPresenter } from "./mvp/clients/ClientsPresenter.js";
+import { initMaintenanceView } from "./mvp/maintenance/MaintenanceView.js";
+import { MaintenancePresenter } from "./mvp/maintenance/MaintenancePresenter.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const routes = {
@@ -41,7 +43,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const loansPresenter = new LoansPresenter();
   const inventoryPresenter = new InventoryPresenter();
   const clientsPresenter = new ClientsPresenter();
+  const maintenancePresenter = new MaintenancePresenter(inventoryPresenter);
   initInventoryView(inventoryPresenter);
   initClientsView(clientsPresenter);
   initLoansView(loansPresenter);
+  initMaintenanceView(maintenancePresenter);
 });
