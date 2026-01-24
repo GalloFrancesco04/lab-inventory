@@ -1,6 +1,8 @@
-export class ClientsPresenter {
+import { BasePresenter } from "../core/BasePresenter.js";
+
+export class ClientsPresenter extends BasePresenter {
   constructor() {
-    this.clients = [
+    const initialClients = [
       {
         id: "1001",
         name: "Mario Sale",
@@ -26,14 +28,15 @@ export class ClientsPresenter {
         lastLoan: "20/11/2024",
       },
     ];
+    super(initialClients);
   }
 
   getClients() {
-    return this.clients;
+    return this.getAll();
   }
 
   addClient(payload) {
-    const nextId = String(1000 + this.clients.length + 1);
+    const nextId = String(1000 + this.data.length + 1);
     const fullName = [payload.firstName, payload.lastName]
       .filter(Boolean)
       .join(" ")
@@ -49,31 +52,24 @@ export class ClientsPresenter {
       blocked: false,
       blockedUntil: null,
     };
-    this.clients.push(newClient);
-    return newClient;
+    return this.add(newClient);
   }
 
   getClientById(id) {
-    return this.clients.find((c) => c.id === id);
+    return this.getById(id);
   }
 
   deleteClient(id) {
-    const index = this.clients.findIndex((c) => c.id === id);
-    if (index > -1) {
-      this.clients.splice(index, 1);
-      return true;
-    }
-    return false;
+    return this.delete(id);
   }
 
   blockClient(id, days, reason) {
-    const client = this.getClientById(id);
-    if (!client) return false;
     const blockedUntil = new Date();
     blockedUntil.setDate(blockedUntil.getDate() + days);
-    client.blocked = true;
-    client.blockedUntil = blockedUntil.toISOString().split("T")[0];
-    client.blockReason = reason || "";
-    return true;
+    return this.update(id, {
+      blocked: true,
+      blockedUntil: blockedUntil.toISOString().split("T")[0],
+      blockReason: reason || "",
+    });
   }
 }

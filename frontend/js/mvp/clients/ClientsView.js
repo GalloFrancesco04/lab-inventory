@@ -1,80 +1,131 @@
-import { modalManager } from "../../utils/ModalManager.js";
+import { BaseView } from "../core/BaseView.js";
 
-export function initClientsView(presenter) {
-  const tbody = document.getElementById("clients-tbody");
-  const newClientBtn = document.getElementById("new-client-btn");
-  const newClientModal = document.getElementById("new-client-modal");
-  const newClientClose = document.getElementById("new-client-close");
-  const newClientCancel = document.getElementById("new-client-cancel");
-  const newClientForm = document.getElementById("new-client-form");
-  const firstInput = document.getElementById("new-client-first");
-  const lastInput = document.getElementById("new-client-last");
-  const emailInput = document.getElementById("new-client-email");
+class ClientsView extends BaseView {
+  constructor(presenter) {
+    super(presenter);
+    this.currentClientId = null;
+    this.setupElements();
+    this.setupModals();
+    this.setupEventListeners();
+    this.render();
+  }
 
-  const clientDetailModal = document.getElementById("client-detail-modal");
-  const clientDetailClose = document.getElementById("client-detail-close");
-  const clientDetailTitle = document.getElementById("client-detail-title");
-  const clientDetailId = document.getElementById("client-detail-id");
-  const clientDetailEmail = document.getElementById("client-detail-email");
-  const clientDetailStatus = document.getElementById("client-detail-status");
-  const clientDetailActive = document.getElementById("client-detail-active");
-  const clientDetailTotal = document.getElementById("client-detail-total");
-  const clientDetailLast = document.getElementById("client-detail-last");
-  const clientBlockBtn = document.getElementById("client-block-btn");
-  const clientDeleteBtn = document.getElementById("client-delete-btn");
+  setupElements() {
+    // Table
+    this.tbody = this.getElement("clients-tbody");
+    this.newClientBtn = this.getElement("new-client-btn");
 
-  const blockClientModal = document.getElementById("block-client-modal");
-  const blockClientClose = document.getElementById("block-client-close");
-  const blockClientCancel = document.getElementById("block-client-cancel");
-  const blockClientForm = document.getElementById("block-client-form");
-  const blockDaysInput = document.getElementById("block-days");
-  const blockReasonInput = document.getElementById("block-reason");
+    // New client modal
+    this.newClientForm = this.getElement("new-client-form");
+    this.firstInput = this.getElement("new-client-first");
+    this.lastInput = this.getElement("new-client-last");
+    this.emailInput = this.getElement("new-client-email");
 
-  const deleteClientModal = document.getElementById("delete-client-modal");
-  const deleteClientClose = document.getElementById("delete-client-close");
-  const deleteClientCancel = document.getElementById("delete-client-cancel");
-  const deleteClientConfirm = document.getElementById("delete-client-confirm");
+    // Client detail modal
+    this.clientDetailTitle = this.getElement("client-detail-title");
+    this.clientDetailId = this.getElement("client-detail-id");
+    this.clientDetailEmail = this.getElement("client-detail-email");
+    this.clientDetailStatus = this.getElement("client-detail-status");
+    this.clientDetailActive = this.getElement("client-detail-active");
+    this.clientDetailTotal = this.getElement("client-detail-total");
+    this.clientDetailLast = this.getElement("client-detail-last");
+    this.clientBlockBtn = this.getElement("client-block-btn");
+    this.clientDeleteBtn = this.getElement("client-delete-btn");
 
-  let currentClientId = null;
-  if (!tbody) return;
+    // Block client modal
+    this.blockClientForm = this.getElement("block-client-form");
+    this.blockDaysInput = this.getElement("block-days");
+    this.blockReasonInput = this.getElement("block-reason");
 
-  // Register all modals
-  modalManager.register("new-client-modal", {
-    onOpen: () => {
-      newClientForm?.reset();
-      if (firstInput) firstInput.focus();
-    },
-  });
+    // Delete client modal
+    this.deleteClientConfirm = this.getElement("delete-client-confirm");
+  }
 
-  modalManager.register("client-detail-modal", {
-    onClose: () => {
-      currentClientId = null;
-    },
-  });
+  setupModals() {
+    this.registerModal("new-client-modal", {
+      onOpen: () => {
+        this.newClientForm?.reset();
+        if (this.firstInput) this.firstInput.focus();
+      },
+    });
 
-  modalManager.register("block-client-modal");
-  modalManager.register("delete-client-modal");
+    this.registerModal("client-detail-modal", {
+      onClose: () => {
+        this.currentClientId = null;
+      },
+    });
 
-  // Setup close buttons
-  modalManager.setupCloseButtons("new-client-modal", [
-    "new-client-close",
-    "new-client-cancel",
-  ]);
-  modalManager.setupCloseButtons("client-detail-modal", [
-    "client-detail-close",
-  ]);
-  modalManager.setupCloseButtons("block-client-modal", [
-    "block-client-close",
-    "block-client-cancel",
-  ]);
-  modalManager.setupCloseButtons("delete-client-modal", [
-    "delete-client-close",
-    "delete-client-cancel",
-  ]);
+    this.registerModal("block-client-modal");
+    this.registerModal("delete-client-modal");
 
-  function render() {
-    const clients = presenter.getClients();
-    tbody.innerHTML = "";
+    this.setupModalCloseButtons("new-client-modal", [
+      "new-client-close",
+      "new-client-cancel",
+    ]);
+    this.setupModalCloseButtons("client-detail-modal", ["client-detail-close"]);
+    this.setupModalCloseButtons("block-client-modal", [
+      "block-client-close",
+      "block-client-cancel",
+    ]);
+    this.setupModalCloseButtons("delete-client-modal", [
+      "delete-client-close",
+      "delete-client-cancel",
+    ]);
+  }
+
+  setupEventListeners() {
+    this.newClientBtn?.addEventListener("click", () =>
+      this.openModal("new-client-modal"),
+    );
+
+    this.newClientForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const payload = {
+        firstName: this.firstInput?.value?.trim() || "",
+        lastName: this.lastInput?.value?.trim() || "",
+        email: this.emailInput?.value?.trim() || "",
+      };
+      if (!payload.firstName || !payload.email) return;
+      this.presenter.addClient(payload);
+      this.render();
+      this.closeModal("new-client-modal");
+    });
+
+    this.clientDeleteBtn?.addEventListener("click", () => {
+      if (!this.currentClientId) return;
+      this.openModal("delete-client-modal");
+    });
+
+    this.clientBlockBtn?.addEventListener("click", () => {
+      if (!this.currentClientId) return;
+      this.openModal("block-client-modal");
+    });
+
+    this.blockClientForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!this.currentClientId) return;
+      const days = Number(this.blockDaysInput?.value || 30);
+      const reason = this.blockReasonInput?.value?.trim() || "";
+      this.presenter.blockClient(this.currentClientId, days, reason);
+      this.closeModal("block-client-modal");
+      this.render();
+      this.openClientDetail(this.currentClientId);
+    });
+
+    this.deleteClientConfirm?.addEventListener("click", () => {
+      if (!this.currentClientId) return;
+      this.presenter.deleteClient(this.currentClientId);
+      this.closeModal("delete-client-modal");
+      this.closeModal("client-detail-modal");
+      this.render();
+    });
+  }
+
+  render() {
+    if (!this.tbody) return;
+
+    const clients = this.presenter.getClients();
+    this.tbody.innerHTML = "";
 
     clients.forEach((client) => {
       const tr = document.createElement("tr");
@@ -95,78 +146,37 @@ export function initClientsView(presenter) {
         <td>${client.lastLoan}</td>
       `;
 
-      tr.addEventListener("click", () => openClientDetail(client.id));
-      tbody.appendChild(tr);
+      tr.addEventListener("click", () => this.openClientDetail(client.id));
+      this.tbody.appendChild(tr);
     });
   }
 
-  function openClientDetail(clientId) {
-    const client = presenter.getClientById(clientId);
-    if (!client || !clientDetailModal) return;
-    currentClientId = clientId;
-    clientDetailTitle.textContent = client.name;
-    clientDetailId.textContent = client.id;
-    clientDetailEmail.textContent = client.email;
-    clientDetailActive.textContent = client.activeLoans;
-    clientDetailTotal.textContent = client.totalLoans;
-    clientDetailLast.textContent = client.lastLoan;
+  openClientDetail(clientId) {
+    const client = this.presenter.getClientById(clientId);
+    if (!client) return;
+
+    this.currentClientId = clientId;
+    this.clientDetailTitle.textContent = client.name;
+    this.clientDetailId.textContent = client.id;
+    this.clientDetailEmail.textContent = client.email;
+    this.clientDetailActive.textContent = client.activeLoans;
+    this.clientDetailTotal.textContent = client.totalLoans;
+    this.clientDetailLast.textContent = client.lastLoan;
+
     if (client.blocked) {
-      clientDetailStatus.textContent = `Blocked until ${client.blockedUntil}`;
-      clientDetailStatus.style.color = "var(--danger)";
-      clientBlockBtn.style.display = "none";
+      this.clientDetailStatus.textContent = `Blocked until ${client.blockedUntil}`;
+      this.clientDetailStatus.style.color = "var(--danger)";
+      this.clientBlockBtn.style.display = "none";
     } else {
-      clientDetailStatus.textContent = "Active";
-      clientDetailStatus.style.color = "";
-      clientBlockBtn.style.display = "";
+      this.clientDetailStatus.textContent = "Active";
+      this.clientDetailStatus.style.color = "";
+      this.clientBlockBtn.style.display = "";
     }
-    modalManager.open("client-detail-modal");
+
+    this.openModal("client-detail-modal");
   }
+}
 
-  newClientBtn?.addEventListener("click", () =>
-    modalManager.open("new-client-modal"),
-  );
-
-  newClientForm?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const payload = {
-      firstName: firstInput?.value?.trim() || "",
-      lastName: lastInput?.value?.trim() || "",
-      email: emailInput?.value?.trim() || "",
-    };
-    if (!payload.firstName || !payload.email) return;
-    presenter.addClient(payload);
-    render();
-    modalManager.close("new-client-modal");
-  });
-
-  clientDeleteBtn?.addEventListener("click", () => {
-    if (!currentClientId) return;
-    modalManager.open("delete-client-modal");
-  });
-
-  clientBlockBtn?.addEventListener("click", () => {
-    if (!currentClientId) return;
-    modalManager.open("block-client-modal");
-  });
-
-  blockClientForm?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    if (!currentClientId) return;
-    const days = Number(blockDaysInput?.value || 30);
-    const reason = blockReasonInput?.value?.trim() || "";
-    presenter.blockClient(currentClientId, days, reason);
-    modalManager.close("block-client-modal");
-    render();
-    openClientDetail(currentClientId);
-  });
-
-  deleteClientConfirm?.addEventListener("click", () => {
-    if (!currentClientId) return;
-    presenter.deleteClient(currentClientId);
-    modalManager.close("delete-client-modal");
-    modalManager.close("client-detail-modal");
-    render();
-  });
-
-  render();
+export function initClientsView(presenter) {
+  return new ClientsView(presenter);
 }
