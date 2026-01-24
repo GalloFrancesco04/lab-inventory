@@ -1,19 +1,34 @@
 <?php
-// Handler class to process BlockClientCommand
+
 require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../Commands/Clients/BlockClientCommand.php';
-// Import Database connection and Command class
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ClientRepository.php';
+
+
 class BlockClientHandler {
-    private $conn;
+    
+    private $clientRepository;
+
     public function __construct() {
         $db = new Database();
-        $this->conn = $db->getConnection();
+
+        $this->clientRepository = new ClientRepository($db->getConnection());
+
     }
-    // Handle the BlockClientCommand
+    
+
     public function handle(BlockClientCommand $command) {
-        $sql = "UPDATE client SET state = 0 WHERE id = :id";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([':id' => $command->id]);
-        return true;
+  
+        if(empty($command->id)) {
+            throw new Exception("L'id non puo' essere vuoto");
+        }
+
+        try{
+
+            $this->clientRepository->blockClient($command->id);
+        }catch(Exception $ex) {
+            throw new Exception("C'e' stato un problema durante il blocco del Cliente");
+        }
+
     }
 }
