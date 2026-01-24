@@ -47,6 +47,7 @@ class ClientsView extends BaseView {
     this.registerModal("new-client-modal", {
       onOpen: () => {
         this.newClientForm?.reset();
+        this.clearFormErrors(this.newClientForm);
         if (this.firstInput) this.firstInput.focus();
       },
     });
@@ -82,12 +83,35 @@ class ClientsView extends BaseView {
 
     this.newClientForm?.addEventListener("submit", (e) => {
       e.preventDefault();
+      this.clearFormErrors(this.newClientForm);
+
       const payload = {
         firstName: this.firstInput?.value?.trim() || "",
         lastName: this.lastInput?.value?.trim() || "",
         email: this.emailInput?.value?.trim() || "",
       };
-      if (!payload.firstName || !payload.email) return;
+
+      let hasError = false;
+
+      if (!payload.firstName) {
+        this.showFieldError(this.firstInput, "First name is required");
+        hasError = true;
+      }
+
+      if (!payload.email) {
+        this.showFieldError(this.emailInput, "Email is required");
+        hasError = true;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
+        this.showFieldError(this.emailInput, "Please enter a valid email");
+        hasError = true;
+      }
+
+      if (hasError) {
+        const firstError = this.newClientForm.querySelector(".input-error");
+        if (firstError) firstError.focus();
+        return;
+      }
+
       this.presenter.addClient(payload);
       this.closeModal("new-client-modal");
     });

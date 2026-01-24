@@ -41,7 +41,10 @@ class InventoryView extends BaseView {
 
   setupModals() {
     this.registerModal("new-item-modal", {
-      onOpen: () => this.populateObjectTypes(),
+      onOpen: () => {
+        this.populateObjectTypes();
+        this.clearFormErrors(this.newItemForm);
+      },
       onClose: () => this.resetNewItemForm(),
     });
     this.setupModalCloseButtons("new-item-modal", [
@@ -73,14 +76,38 @@ class InventoryView extends BaseView {
     // New Item Form Submit
     this.newItemForm?.addEventListener("submit", (e) => {
       e.preventDefault();
+      this.clearFormErrors(this.newItemForm);
+
       const itemData = {
-        typeCode: this.newItemType.value,
-        location: this.newItemLocation.value,
+        typeCode: this.newItemType.value.trim(),
+        location: this.newItemLocation.value.trim(),
         status: this.newItemStatus.value,
       };
+
+      let hasError = false;
+
+      if (!itemData.typeCode) {
+        this.showFieldError(this.newItemType, "Please select an object type");
+        hasError = true;
+      }
+
+      if (!itemData.location) {
+        this.showFieldError(
+          this.newItemLocation,
+          "Location is required (e.g., Lab 1)",
+        );
+        hasError = true;
+      }
+
+      if (hasError) {
+        // Focus first error field
+        const firstError = this.newItemForm.querySelector(".input-error");
+        if (firstError) firstError.focus();
+        return;
+      }
+
       this.presenter.addItem(itemData);
       this.closeModal("new-item-modal");
-      this.render();
     });
 
     // Event delegation for table rows

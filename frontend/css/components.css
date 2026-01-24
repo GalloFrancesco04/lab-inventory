@@ -207,6 +207,21 @@ textarea:focus {
   border-color: var(--primary);
 }
 
+/* Form validation styles */
+.input-error,
+select.input-error {
+  border-color: var(--danger) !important;
+  outline: 2px solid rgba(220, 38, 38, 0.1) !important;
+}
+
+.field-error {
+  display: none;
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin-top: var(--space-1);
+  line-height: 1.4;
+}
+
 .form {
   display: flex;
   flex-direction: column;
