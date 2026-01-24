@@ -1,4 +1,5 @@
 import { BaseView } from "../core/BaseView.js";
+import { logger } from "../../utils/logger.js";
 
 class LoansView extends BaseView {
   constructor(presenter) {
@@ -65,7 +66,7 @@ class LoansView extends BaseView {
 
     this.newLoanForm?.addEventListener("submit", (e) => {
       e.preventDefault();
-      console.log("New loan created (mock)");
+      logger.mock("New loan created");
       this.closeModal("new-loan-modal");
     });
 
@@ -75,7 +76,7 @@ class LoansView extends BaseView {
 
     this.closeLoanForm?.addEventListener("submit", (e) => {
       e.preventDefault();
-      console.log("Close loan notes (mock)", {
+      logger.mock("Close loan", {
         notes: this.closeLoanNotes?.value || "",
         damaged: this.closeLoanDamaged?.checked || false,
       });

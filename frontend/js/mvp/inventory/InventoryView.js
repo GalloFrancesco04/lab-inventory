@@ -1,4 +1,5 @@
 import { BaseView } from "../core/BaseView.js";
+import { logger } from "../../utils/logger.js";
 
 function statusBadgeClass(status) {
   if (status === "available") return "badge badge-success";
@@ -120,7 +121,7 @@ class InventoryView extends BaseView {
     });
 
     this.sendToMaintBtn?.addEventListener("click", () => {
-      console.log("Send to maintenance (mock)");
+      logger.mock("Send to maintenance");
     });
   }
 
