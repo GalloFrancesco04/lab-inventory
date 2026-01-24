@@ -34,9 +34,8 @@ class LoansView extends BaseView {
 
   setupModals() {
     this.registerModal("new-loan-modal", {
-      onClose: () => {
-        this.newLoanForm?.reset();
-      },
+      onOpen: () => this.newLoanForm?.reset(),
+      onClose: () => this.newLoanForm?.reset(),
     });
 
     this.registerModal("loan-detail-modal");
