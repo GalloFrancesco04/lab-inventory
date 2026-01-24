@@ -12,7 +12,7 @@ class Maintenance {
     private float $cost;
 
     public function __construct(
-        int $id,
+        ?int $id,
         int $objectId,
         string $description,
         DateTime $startDate,
