@@ -1,1 +1,37 @@
-// placeholder
+export class ClientsPresenter {
+  constructor() {
+    this.clients = [
+      {
+        id: "1001",
+        name: "Mario Sale",
+        email: "mario.sale@example.com",
+        phone: "+39 345 835 4503",
+        activeLoans: 2,
+        totalLoans: 4,
+        lastLoan: "12/12/2024",
+      },
+      {
+        id: "1002",
+        name: "Sale Mario",
+        email: "sale.mario@example.com",
+        phone: "+39 345 835 4503",
+        activeLoans: 0,
+        totalLoans: 1,
+        lastLoan: "02/10/2024",
+      },
+      {
+        id: "1003",
+        name: "Marius Salis",
+        email: "marius.salis@example.com",
+        phone: "+39 345 835 4503",
+        activeLoans: 1,
+        totalLoans: 2,
+        lastLoan: "20/11/2024",
+      },
+    ];
+  }
+
+  getClients() {
+    return this.clients;
+  }
+}

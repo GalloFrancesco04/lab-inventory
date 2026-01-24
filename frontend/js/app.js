@@ -3,6 +3,8 @@ import { initLoansView } from "./mvp/loans/LoansView.js";
 import { LoansPresenter } from "./mvp/loans/LoansPresenter.js";
 import { initInventoryView } from "./mvp/inventory/InventoryView.js";
 import { InventoryPresenter } from "./mvp/inventory/InventoryPresenter.js";
+import { initClientsView } from "./mvp/clients/ClientsView.js";
+import { ClientsPresenter } from "./mvp/clients/ClientsPresenter.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const routes = {
@@ -32,6 +34,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const loansPresenter = new LoansPresenter();
   const inventoryPresenter = new InventoryPresenter();
+  const clientsPresenter = new ClientsPresenter();
   initInventoryView(inventoryPresenter);
+  initClientsView(clientsPresenter);
   initLoansView(loansPresenter);
 });

@@ -62,15 +62,22 @@
             </table>
         </div>
         <!-- Clients View -->
-        <section class="view card hidden" id="clients-view">
-            <h2 class="section-title">Clients</h2>
-            <p style="color: var(--text-muted); margin: 0;">Static placeholder list, no actions wired.</p>
-            <ul style="margin: 0; padding-left: 1.2rem; color: var(--text);">
-                <li>Mario Sale — 2 active loans</li>
-                <li>Sale Mario — 1 closed loan</li>
-                <li>Marius Salis — no active loans</li>
-            </ul>
-        </section>
+        <div class="view table-container hidden" id="clients-view">
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th>Client ID</th>
+                        <th>Client</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Active Loans</th>
+                        <th>Total Loans</th>
+                        <th>Last Loan</th>
+                    </tr>
+                </thead>
+                <tbody id="clients-tbody"></tbody>
+            </table>
+        </div>
 
         <!-- Maintenance View -->
         <div class="view table-container hidden" id="maintenance-view">
