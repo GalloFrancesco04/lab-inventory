@@ -19,18 +19,21 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const newLoanBtn = document.getElementById("new-loan-btn");
+  const newItemBtn = document.getElementById("new-item-btn");
 
-  function updateNewLoanVisibility() {
-    if (!newLoanBtn) return;
+  function updateToolbarVisibility() {
     const current = window.location.hash || "#/loans";
     const isLoansRoute = current === "#/loans";
-    newLoanBtn.classList.toggle("hidden", !isLoansRoute);
+    const isInventoryRoute = current === "#/inventory";
+
+    if (newLoanBtn) newLoanBtn.classList.toggle("hidden", !isLoansRoute);
+    if (newItemBtn) newItemBtn.classList.toggle("hidden", !isInventoryRoute);
   }
 
   initRouter(routes, "#/loans");
 
-  window.addEventListener("hashchange", updateNewLoanVisibility);
-  updateNewLoanVisibility();
+  window.addEventListener("hashchange", updateToolbarVisibility);
+  updateToolbarVisibility();
 
   const loansPresenter = new LoansPresenter();
   const inventoryPresenter = new InventoryPresenter();
