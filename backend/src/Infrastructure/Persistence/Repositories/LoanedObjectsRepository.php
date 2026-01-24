@@ -1,6 +1,7 @@
 <?php
 
 use PDO;
+use Application\Domain\Entities\Loan;
 use Application\Domain\Entities\LoanedObject;
 use Application\Domain\Entities\InventoryItem;
 
@@ -108,6 +109,4 @@ class LoanedObjectRepository
     }
 
 }
-
-
 ?>
