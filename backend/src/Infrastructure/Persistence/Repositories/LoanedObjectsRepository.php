@@ -14,67 +14,67 @@ class LoanedObjectRepository
         $this->connection = $connection;
     }
 
-    public function create(int $loanId, InventoryItem $object): void
+    public function create(int $loan_id, InventoryItem $object): void
     {
         $stmt = $this->connection->prepare("
-            INSERT INTO loanedobjects (objectTypeCode, objectId, loanId, damaged)
-            VALUES (:objectTypeCode, :objectId, :loanId, false)
+            INSERT INTO loanedobjects (object_type_code, object_id, loan_id, damaged)
+            VALUES (:object_type_code, :object_id, :loan_id, false)
             ");
 
         $stmt->execute([
-            'objectTypeCode' => $object->getObjectTypeCode(),
-            'objectId' => $object->getObjectId(),
-            'loanId' => $loanId
+            'object_type_code' => $object->getObjectTypeCode(),
+            'object_id' => $object->getId(),
+            'loan_id' => $loan_id
         ]); 
     }
 
-    public function markAsDamaged(int $loanId, int $objectId): void
+    public function markAsDamaged(int $loan_id, int $object_id): void
     {
         $stmt = $this->connection->prepare("
             UPDATE loanedobjects 
             SET damaged = true
-            WHERE loanId = :loanId AND objectId = :objectId
+            WHERE loan_id = :loan_id AND object_id = :object_id
         ");
 
         $stmt->execute([
-            'loanId' => $loanId,
-            'objectId' => $objectId
+            'loan_id' => $loan_id,
+            'object_id' => $object_id
         ]);
     }
 
-    public function isDamaged(int $loanId, int $objectId): bool
+    public function isDamaged(int $loan_id, int $object_id): bool
     {
         $stmt = $this->connection->prepare("
             SELECT damaged FROM loanedobjects 
-            WHERE loanId = :loanId AND objectId = :objectId
+            WHERE loan_id = :loan_id AND object_id = :object_id
         ");
 
         $stmt->execute([
-            'loanId' => $loanId,
-            'objectId' => $objectId
+            'loan_id' => $loan_id,
+            'object_id' => $object_id
         ]);
 
         return (bool) $stmt->fetchColumn();
     }
 
-    public function getLoanedObject(int $loanId, int $objectId): ?LoanedObject
+    public function getLoanedObject(int $loan_id, int $object_id): ?LoanedObject
     {
         $stmt = $this->connection->prepare("
             SELECT * FROM loanedobjects 
-            WHERE loanId = :loanId AND objectId = :objectId
+            WHERE loan_id = :loan_id AND object_id = :object_id
         ");
 
         $stmt->execute([
-            'loanId' => $loanId,
-            'objectId' => $objectId
+            'loan_id' => $loan_id,
+            'object_id' => $object_id
         ]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row) {
             return new LoanedObject(
-                $row['objectTypeCode'],
-                $row['objectId'],
-                $row['loanId'],
+                $row['object_type_code'],
+                $row['object_id'],
+                $row['loan_id'],
                 (bool)$row['damaged']
             );
         }
@@ -82,24 +82,26 @@ class LoanedObjectRepository
         return null;
     }
 
-    public function getObjectsByLoanId(int $loanId): array
+    public function getObjectsByLoanId(int $loan_id): array
     {
-        $stmt = this->connection->prepare("
-            SELECT o.id, o.objectTypeCode, o.state, o.location
-            FROM loanedobjects lo JOIN object_ o ON lo.objectId = o.id
-            WHERE lo.loanId = :loanId
+        $stmt = $this->connection->prepare("
+            SELECT o.id, o.object_type_code, o.state, o.location
+            FROM loanedobjects lo JOIN object_ o ON lo.object_id = o.id
+            WHERE lo.loan_id = :loan_id
         ");
 
-        $stmt->execute(['loanId' => $loanId]);
+        $stmt->execute(['loan_id' => $loan_id]);
 
         $objects = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $objects[] = new InventoryItem(
-                $row['id'],
-                $row['objectTypeCode'],
+            $item = new InventoryItem(
+                $row['object_type_code'],
                 $row['state'],
                 $row['location']
             );
+            $item->setId((int) $row['id']);
+
+            $objects[] = $item;
         }
 
         return $objects;
