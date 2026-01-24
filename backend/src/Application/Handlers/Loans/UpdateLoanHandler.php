@@ -1,13 +1,13 @@
 <?php
 
-require_once __DIR__ . '/../../../Infrastructure/Persistence/LoanRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanRepository.php';
 // require_once __DIR__ . '/../../../Infrastructure/Persistence/LoanedItemRepository.php';
 
 
 require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Connection/TransactionManager.php';
 
-require_once __DIR__ . "../../Commands/UpdateLoanCommand.php"
+require_once __DIR__ . "/../../Commands/Loans/UpdateLoanCommand.php";
 
 class UpdateLoanHandler {
     private $loanRepository;
@@ -83,7 +83,7 @@ class UpdateLoanHandler {
 
             $this->transaction->commit();   
 
-        }catch(Exception ex) {
+        }catch(Exception $ex) {
             $this->transaction->rollback();
             throw new Exception("Si e' verificato qualche problema nella chiusura del Prestito");
         }

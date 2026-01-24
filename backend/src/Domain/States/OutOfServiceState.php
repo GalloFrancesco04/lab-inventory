@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__."./ItemState.php/";
+require_once __DIR__.'/ItemState.php';
 class OutOfServiceState implements ItemState {
-    public function getCode(): int {
+    public function getStateCode(): int {
         return 5; // OutOfService is 5
     }
 

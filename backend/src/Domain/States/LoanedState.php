@@ -1,11 +1,11 @@
 <?php
 
-require_once __DIR__."./ItemState.php/";
-require_once __DIR__."./AvailableState.php/";
-require_once __DIR__."./DamagedState.php/";
+require_once __DIR__.'/ItemState.php';
+require_once __DIR__.'/AvailableState.php';
+require_once __DIR__.'/DamagedState.php';
 
 class LoanedState implements ItemState {
-    public function getCode(): int {
+    public function getStateCode(): int {
         return 2; // Loaned is 2
     }
 

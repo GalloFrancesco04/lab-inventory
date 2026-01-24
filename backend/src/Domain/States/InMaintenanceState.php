@@ -1,11 +1,11 @@
 <?php
 
-require_once __DIR__."./ItemState.php/";
-require_once __DIR__."./OutOfServiceState.php/";
-require_once __DIR__."./AvailableState.php/";
+require_once __DIR__.'/ItemState.php';
+require_once __DIR__.'/OutOfServiceState.php';
+require_once __DIR__.'/AvailableState.php';
 
 class InMaintenanceState implements ItemState {
-    public function getCode(): int {
+    public function getStateCode(): int {
         return 3; // InMaintenance is 3
     }
 

@@ -1,10 +1,10 @@
 <?php
 
-require_once __DIR__."./ItemState.php/";
-require_once __DIR__."./InMaintenanceState.php/";
+require_once __DIR__.'/ItemState.php';
+require_once __DIR__.'/InMaintenanceState.php';
 
 class DamagedState implements ItemState {
-    public function getCode(): int {
+    public function getStateCode(): int {
         return 4; // Damaged is 4
     }
 

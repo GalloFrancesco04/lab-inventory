@@ -1,9 +1,9 @@
 <?php
 
-require_once __DIR__ . '/../../../Infrastructure/Persistence/LoanRepository.php';
-require_once __DIR__ . '/../../../Infrastructure/Persistence/ItemRepository.php';
-require_once __DIR__ . '/../../../Infrastructure/Persistence/ClientRepository.php';
-// require_once __DIR__ . '/../../../Infrastructure/Persistence/LoanedItemRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ItemRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ClientRepository.php';
+// require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanedItemRepository.php';
 
 require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Connection/TransactionManager.php';
@@ -21,22 +21,22 @@ class CreateLoanHandler {
     public function __construct() {
         $db = new Database();
 
-        $this->loanRepository = new LoanRepository($db->conn);
-        $this->itemRepository = new ItemRepository($db->conn);
-        $this->clientRepository = new ClientRepository($db->conn);
-        // $this->loanedItemRepository = new LoanedItemRepository($db->conn);
+        $this->loanRepository = new LoanRepository($db->getConnection());
+        $this->itemRepository = new ItemRepository($db->getConnection());
+        $this->clientRepository = new ClientRepository($db->getConnection());
+        // $this->loanedItemRepository = new LoanedItemRepository($db->getConnection());
 
-        $this->transaction = new TransactionManager($db->conn);
+        $this->transaction = new TransactionManager($db->getConnection());
     }
 
     // Handle the CreateLoanCommand
     public function handle(CreateLoanCommand $command) {
        
-        if (empty($command->start_date) || empty($command->end_date) empty($command->client_id)) {
+        if (empty($command->start_date) || empty($command->end_date) || empty($command->client_id)) {
              throw new Exception("Data di inizio, Data di fine e Id Cliente sono obbligatori");
         }
 
-        if(count($comman->objects) > 5) {
+        if(count($command->objects) > 5) {
             throw new Exception("Non e' possibile prendere in prestito piu' di 5 oggetti alla volta");
         }
 
@@ -51,7 +51,7 @@ class CreateLoanHandler {
                 
         // i check if end_date - start_date <= 30d
         if ($interval->days > 30) {
-            throw new Exception("La Data di fine non puo' essere successiva alla Data di inizio di piu' di 30 giorni")
+            throw new Exception("La Data di fine non puo' essere successiva alla Data di inizio di piu' di 30 giorni");
         }
 
         // loan fields are valid here
@@ -73,7 +73,7 @@ class CreateLoanHandler {
             $quantity = 0;
 
             // for each object of the loan I have to insert a new loanedObject
-            for($command->objects as $object){
+            foreach($command->objects as $object){
 
                 // $createdLoanedItem = $this->loanedItemRepository->create($createdLoan->id, $object);
 
@@ -107,7 +107,7 @@ class CreateLoanHandler {
 
             $this->transaction->commit();
 
-        }catch(Exception ex) {
+        }catch(Exception $e) {
             $this->transaction->rollback();
             throw new Exception("Si e' verificato qualche problema nella creazione del Prestito");
         }

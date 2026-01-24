@@ -1,31 +1,31 @@
 <?php
 
-require_once __DIR__ . '/../../../Infrastructure/Persistence/LoanRepository.php';
-require_once __DIR__ . '/../../../Infrastructure/Persistence/ItemRepository.php';
-// require_once __DIR__ . '/../../../Infrastructure/Persistence/LoanedItemRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ItemRepository.php';
+// require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanedItemRepository.php';
 
 require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Connection/TransactionManager.php';
 
-require_once __DIR__ . '/../../../Domain/States/AvailableState()';
-require_once __DIR__ . '/../../../Domain/States/DamagedState()';
+require_once __DIR__ . '/../../../Domain/States/AvailableState.php';
+require_once __DIR__ . '/../../../Domain/States/DamagedState.php';
 
-require_once __DIR__ . '../../Commands/CloseLoanCommand.php';
+require_once __DIR__ . '/../../Commands/Loans/CloseLoanCommand.php';
 
 class CloseLoanHandler {
     private $loanRepository;
     // private $loanedItemRepository;
-    private $itemRepository
+    private $itemRepository;
     private $transaction;
 
     public function __construct() {
         $db = new Database();
 
-        $this->loanRepository = new LoanRepository($db->conn);
-        $this->itemRepository = new ItemRepository($db->conn);
-        // $loanedItemRepository = new LoanedItemRepository($db->conn);
+        $this->loanRepository = new LoanRepository($db->getConnection());
+        $this->itemRepository = new ItemRepository($db->getConnection());
+        // $loanedItemRepository = new LoanedItemRepository($db->getConnection());
 
-        $this->transaction = new TransactionManager($db->conn);
+        $this->transaction = new TransactionManager($db->getConnection());
     }
 
     public function handle(CloseLoanCommand $command) {
@@ -63,19 +63,19 @@ class CloseLoanHandler {
 
                // $this->loanedItemRepository->update($loanedObject);
 
-                $this->itemRepository->updateState($loanedObject->object_id, new DamagedState()->getCode());
+                $this->itemRepository->updateState($loanedObject->object_id, (new DamagedState())->getCode());
                 continue;
 
             }
 
             // I release the non damaged objects
-            $this->itemRepository->updateState($loanedObject->object_id, new AvailableState()->getCode());
+            $this->itemRepository->updateState($loanedObject->object_id, (new AvailableState())->getCode());
                     
             }
 
             $this->transaction->commit();   
 
-            }catch(Exception ex) {
+            }catch(Exception $ex) {
 
                 $this->transaction->rollback();
                 throw new Exception("Si e' verificato qualche problema nella chiusura del Prestito");
