@@ -203,8 +203,8 @@ INGSW-2526-T14/
         │   │   ├── ClientsView.js
         │   │   └── ClientsPresenter.js
         │   ├── inventory/
-        │   │   ├── ItemsView.js
-        │   │   └── ItemsPresenter.js
+        │   │   ├── InventoryView.js
+        │   │   └── InventoryPresenter.js
         │   ├── loans/
         │   │   ├── LoansView.js
         │   │   └── LoansPresenter.js
