@@ -22,7 +22,6 @@ export function initClientsView(presenter) {
 				<td>${client.id}</td>
 				<td>${client.name}</td>
 				<td>${client.email}</td>
-				<td>${client.phone}</td>
 				<td>
 					<span class="badge ${client.activeLoans > 0 ? "badge-warning" : "badge-success"}">
 						${client.activeLoans}
