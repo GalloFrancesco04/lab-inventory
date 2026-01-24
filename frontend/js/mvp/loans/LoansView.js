@@ -1,21 +1,5 @@
 import { BaseView } from "../core/BaseView.js";
 
-function setStatusBadge(el, statusText) {
-  el.textContent = statusText;
-  el.className =
-    "badge " + (statusText === "Active" ? "badge-success" : "badge-neutral");
-}
-
-function renderItems(container, items) {
-  container.innerHTML = "";
-  items.forEach((item) => {
-    const span = document.createElement("span");
-    span.className = "chip";
-    span.textContent = item;
-    container.appendChild(span);
-  });
-}
-
 class LoansView extends BaseView {
   constructor(presenter) {
     super(presenter);
@@ -107,9 +91,25 @@ class LoansView extends BaseView {
     this.detailId.textContent = loan.id;
     this.detailClient.textContent = loan.client;
     this.detailReturn.textContent = loan.returnDate || "-";
-    setStatusBadge(this.detailStatus, loan.status);
-    renderItems(this.detailItems, loan.items);
+    this.setStatusBadge(this.detailStatus, loan.status);
+    this.renderItems(this.detailItems, loan.items);
     this.openModal("loan-detail-modal");
+  }
+
+  setStatusBadge(el, statusText) {
+    el.textContent = statusText;
+    el.className =
+      "badge " + (statusText === "Active" ? "badge-success" : "badge-neutral");
+  }
+
+  renderItems(container, items) {
+    container.innerHTML = "";
+    items.forEach((item) => {
+      const span = document.createElement("span");
+      span.className = "chip";
+      span.textContent = item;
+      container.appendChild(span);
+    });
   }
 
   getStatusBadgeClass(status) {
