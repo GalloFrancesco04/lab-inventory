@@ -81,7 +81,7 @@ class ItemRepository
     //     ]);
     // }
 
-    public function updateState(int $id, string $newState): void
+    public function updateState(int $id, int $newState): void
     {
         $stmt = $this->connection->prepare("
             UPDATE object_ 

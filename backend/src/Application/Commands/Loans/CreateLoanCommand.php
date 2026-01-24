@@ -15,12 +15,8 @@ class CreateLoanCommand {
         $this->end_date = $end_date;
         $this->client_id = $client_id;
         $this->notes = $notes;
-        $this->state = 1; // this is the loan creation so the state has to be 1
+        $this->state = 1; // this is the loan creation so the state has to be 1 (Active)
         $this->objects = $objects;
-        // set every object as Loaned
-        foreach($this->objects as $object) {
-            $object->state = new LoanedState();
-        }
     }
 
 }
