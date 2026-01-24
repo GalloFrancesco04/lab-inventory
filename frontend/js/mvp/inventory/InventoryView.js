@@ -94,9 +94,9 @@ class InventoryView extends BaseView {
   }
 
   typeBadgeClass(type) {
-    if (type === "Repair") return "badge badge-danger";
-    if (type === "Replacement") return "badge badge-warning";
-    if (type === "Preventive") return "badge badge-success";
+    if (type === "repair") return "badge badge-danger";
+    if (type === "replacement") return "badge badge-warning";
+    if (type === "preventive") return "badge badge-success";
     return "badge";
   }
 

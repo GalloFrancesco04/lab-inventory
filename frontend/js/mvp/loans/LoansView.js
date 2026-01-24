@@ -98,7 +98,7 @@ class LoansView extends BaseView {
   setStatusBadge(el, statusText) {
     el.textContent = statusText;
     el.className =
-      "badge " + (statusText === "Active" ? "badge-success" : "badge-neutral");
+      "badge " + (statusText === "active" ? "badge-success" : "badge-neutral");
   }
 
   renderItems(container, items) {
@@ -112,8 +112,8 @@ class LoansView extends BaseView {
   }
 
   getStatusBadgeClass(status) {
-    if (status === "Active") return "badge badge-success";
-    if (status === "Closed") return "badge badge-neutral";
+    if (status === "active") return "badge badge-success";
+    if (status === "closed") return "badge badge-neutral";
     return "badge";
   }
 
