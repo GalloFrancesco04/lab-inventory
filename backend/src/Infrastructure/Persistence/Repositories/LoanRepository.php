@@ -2,6 +2,7 @@
 
 use PDO;
 use Application\Domain\Entities\Loan;
+use DateTime;
 
 class LoanRepository{
 
@@ -176,10 +177,14 @@ class LoanRepository{
 
     private function mapRowToLoan(array $row): Loan
     {
+        $startDate = new DateTime($row['startDate']);
+        $endDate = new DateTime($row['endDate']);
+        $returnDate =(!empty($row['returnDate'])) ? new DateTime($row['returnDate']) : null;
+
         $Loan = new Loan(
-            $row['startDate'],
-            $row['endDate'],
-            $row['returnDate'],
+            $startDate,
+            $endDate,
+            $returnDate,
             $row['clientId'],
             $row['notes'],
             (int)$row['quantity'],
