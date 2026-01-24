@@ -1,8 +1,10 @@
 import { BaseView } from "../core/BaseView.js";
 
 function statusBadgeClass(status) {
-  if (status === "Available") return "badge badge-success";
-  if (status === "Loaned") return "badge badge-warning";
+  if (status === "available") return "badge badge-success";
+  if (status === "loaned") return "badge badge-warning";
+  if (status === "maintenance") return "badge badge-warning";
+  if (status === "outofservice") return "badge badge-danger";
   return "badge";
 }
 
@@ -12,6 +14,8 @@ class InventoryView extends BaseView {
     this.setupElements();
     this.setupModals();
     this.setupEventListeners();
+    // Auto re-render on presenter data changes
+    this.setupAutoRender(() => this.render());
     this.render();
   }
 

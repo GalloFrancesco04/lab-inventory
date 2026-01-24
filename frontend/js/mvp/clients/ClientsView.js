@@ -7,6 +7,8 @@ class ClientsView extends BaseView {
     this.setupElements();
     this.setupModals();
     this.setupEventListeners();
+    // Auto re-render on presenter data changes
+    this.setupAutoRender(() => this.render());
     this.render();
   }
 
@@ -87,7 +89,6 @@ class ClientsView extends BaseView {
       };
       if (!payload.firstName || !payload.email) return;
       this.presenter.addClient(payload);
-      this.render();
       this.closeModal("new-client-modal");
     });
 
@@ -108,7 +109,6 @@ class ClientsView extends BaseView {
       const reason = this.blockReasonInput?.value?.trim() || "";
       this.presenter.blockClient(this.currentClientId, days, reason);
       this.closeModal("block-client-modal");
-      this.render();
       this.openClientDetail(this.currentClientId);
     });
 
@@ -117,7 +117,6 @@ class ClientsView extends BaseView {
       this.presenter.deleteClient(this.currentClientId);
       this.closeModal("delete-client-modal");
       this.closeModal("client-detail-modal");
-      this.render();
     });
   }
 

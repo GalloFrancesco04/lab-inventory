@@ -1,5 +1,6 @@
 export class LoansPresenter {
   constructor() {
+    this.listeners = [];
     this.loans = [
       {
         id: "10001",
@@ -29,6 +30,14 @@ export class LoansPresenter {
         ],
       },
     ];
+  }
+
+  subscribe(callback) {
+    this.listeners.push(callback);
+  }
+
+  notifyListeners() {
+    this.listeners.forEach((cb) => cb());
   }
 
   getLoans() {

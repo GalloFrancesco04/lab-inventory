@@ -6,6 +6,8 @@ class LoansView extends BaseView {
     this.setupElements();
     this.setupModals();
     this.setupEventListeners();
+    // Auto re-render on presenter data changes
+    this.setupAutoRender(() => this.renderLoansTable());
     this.renderLoansTable();
   }
 

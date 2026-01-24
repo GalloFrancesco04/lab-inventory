@@ -1,5 +1,6 @@
 export class InventoryPresenter {
   constructor() {
+    this.listeners = [];
     this.objectTypes = [
       {
         code: "ELEC",
@@ -120,6 +121,14 @@ export class InventoryPresenter {
     ];
   }
 
+  subscribe(callback) {
+    this.listeners.push(callback);
+  }
+
+  notifyListeners() {
+    this.listeners.forEach((cb) => cb());
+  }
+
   getItemById(id) {
     return this.items.find((i) => i.id === id);
   }
@@ -147,6 +156,7 @@ export class InventoryPresenter {
       maintenance: [],
     };
     this.items.push(newItem);
+    this.notifyListeners();
     return newItem;
   }
 }
