@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../../Infrastructure/Persistence/LoanRepository.php'
 require_once __DIR__ . '/../../../Infrastructure/Persistence/ItemRepository.php';
 // require_once __DIR__ . '/../../../Infrastructure/Persistence/LoanedItemRepository.php';
 
-require_once __DIR__ . '/../../../config/Database.php';
+require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Connection/TransactionManager.php';
 
 require_once __DIR__ . '/../../../Domain/States/AvailableState()';

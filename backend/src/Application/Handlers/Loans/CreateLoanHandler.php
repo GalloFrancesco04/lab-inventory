@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../../Infrastructure/Persistence/ItemRepository.php'
 require_once __DIR__ . '/../../../Infrastructure/Persistence/ClientRepository.php';
 // require_once __DIR__ . '/../../../Infrastructure/Persistence/LoanedItemRepository.php';
 
-require_once __DIR__ . '/../../../config/Database.php';
+require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Connection/TransactionManager.php';
 
 require_once __DIR__ . '/../../Commands/Loans/CreateLoanCommand.php';
@@ -108,7 +108,7 @@ class CreateLoanHandler {
             $this->transaction->commit();
 
         }catch(Exception ex) {
-             $this->transaction->rollback();
+            $this->transaction->rollback();
             throw new Exception("Si e' verificato qualche problema nella creazione del Prestito");
         }
 
