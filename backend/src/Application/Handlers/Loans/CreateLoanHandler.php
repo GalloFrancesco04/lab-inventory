@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanRepository.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ItemRepository.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ClientRepository.php';
-// require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanedItemRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanedObjectRepository.php';
 
 require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Connection/TransactionManager.php';
@@ -15,7 +15,7 @@ class CreateLoanHandler {
     private $itemRepository;
     private $clientRepository;
     private $transaction;
-    // private $loanedItemRepository;
+    private $loanedObjectRepository;
 
 
     public function __construct() {
@@ -24,7 +24,7 @@ class CreateLoanHandler {
         $this->loanRepository = new LoanRepository($db->getConnection());
         $this->itemRepository = new ItemRepository($db->getConnection());
         $this->clientRepository = new ClientRepository($db->getConnection());
-        // $this->loanedItemRepository = new LoanedItemRepository($db->getConnection());
+        $this->loanedObjectRepository = new LoanedObjectRepository($db->getConnection());
 
         $this->transaction = new TransactionManager($db->getConnection());
     }
@@ -75,10 +75,7 @@ class CreateLoanHandler {
             // for each object of the loan I have to insert a new loanedObject
             foreach($command->objects as $object){
 
-                // $createdLoanedItem = $this->loanedItemRepository->create($createdLoan->id, $object);
-
-                // TODO: rimuovere quando verra' implementato l'LoanedItemRepository
-                $createdLoanedItem = null;
+                 $createdLoanedItem = $this->loanedObjectRepository->create($createdLoan->id, $object);
 
                 if (empty($createdLoanedItem)){
                     // loaned object not created

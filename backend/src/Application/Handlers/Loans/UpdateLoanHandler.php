@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanRepository.php';
-// require_once __DIR__ . '/../../../Infrastructure/Persistence/LoanedItemRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/LoanedObjectRepository.php';
 
 
 require_once __DIR__ . '/../../../../config/Database.php';
@@ -11,14 +11,14 @@ require_once __DIR__ . "/../../Commands/Loans/UpdateLoanCommand.php";
 
 class UpdateLoanHandler {
     private $loanRepository;
-    // private $loanedObjectRepository;
+    private $loanedObjectRepository;
     private $transaction;
 
     public function __construct() {
         $db = new Database();
 
         $this->loanRepository = new LoanRepository($db->conn);
-        // $this->loanedObjectRepository = new LoanedObjectRepository($db->conn);
+        $this->loanedObjectRepository = new LoanedObjectRepository($db->conn);
 
         $this->transaction = new TransactionManager($db->conn);
     }
@@ -49,16 +49,14 @@ class UpdateLoanHandler {
         
             foreach($command->objects as $updatedObject) {
             
-                // $loanedObject = $this->loanedObjectRepository->getLoanedObject($updatedObject->object_id, $loanToUpdate->id);
+                $loanedObject = $this->loanedObjectRepository->getLoanedObject($loanToUpdate->id, $updatedObject->object_id );
                 
-                $loanedObject = null;
-
                 //the object is a new one so I have to add it
                 if(empty($loanedObject)) {
                 
                     if(count($loanToUpdate->quantity) < 5) {
                     
-                        // $createdLoanedObject = $this->loanedObjectRepository->CreateLoanedObject($loanToUpdate->id, $updatedObject);
+                        $createdLoanedObject = $this->loanedObjectRepository->create($loanToUpdate->id, $updatedObject);
 
                         $createdLoanedObject = null;
 
@@ -73,8 +71,8 @@ class UpdateLoanHandler {
                     }
                     
                     //here the object exists and only the status has changed
-                    // if ($loanedObject->damaged != $updatedObject->damaged)
-                    //     $this->loanedObjectRepository->UpdateLoanedObject($updatedObject);
+                    if ($loanedObject->damaged != $updatedObject->damaged)
+                        $this->loanedObjectRepository->markAsDamaged($loanToUpdate->id, $updatedObject->id);
                 }
 
             }   

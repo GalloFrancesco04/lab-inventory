@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanRepository.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ItemRepository.php';
-// require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanedItemRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanedObjectRepository.php';
 
 require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Connection/TransactionManager.php';
@@ -14,7 +14,7 @@ require_once __DIR__ . '/../../Commands/Loans/CloseLoanCommand.php';
 
 class CloseLoanHandler {
     private $loanRepository;
-    // private $loanedItemRepository;
+    private $loanedObjectRepository;
     private $itemRepository;
     private $transaction;
 
@@ -23,7 +23,7 @@ class CloseLoanHandler {
 
         $this->loanRepository = new LoanRepository($db->getConnection());
         $this->itemRepository = new ItemRepository($db->getConnection());
-        // $loanedItemRepository = new LoanedItemRepository($db->getConnection());
+        $this->$loanedObjectRepository = new LoanedObjectRepository($db->getConnection());
 
         $this->transaction = new TransactionManager($db->getConnection());
     }
@@ -51,26 +51,24 @@ class CloseLoanHandler {
             $result = $this->loanRepository->closeLoan($loanToClose->id, $returnDate);
                 
             // I want to mark the object state as 'available' or 'damaged' so first I get all the loanedObjects
-            //$loanedObjects = $this->loanedItemRepository->getLoanedObjectsFromLoanId($loanToClose->id);
-              
-            $loanedObjects = null;
+            $loanedObjects = $this->loanedObjectRepository->getLoanedObjectsFromLoanId($loanToClose->id);
 
             foreach($loanedObjects as $loanedObject) {
             
-            if ($loanedObject->is_damaged) 
-            {
-                $loanedObject->state = 1;
+                if ($loanedObject->is_damaged) 
+                {
+                    $loanedObject->state = 1;
 
-               // $this->loanedItemRepository->update($loanedObject);
+                    $this->loanedObjectRepository->markAsDamaged($loanToClose->id, $loanedObject->id);
 
-                $this->itemRepository->updateState($loanedObject->object_id, (new DamagedState())->getCode());
-                continue;
+                    $this->itemRepository->updateState($loanedObject->object_id, (new DamagedState())->getCode());
+                    continue;
 
-            }
+                }
 
-            // I release the non damaged objects
-            $this->itemRepository->updateState($loanedObject->object_id, (new AvailableState())->getCode());
-                    
+                // I release the non damaged objects
+                $this->itemRepository->updateState($loanedObject->object_id, (new AvailableState())->getCode());
+                        
             }
 
             $this->transaction->commit();   
