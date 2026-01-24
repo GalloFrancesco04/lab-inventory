@@ -20,14 +20,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const newLoanBtn = document.getElementById("new-loan-btn");
   const newItemBtn = document.getElementById("new-item-btn");
+  const newClientBtn = document.getElementById("new-client-btn");
 
   function updateToolbarVisibility() {
     const current = window.location.hash || "#/loans";
     const isLoansRoute = current === "#/loans";
     const isInventoryRoute = current === "#/inventory";
+    const isClientsRoute = current === "#/clients";
 
     if (newLoanBtn) newLoanBtn.classList.toggle("hidden", !isLoansRoute);
     if (newItemBtn) newItemBtn.classList.toggle("hidden", !isInventoryRoute);
+    if (newClientBtn) newClientBtn.classList.toggle("hidden", !isClientsRoute);
   }
 
   initRouter(routes, "#/loans");

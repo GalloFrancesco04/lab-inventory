@@ -34,4 +34,23 @@ export class ClientsPresenter {
   getClients() {
     return this.clients;
   }
+
+  addClient(payload) {
+    const nextId = String(1000 + this.clients.length + 1);
+    const fullName = [payload.firstName, payload.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+    const newClient = {
+      id: nextId,
+      name: fullName || payload.email || "Unnamed",
+      email: payload.email,
+      phone: "",
+      activeLoans: 0,
+      totalLoans: 0,
+      lastLoan: "—",
+    };
+    this.clients.push(newClient);
+    return newClient;
+  }
 }
