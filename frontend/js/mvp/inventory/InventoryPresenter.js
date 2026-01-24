@@ -1,5 +1,31 @@
 export class InventoryPresenter {
   constructor() {
+    this.objectTypes = [
+      {
+        code: "ELEC",
+        name: "Electronics",
+        description: "Electronic devices",
+        model: "Various",
+        brand: "Various",
+        quantity: 15,
+      },
+      {
+        code: "FURN",
+        name: "Furniture",
+        description: "Office furniture",
+        model: "Various",
+        brand: "Various",
+        quantity: 8,
+      },
+      {
+        code: "TOOL",
+        name: "Tools",
+        description: "Work tools",
+        model: "Various",
+        brand: "Various",
+        quantity: 12,
+      },
+    ];
     this.items = [
       {
         id: "20001",
@@ -100,5 +126,27 @@ export class InventoryPresenter {
 
   getItems() {
     return this.items;
+  }
+
+  getItemTypes() {
+    return this.objectTypes;
+  }
+
+  addItem(itemData) {
+    const objectType = this.objectTypes.find(
+      (t) => t.code === itemData.typeCode,
+    );
+    if (!objectType) return null;
+    const newItem = {
+      id: String(20000 + this.items.length + 1),
+      name: objectType.name,
+      type: objectType.name,
+      status: itemData.status || "Available",
+      location: itemData.location,
+      imageUrl: null,
+      maintenance: [],
+    };
+    this.items.push(newItem);
+    return newItem;
   }
 }

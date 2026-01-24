@@ -6,7 +6,7 @@ export class LoansPresenter {
         client: "Mario Sale",
         status: "Active",
         returnDate: "12/12/2024",
-        items: ["Laptop", "Mouse"],
+        items: ["Computer", "Peripherals"],
       },
       {
         id: "10002",
@@ -20,7 +20,7 @@ export class LoansPresenter {
         client: "Marius Salis",
         status: "Active",
         returnDate: "20/11/2024",
-        items: ["Monitor", "HDMI Cable"],
+        items: ["Computer", "Peripherals"],
       },
     ];
   }

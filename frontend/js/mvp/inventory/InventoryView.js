@@ -12,10 +12,18 @@ class InventoryView extends BaseView {
     this.setupElements();
     this.setupModals();
     this.setupEventListeners();
+    this.render();
   }
 
   setupElements() {
-    // Modal
+    // New Item Modal
+    this.newItemForm = this.getElement("new-item-form");
+    this.newItemType = this.getElement("new-item-type");
+    this.newItemLocation = this.getElement("new-item-location");
+    this.newItemStatus = this.getElement("new-item-status");
+    this.newItemBtn = this.getElement("new-item-btn");
+
+    // Detail Modal
     this.itemTitle = this.getElement("item-modal-title");
     this.itemName = this.getElement("item-name");
     this.itemType = this.getElement("item-type");
@@ -31,11 +39,50 @@ class InventoryView extends BaseView {
   }
 
   setupModals() {
+    this.registerModal("new-item-modal", {
+      onOpen: () => this.populateObjectTypes(),
+      onClose: () => this.resetNewItemForm(),
+    });
+    this.setupModalCloseButtons("new-item-modal", [
+      "new-item-close",
+      "new-item-cancel",
+    ]);
+
     this.registerModal("item-detail-modal");
     this.setupModalCloseButtons("item-detail-modal", ["item-detail-close"]);
   }
 
+  populateObjectTypes() {
+    const types = this.presenter.getItemTypes();
+    this.newItemType.innerHTML = '<option value="">Select a type...</option>';
+    types.forEach((type) => {
+      const option = document.createElement("option");
+      option.value = type.code;
+      option.textContent = type.name;
+      this.newItemType.appendChild(option);
+    });
+  }
+
   setupEventListeners() {
+    // New Item Button
+    this.newItemBtn?.addEventListener("click", () => {
+      this.openModal("new-item-modal");
+    });
+
+    // New Item Form Submit
+    this.newItemForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const itemData = {
+        typeCode: this.newItemType.value,
+        location: this.newItemLocation.value,
+        status: this.newItemStatus.value,
+      };
+      this.presenter.addItem(itemData);
+      this.closeModal("new-item-modal");
+      this.render();
+    });
+
+    // Item Detail Modal
     this.rows.forEach((row) => {
       row.addEventListener("click", () => {
         this.openItemModal(row.dataset.itemId);
@@ -52,6 +99,34 @@ class InventoryView extends BaseView {
     if (type === "Replacement") return "badge badge-warning";
     if (type === "Preventive") return "badge badge-success";
     return "badge";
+  }
+
+  resetNewItemForm() {
+    this.newItemForm.reset();
+    this.newItemType.focus();
+  }
+
+  render() {
+    const tbody = document.querySelector("#inventory-view tbody");
+    tbody.innerHTML = "";
+    this.presenter.getItems().forEach((item) => {
+      const tr = document.createElement("tr");
+      tr.setAttribute("data-item-id", item.id);
+      tr.innerHTML = `
+        <td>${item.id}</td>
+        <td>${item.name}</td>
+        <td>${item.type}</td>
+        <td>${item.status}</td>
+        <td>${item.location}</td>
+      `;
+      tr.style.cursor = "pointer";
+      tr.addEventListener("click", () => {
+        this.openItemModal(item.id);
+      });
+      tbody.appendChild(tr);
+    });
+    // Re-setup rows after render
+    this.rows = document.querySelectorAll("#inventory-view [data-item-id]");
   }
 
   renderMaintenance(list) {
