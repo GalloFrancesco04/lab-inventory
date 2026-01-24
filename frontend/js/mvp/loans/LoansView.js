@@ -1,3 +1,5 @@
+import { modalManager } from "../../utils/ModalManager.js";
+
 function setStatusBadge(el, statusText) {
   el.textContent = statusText;
   el.className =
@@ -40,31 +42,30 @@ export function initLoansView(presenter) {
   const closeLoanNotes = document.getElementById("close-loan-notes");
   const closeLoanDamaged = document.getElementById("close-loan-damaged");
 
-  function openNewLoanModal() {
-    newLoanModal.classList.add("open");
-  }
+  // Register all modals
+  modalManager.register("new-loan-modal", {
+    onClose: () => {
+      newLoanForm?.reset();
+    },
+  });
 
-  function closeNewLoanModal() {
-    newLoanModal.classList.remove("open");
-    newLoanForm.reset();
-  }
+  modalManager.register("loan-detail-modal");
+  modalManager.register("close-loan-modal", {
+    onClose: () => {
+      closeLoanForm?.reset();
+    },
+  });
 
-  function openLoanDetailModal() {
-    loanDetailModal.classList.add("open");
-  }
-
-  function closeLoanDetailModal() {
-    loanDetailModal.classList.remove("open");
-  }
-
-  function openCloseLoanModal() {
-    closeLoanModal?.classList.add("open");
-  }
-
-  function closeCloseLoanModal() {
-    closeLoanModal?.classList.remove("open");
-    closeLoanForm?.reset();
-  }
+  // Setup close buttons
+  modalManager.setupCloseButtons("new-loan-modal", [
+    "cancel-loan-btn",
+    "new-loan-modal .modal-close",
+  ]);
+  modalManager.setupCloseButtons("loan-detail-modal", ["loan-detail-close"]);
+  modalManager.setupCloseButtons("close-loan-modal", [
+    "close-loan-notes-close",
+    "close-loan-cancel",
+  ]);
 
   function showLoanDetails(loanId) {
     const loan = presenter.getLoanById(loanId);
@@ -76,7 +77,7 @@ export function initLoansView(presenter) {
     detailReturn.textContent = loan.returnDate || "-";
     setStatusBadge(detailStatus, loan.status);
     renderItems(detailItems, loan.items);
-    openLoanDetailModal();
+    modalManager.open("loan-detail-modal");
   }
 
   function getStatusBadgeClass(status) {
@@ -116,34 +117,19 @@ export function initLoansView(presenter) {
   }
 
   // New Loan modal events
-  newLoanBtn?.addEventListener("click", openNewLoanModal);
-  cancelLoanBtn?.addEventListener("click", closeNewLoanModal);
-  modalCloseBtn?.addEventListener("click", closeNewLoanModal);
+  newLoanBtn?.addEventListener("click", () =>
+    modalManager.open("new-loan-modal"),
+  );
 
   newLoanForm?.addEventListener("submit", (e) => {
     e.preventDefault();
     console.log("New loan created (mock)");
-    closeNewLoanModal();
-  });
-
-  newLoanModal?.addEventListener("click", (e) => {
-    if (e.target === newLoanModal) closeNewLoanModal();
+    modalManager.close("new-loan-modal");
   });
 
   // Loan detail modal events
   closeLoanBtn?.addEventListener("click", () => {
-    openCloseLoanModal();
-  });
-  loanDetailClose?.addEventListener("click", closeLoanDetailModal);
-  loanDetailModal?.addEventListener("click", (e) => {
-    if (e.target === loanDetailModal) closeLoanDetailModal();
-  });
-
-  // Close Loan notes modal events
-  closeLoanCloseBtn?.addEventListener("click", closeCloseLoanModal);
-  closeLoanCancelBtn?.addEventListener("click", closeCloseLoanModal);
-  closeLoanModal?.addEventListener("click", (e) => {
-    if (e.target === closeLoanModal) closeCloseLoanModal();
+    modalManager.open("close-loan-modal");
   });
 
   closeLoanForm?.addEventListener("submit", (e) => {
@@ -152,17 +138,8 @@ export function initLoansView(presenter) {
       notes: closeLoanNotes?.value || "",
       damaged: closeLoanDamaged?.checked || false,
     });
-    closeCloseLoanModal();
-    closeLoanDetailModal();
-  });
-
-  // Close modals with Escape
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      if (newLoanModal?.classList.contains("open")) closeNewLoanModal();
-      if (loanDetailModal?.classList.contains("open")) closeLoanDetailModal();
-      if (closeLoanModal?.classList.contains("open")) closeCloseLoanModal();
-    }
+    modalManager.close("close-loan-modal");
+    modalManager.close("loan-detail-modal");
   });
 
   renderLoansTable();

@@ -1,3 +1,5 @@
+import { modalManager } from "../../utils/ModalManager.js";
+
 function statusBadgeClass(status) {
   if (status === "Available") return "badge badge-success";
   if (status === "Loaned") return "badge badge-warning";
@@ -16,6 +18,10 @@ export function initInventoryView(presenter) {
   const itemLocation = document.getElementById("item-location");
   const maintTbody = document.getElementById("item-maintenance-tbody");
   const sendToMaintBtn = document.getElementById("send-to-maintenance-btn");
+
+  // Register modal
+  modalManager.register("item-detail-modal");
+  modalManager.setupCloseButtons("item-detail-modal", ["item-detail-close"]);
 
   function typeBadgeClass(type) {
     if (type === "Repair") return "badge badge-danger";
@@ -66,7 +72,7 @@ export function initInventoryView(presenter) {
     itemStatus.className = statusBadgeClass(item.status);
     itemStatus.textContent = item.status;
     renderMaintenance(item.maintenance);
-    itemModal.classList.add("open");
+    modalManager.open("item-detail-modal");
   }
 
   rows.forEach((row) => {
@@ -75,22 +81,7 @@ export function initInventoryView(presenter) {
     });
   });
 
-  function closeItemModal() {
-    itemModal.classList.remove("open");
-  }
-
-  itemModalClose?.addEventListener("click", closeItemModal);
-  itemModal?.addEventListener("click", (e) => {
-    if (e.target === itemModal) closeItemModal();
-  });
-
   sendToMaintBtn?.addEventListener("click", () => {
     console.log("Send to maintenance (mock)");
-  });
-
-  // Close with ESC for consistency with other modals
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && itemModal?.classList.contains("open"))
-      closeItemModal();
   });
 }
