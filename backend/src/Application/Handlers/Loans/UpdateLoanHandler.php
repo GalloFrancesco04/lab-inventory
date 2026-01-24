@@ -45,23 +45,23 @@ class UpdateLoanHandler {
             
             //  if(count($loanToUpdate->quantity) < 5) {
              
-            // $createdLoanedObject = $this->loanedObjectRepository->CreateLoanedObject($loanToUpdate->id, $updatedObject);
+            //      $createdLoanedObject = $this->loanedObjectRepository->CreateLoanedObject($loanToUpdate->id, $updatedObject);
 
-            // if(empty($createdLoanedObject)){
-            // continue;
-            //}
+            //      if(empty($createdLoanedObject)){
+            //          continue;
+            //      }
 
-            //   $loanToUpdate->quantity++;
+            //      $loanToUpdate->quantity++;
             
-            //   continue;
+            //      continue;
             
-            //  }else {
+            //     }else {
             //
-            //   reached the maximum quantity of the loan
-            //   continue;
+            //          reached the maximum quantity of the loan
+            //      continue;
             //
+            //     }
             //  }
-            //}
                     
             //}
 

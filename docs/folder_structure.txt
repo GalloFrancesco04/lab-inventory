@@ -149,7 +149,7 @@ INGSW-2526-T14/
 │   │   │   │   ├── AvailableState.php
 │   │   │   │   ├── LoanedState.php
 │   │   │   │   ├── UnderMaintenanceState.php
-│   │   │   │   ├── BrokenState.php
+│   │   │   │   ├── DamagedState.php
 │   │   │   │   └── OutOfServiceState.php
 │   │   │   └── Exceptions/
 │   │   │       ├── InvalidStateTransition.php

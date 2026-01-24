@@ -34,8 +34,8 @@ class InventoryItem {
         $this->state->handleOutOfService($this);
     }
 
-    public function broken() : void {
-        $this->state->handleBroken($this);
+    public function damaged() : void {
+        $this->state->handleDamaged($this);
     }
 
     public function maintenance() : void {

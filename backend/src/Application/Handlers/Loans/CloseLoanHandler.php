@@ -3,7 +3,10 @@
 // require_once __DIR__ . '/../../../Infrastructure/LoanRepository.php';
 // require_once __DIR__ . '/../../../Infrastructure/LoanedItemRepository.php';
 // require_once __DIR__ . '/../../../Infrastructure/ItemRepository.php';
+// require_once __DIR__ L "/../../../Domain/States/AvailableState();
+// require_once __DIR__ L "/../../../Domain/States/DamagedState();
 // require Transaction
+
 require_once __DIR__ . "../../Commands/CloseLoanCommand.php"
 
 class CloseLoanHandler {
@@ -45,30 +48,23 @@ class CloseLoanHandler {
             //     throw new Exception("Si e' verificato qualche problema durante la chiusura del Prestito");
             // }
                 
-            // I want to mark the object state as 'available'
+            // I want to mark the object state as 'available' or 'damaged' so first I get all the loanedObjects
             // $loanedObjects = $this->loanedItemRepository->GetLoanedObjectsFromLoanId($loanToClose->id);
                 
             // foreach($loanedObjects as $loanedObject) {
             
             // if ($loanedObject->is_damaged) 
             // {
-                // $damagedResult = $this->itemRepository->MarkObjectAsDamaged($loanedObject->object_id);
+                // $loanedObject->state = 0;
 
-                // if(empty($damagedResult)) {
-                // the object is not marked as damaged
-                // continue;
-                //}
-
+                // $this->loanedItemRepository->update($loanedObject);
+                // $this->itemRepository->update($loanedObject->object_id, new DamagedState()->getCode());
                 // continue;
 
             //}
 
-            // $availableResult = $this->itemRepository->MarkObjectAsAvailable($loanedObject->object_id);
-                
-            // if(empty($availableResult)){
-            // the object is not makrked as available
-            // continue;
-            //}
+            // I release the non damaged objects
+            // $this->itemRepository->update($loanedObject->object_id, new AvailableState()->getCode());
                     
             //}
             // $transaction->commit();   

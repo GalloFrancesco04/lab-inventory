@@ -3,9 +3,9 @@
 require_once __DIR__."./ItemState.php/";
 require_once __DIR__."./InMaintenanceState.php/";
 
-class BrokenState implements ItemState {
+class DamagedState implements ItemState {
     public function getCode(): int {
-        return 4; // Broken is 4
+        return 4; // Damaged is 4
     }
 
     public function handleLoan(InventoryItem $item): void {
@@ -22,12 +22,12 @@ class BrokenState implements ItemState {
     }
 
 
-    public function handleBroken(InventoryItem $item): void {
+    public function handleDamaged(InventoryItem $item): void {
         return;
     }
 
     public function handleMaintenance(InventoryItem $item): void {
-        // from broken to maintenance
+        // from damaged to maintenance
         $item->setState(new InMaintenanceState());
         return;
     }

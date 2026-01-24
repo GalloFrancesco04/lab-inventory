@@ -19,7 +19,7 @@ class OutOfServiceState implements ItemState {
     }
 
 
-    public function handleBroken(InventoryItem $item): void {
+    public function handleDamaged(InventoryItem $item): void {
         return;
     }
 

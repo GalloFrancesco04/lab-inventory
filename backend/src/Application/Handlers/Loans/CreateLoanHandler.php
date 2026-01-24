@@ -27,6 +27,9 @@ class CreateLoanHandler {
              throw new Exception("Data di inizio, Data di fine e Id Cliente sono obbligatori");
         }
 
+        if(count($comman->objects) > 5) {
+            throw new Exception("Non e' possibile prendere in prestito piu' di 5 oggetti alla volta");
+        }
 
             $start = new DateTime($command->start_date);
             $end = new DateTime($command->end_date);
@@ -62,17 +65,19 @@ class CreateLoanHandler {
 
             // for each object of the loan I have to insert a new loanedObject
             // for($command->objects as $object){
-                // $createdLoanedObject = $this->loanedItemRepository->CreateLoanedItem($createdLoan->id, $object);
 
-                // $quantity++;
+                // $createdLoanedObject = $this->loanedItemRepository->create($createdLoan->id, $object->id, $object->);
 
                 // if (empty($createdLoanedObject)){
-                //  
                 //     continue;
                 //}
+                    
+                // $quantity++;
 
-                // mark object as loaned
-                // $this->itemRepository->MarkObjectAsLoaned($createdLoanedObject->object_id);
+                // i put the state of the objects as loaned
+                // $item = $this->itemRepository->getItem($object->id);
+                // $item->loaned();
+                // $this->itemRepository->changeState($object->id, new LoanedState()->getCode());
             //}
 
             // after I'm sure of the number of loanedObject successfully created I update the loan with the quantity

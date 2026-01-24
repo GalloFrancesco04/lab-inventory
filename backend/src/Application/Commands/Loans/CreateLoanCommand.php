@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__."/../../../Domain/States/LoanedState.php";
+
 class CreateLoanCommand {
     public $start_date;
     public $end_date;
@@ -15,6 +17,10 @@ class CreateLoanCommand {
         $this->notes = $notes;
         $this->state = 1; // this is the loan creation so the state has to be 1
         $this->objects = $objects;
+        // set every object as Loaned
+        foreach($this->objects as $object) {
+            $object->state = new LoanedState();
+        }
     }
 
 }

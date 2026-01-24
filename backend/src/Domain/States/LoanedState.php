@@ -2,8 +2,7 @@
 
 require_once __DIR__."./ItemState.php/";
 require_once __DIR__."./AvailableState.php/";
-require_once __DIR__."./MaintenanceState.php/";
-require_once __DIR__."./BrokenState.php/";
+require_once __DIR__."./DamagedState.php/";
 
 class LoanedState implements ItemState {
     public function getCode(): int {
@@ -25,14 +24,13 @@ class LoanedState implements ItemState {
     }
 
 
-    public function handleBroken(InventoryItem $item): void {
-        // from Loaned to broken
-        $item->setState(new BrokenState());
+    public function handleDamaged(InventoryItem $item): void {
+        // from Loaned to damaged
+        $item->setState(new DamagedState());
     }
 
     public function handleMaintenance(InventoryItem $item): void {
-        // Change the state from Available to Maintenance -> the case in which the object is consumed
-        $item->setState(new MaintenanceState());
+        return;
     }
 
 
