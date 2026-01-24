@@ -1,5 +1,6 @@
 import { BaseView } from "../core/BaseView.js";
 import { logger } from "../../utils/logger.js";
+import { toaster } from "../../utils/toaster.js";
 
 function statusBadgeClass(status) {
   if (status === "available") return "badge badge-success";
@@ -24,6 +25,7 @@ class InventoryView extends BaseView {
     // New Item Modal
     this.newItemForm = this.getElement("new-item-form");
     this.newItemType = this.getElement("new-item-type");
+    this.newItemName = this.getElement("new-item-name");
     this.newItemLocation = this.getElement("new-item-location");
     this.newItemStatus = this.getElement("new-item-status");
     this.newItemBtn = this.getElement("new-item-btn");
@@ -81,6 +83,7 @@ class InventoryView extends BaseView {
 
       const itemData = {
         typeCode: this.newItemType.value.trim(),
+        name: this.newItemName.value.trim(),
         location: this.newItemLocation.value.trim(),
         status: this.newItemStatus.value,
       };
@@ -89,6 +92,11 @@ class InventoryView extends BaseView {
 
       if (!itemData.typeCode) {
         this.showFieldError(this.newItemType, "Please select an object type");
+        hasError = true;
+      }
+
+      if (!itemData.name) {
+        this.showFieldError(this.newItemName, "Name is required");
         hasError = true;
       }
 
@@ -107,7 +115,10 @@ class InventoryView extends BaseView {
         return;
       }
 
-      this.presenter.addItem(itemData);
+      const newItem = this.presenter.addItem(itemData);
+      if (newItem) {
+        toaster.success(`Item "${newItem.name}" added successfully`);
+      }
       this.closeModal("new-item-modal");
     });
 

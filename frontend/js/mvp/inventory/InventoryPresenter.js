@@ -3,28 +3,28 @@ export class InventoryPresenter {
     this.listeners = [];
     this.objectTypes = [
       {
-        code: "ELEC",
-        name: "Electronics",
-        description: "Electronic devices",
+        code: "COMP",
+        name: "Computer",
+        description: "Computers and laptops",
         model: "Various",
         brand: "Various",
         quantity: 15,
       },
       {
-        code: "FURN",
-        name: "Furniture",
-        description: "Office furniture",
+        code: "PERF",
+        name: "Peripherals",
+        description: "Computer peripherals and accessories",
+        model: "Various",
+        brand: "Various",
+        quantity: 25,
+      },
+      {
+        code: "TABL",
+        name: "Tablet",
+        description: "Tablets and mobile devices",
         model: "Various",
         brand: "Various",
         quantity: 8,
-      },
-      {
-        code: "TOOL",
-        name: "Tools",
-        description: "Work tools",
-        model: "Various",
-        brand: "Various",
-        quantity: 12,
       },
     ];
     this.items = [
@@ -148,7 +148,7 @@ export class InventoryPresenter {
     if (!objectType) return null;
     const newItem = {
       id: String(20000 + this.items.length + 1),
-      name: objectType.name,
+      name: itemData.name || objectType.name,
       type: objectType.name,
       status: itemData.status || "available",
       location: itemData.location,

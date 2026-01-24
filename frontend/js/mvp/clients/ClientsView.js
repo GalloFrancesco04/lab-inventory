@@ -1,4 +1,5 @@
 import { BaseView } from "../core/BaseView.js";
+import { toaster } from "../../utils/toaster.js";
 
 class ClientsView extends BaseView {
   constructor(presenter) {
@@ -113,6 +114,9 @@ class ClientsView extends BaseView {
       }
 
       this.presenter.addClient(payload);
+      toaster.success(
+        `Client "${payload.firstName} ${payload.lastName}" added successfully`,
+      );
       this.closeModal("new-client-modal");
     });
 
@@ -132,6 +136,7 @@ class ClientsView extends BaseView {
       const days = Number(this.blockDaysInput?.value || 30);
       const reason = this.blockReasonInput?.value?.trim() || "";
       this.presenter.blockClient(this.currentClientId, days, reason);
+      toaster.warning(`Client blocked for ${days} days`);
       this.closeModal("block-client-modal");
       this.openClientDetail(this.currentClientId);
     });
@@ -139,6 +144,7 @@ class ClientsView extends BaseView {
     this.deleteClientConfirm?.addEventListener("click", () => {
       if (!this.currentClientId) return;
       this.presenter.deleteClient(this.currentClientId);
+      toaster.error("Client deleted");
       this.closeModal("delete-client-modal");
       this.closeModal("client-detail-modal");
     });

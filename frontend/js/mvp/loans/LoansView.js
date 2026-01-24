@@ -1,5 +1,6 @@
 import { BaseView } from "../core/BaseView.js";
 import { logger } from "../../utils/logger.js";
+import { toaster } from "../../utils/toaster.js";
 
 class LoansView extends BaseView {
   constructor(presenter) {
@@ -67,6 +68,7 @@ class LoansView extends BaseView {
     this.newLoanForm?.addEventListener("submit", (e) => {
       e.preventDefault();
       logger.mock("New loan created");
+      toaster.success("New loan created successfully");
       this.closeModal("new-loan-modal");
     });
 
@@ -80,6 +82,7 @@ class LoansView extends BaseView {
         notes: this.closeLoanNotes?.value || "",
         damaged: this.closeLoanDamaged?.checked || false,
       });
+      toaster.info("Loan closed successfully");
       this.closeModal("close-loan-modal");
       this.closeModal("loan-detail-modal");
     });
