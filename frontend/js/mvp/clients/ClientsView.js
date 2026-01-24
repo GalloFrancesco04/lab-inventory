@@ -109,12 +109,6 @@ export function initClientsView(presenter) {
     if (e.target === newClientModal) closeModal();
   });
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && newClientModal?.classList.contains("open")) {
-      closeModal();
-    }
-  });
-
   newClientForm?.addEventListener("submit", (e) => {
     e.preventDefault();
     const payload = {
