@@ -7,8 +7,14 @@ export class ModalManager {
   register(id, options = {}) {
     const element = document.getElementById(id);
     if (!element) {
-      console.warn(`Modal with id "${id}" not found`);
-      return;
+      console.warn(`ModalManager: Modal with id "${id}" not found in DOM`);
+      return false;
+    }
+
+    // Prevent double registration
+    if (this.modals.has(id)) {
+      console.warn(`ModalManager: Modal "${id}" is already registered`);
+      return false;
     }
 
     this.modals.set(id, {
@@ -23,22 +29,50 @@ export class ModalManager {
         this.close(id);
       }
     });
+
+    return true;
   }
 
   open(id) {
     const modal = this.modals.get(id);
-    if (!modal) return;
+    if (!modal) {
+      console.warn(`ModalManager: Cannot open unregistered modal "${id}"`);
+      return false;
+    }
 
     modal.element.classList.add("open");
-    if (modal.onOpen) modal.onOpen();
+    if (modal.onOpen) {
+      try {
+        modal.onOpen();
+      } catch (error) {
+        console.error(
+          `ModalManager: Error in onOpen callback for "${id}":`,
+          error,
+        );
+      }
+    }
+    return true;
   }
 
   close(id) {
     const modal = this.modals.get(id);
-    if (!modal) return;
+    if (!modal) {
+      console.warn(`ModalManager: Cannot close unregistered modal "${id}"`);
+      return false;
+    }
 
     modal.element.classList.remove("open");
-    if (modal.onClose) modal.onClose();
+    if (modal.onClose) {
+      try {
+        modal.onClose();
+      } catch (error) {
+        console.error(
+          `ModalManager: Error in onClose callback for "${id}":`,
+          error,
+        );
+      }
+    }
+    return true;
   }
 
   isOpen(id) {
@@ -72,9 +106,23 @@ export class ModalManager {
   }
 
   setupCloseButtons(id, buttonIds = []) {
+    const modal = this.modals.get(id);
+    if (!modal) {
+      console.warn(
+        `ModalManager: Cannot setup buttons for unregistered modal "${id}"`,
+      );
+      return;
+    }
+
     buttonIds.forEach((btnId) => {
       const btn = document.getElementById(btnId);
-      btn?.addEventListener("click", () => this.close(id));
+      if (!btn) {
+        console.warn(
+          `ModalManager: Close button "${btnId}" not found for modal "${id}"`,
+        );
+        return;
+      }
+      btn.addEventListener("click", () => this.close(id));
     });
   }
 }
