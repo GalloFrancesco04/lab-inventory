@@ -128,6 +128,26 @@ class LoanRepository{
         return $loans;
     }
 
+
+    public function getAllLoansOfUser(int $userId): array
+    {
+        $stmt = $this->connection->prepare("
+            SELECT * FROM loans WHERE userId = :userId
+        ");
+
+        $stmt->execute([
+            'userId' => $userId
+        ]);
+
+        $loans = [];
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $loans[] = $this->mapRowToLoan($row);
+        }
+
+        return $loans;
+    }
+
     public function getAll(): array
     {
         $stmt = $this->connection->prepare("SELECT * FROM loans");
