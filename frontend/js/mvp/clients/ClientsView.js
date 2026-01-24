@@ -1,3 +1,5 @@
+import { modalManager } from "../../utils/ModalManager.js";
+
 export function initClientsView(presenter) {
   const tbody = document.getElementById("clients-tbody");
   const newClientBtn = document.getElementById("new-client-btn");
@@ -35,6 +37,40 @@ export function initClientsView(presenter) {
 
   let currentClientId = null;
   if (!tbody) return;
+
+  // Register all modals
+  modalManager.register("new-client-modal", {
+    onOpen: () => {
+      newClientForm?.reset();
+      if (firstInput) firstInput.focus();
+    },
+  });
+
+  modalManager.register("client-detail-modal", {
+    onClose: () => {
+      currentClientId = null;
+    },
+  });
+
+  modalManager.register("block-client-modal");
+  modalManager.register("delete-client-modal");
+
+  // Setup close buttons
+  modalManager.setupCloseButtons("new-client-modal", [
+    "new-client-close",
+    "new-client-cancel",
+  ]);
+  modalManager.setupCloseButtons("client-detail-modal", [
+    "client-detail-close",
+  ]);
+  modalManager.setupCloseButtons("block-client-modal", [
+    "block-client-close",
+    "block-client-cancel",
+  ]);
+  modalManager.setupCloseButtons("delete-client-modal", [
+    "delete-client-close",
+    "delete-client-cancel",
+  ]);
 
   function render() {
     const clients = presenter.getClients();
@@ -83,31 +119,12 @@ export function initClientsView(presenter) {
       clientDetailStatus.style.color = "";
       clientBlockBtn.style.display = "";
     }
-    clientDetailModal.classList.add("open");
+    modalManager.open("client-detail-modal");
   }
 
-  function closeClientDetail() {
-    clientDetailModal?.classList.remove("open");
-    currentClientId = null;
-  }
-
-  function openModal() {
-    if (!newClientModal) return;
-    newClientModal.classList.add("open");
-    newClientForm?.reset();
-    if (firstInput) firstInput.focus();
-  }
-
-  function closeModal() {
-    newClientModal?.classList.remove("open");
-  }
-
-  newClientBtn?.addEventListener("click", openModal);
-  newClientClose?.addEventListener("click", closeModal);
-  newClientCancel?.addEventListener("click", closeModal);
-  newClientModal?.addEventListener("click", (e) => {
-    if (e.target === newClientModal) closeModal();
-  });
+  newClientBtn?.addEventListener("click", () =>
+    modalManager.open("new-client-modal"),
+  );
 
   newClientForm?.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -119,33 +136,17 @@ export function initClientsView(presenter) {
     if (!payload.firstName || !payload.email) return;
     presenter.addClient(payload);
     render();
-    closeModal();
-  });
-
-  clientDetailClose?.addEventListener("click", closeClientDetail);
-  clientDetailModal?.addEventListener("click", (e) => {
-    if (e.target === clientDetailModal) closeClientDetail();
+    modalManager.close("new-client-modal");
   });
 
   clientDeleteBtn?.addEventListener("click", () => {
     if (!currentClientId) return;
-    deleteClientModal?.classList.add("open");
+    modalManager.open("delete-client-modal");
   });
 
   clientBlockBtn?.addEventListener("click", () => {
     if (!currentClientId) return;
-    blockClientModal?.classList.add("open");
-  });
-
-  blockClientClose?.addEventListener("click", () => {
-    blockClientModal?.classList.remove("open");
-  });
-  blockClientCancel?.addEventListener("click", () => {
-    blockClientModal?.classList.remove("open");
-  });
-  blockClientModal?.addEventListener("click", (e) => {
-    if (e.target === blockClientModal)
-      blockClientModal.classList.remove("open");
+    modalManager.open("block-client-modal");
   });
 
   blockClientForm?.addEventListener("submit", (e) => {
@@ -154,41 +155,17 @@ export function initClientsView(presenter) {
     const days = Number(blockDaysInput?.value || 30);
     const reason = blockReasonInput?.value?.trim() || "";
     presenter.blockClient(currentClientId, days, reason);
-    blockClientModal?.classList.remove("open");
+    modalManager.close("block-client-modal");
     render();
     openClientDetail(currentClientId);
   });
 
-  deleteClientClose?.addEventListener("click", () => {
-    deleteClientModal?.classList.remove("open");
-  });
-  deleteClientCancel?.addEventListener("click", () => {
-    deleteClientModal?.classList.remove("open");
-  });
-  deleteClientModal?.addEventListener("click", (e) => {
-    if (e.target === deleteClientModal)
-      deleteClientModal.classList.remove("open");
-  });
   deleteClientConfirm?.addEventListener("click", () => {
     if (!currentClientId) return;
     presenter.deleteClient(currentClientId);
-    deleteClientModal?.classList.remove("open");
-    closeClientDetail();
+    modalManager.close("delete-client-modal");
+    modalManager.close("client-detail-modal");
     render();
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      if (deleteClientModal?.classList.contains("open")) {
-        deleteClientModal.classList.remove("open");
-      } else if (blockClientModal?.classList.contains("open")) {
-        blockClientModal.classList.remove("open");
-      } else if (clientDetailModal?.classList.contains("open")) {
-        closeClientDetail();
-      } else if (newClientModal?.classList.contains("open")) {
-        closeModal();
-      }
-    }
   });
 
   render();
