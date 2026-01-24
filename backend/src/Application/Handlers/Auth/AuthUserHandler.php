@@ -35,13 +35,13 @@ class AuthUserHandler {
 
         // here the password is correct so I create a new session and return it
 
-        // try {
+        try { 
         
-            // $this->userRepository->createSession($user);
+            // $session = $this->userRepository->createSession($user);
 
-            // return;
-        // }catch(Exception $ex) {
+            // return $session;
+        }catch(Exception $ex) {
             throw new Exception("Non e' stato possibile autenticare l'utente");
-        // }
+        }
     }
 }
