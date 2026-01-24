@@ -134,7 +134,10 @@ class ClientsView extends BaseView {
 
       tr.innerHTML = `
         <td>${client.id}</td>
-        <td>${client.name}</td>
+        <td>
+          ${client.name}
+          ${client.blocked ? '<span class="badge badge-danger" style="margin-left: var(--space-2)">Blocked</span>' : ""}
+        </td>
         <td>${client.email}</td>
         <td>
           <span class="badge ${client.activeLoans > 0 ? "badge-warning" : "badge-success"}">

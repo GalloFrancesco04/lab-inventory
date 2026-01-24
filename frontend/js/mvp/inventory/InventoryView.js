@@ -115,13 +115,26 @@ class InventoryView extends BaseView {
     this.presenter.getItems().forEach((item) => {
       const tr = document.createElement("tr");
       tr.setAttribute("data-item-id", item.id);
-      tr.innerHTML = `
-        <td>${item.id}</td>
-        <td>${item.name}</td>
-        <td>${item.type}</td>
-        <td>${item.status}</td>
-        <td>${item.location}</td>
-      `;
+
+      const idCell = document.createElement("td");
+      idCell.textContent = item.id;
+
+      const nameCell = document.createElement("td");
+      nameCell.textContent = item.name;
+
+      const typeCell = document.createElement("td");
+      typeCell.textContent = item.type;
+
+      const statusCell = document.createElement("td");
+      const statusBadge = document.createElement("span");
+      statusBadge.className = statusBadgeClass(item.status);
+      statusBadge.textContent = item.status;
+      statusCell.appendChild(statusBadge);
+
+      const locationCell = document.createElement("td");
+      locationCell.textContent = item.location;
+
+      tr.append(idCell, nameCell, typeCell, statusCell, locationCell);
       tr.style.cursor = "pointer";
       tbody.appendChild(tr);
     });
