@@ -135,13 +135,16 @@ class LoansView extends BaseView {
       const itemCell = document.createElement("td");
       itemCell.textContent = loan.items?.join(", ") || "-";
 
+      const returnDateCell = document.createElement("td");
+      returnDateCell.textContent = loan.returnDate || "-";
+
       const statusCell = document.createElement("td");
       const statusBadge = document.createElement("span");
       statusBadge.className = this.getStatusBadgeClass(loan.status);
       statusBadge.textContent = loan.status;
       statusCell.appendChild(statusBadge);
 
-      row.append(idCell, clientCell, itemCell, statusCell);
+      row.append(idCell, clientCell, itemCell, returnDateCell, statusCell);
       row.addEventListener("click", () => this.showLoanDetails(loan.id));
 
       this.loansTbody.appendChild(row);
