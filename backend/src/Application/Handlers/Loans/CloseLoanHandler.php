@@ -21,11 +21,11 @@ class CloseLoanHandler {
     public function __construct() {
         $db = new Database();
 
-        $loanRepository = new LoanRepository($db->conn);
-        $itemRepository = new ItemRepository($db->conn);
-        // $loanedItemRepository = new LoanedItemRepository();
+        $this->loanRepository = new LoanRepository($db->conn);
+        $this->itemRepository = new ItemRepository($db->conn);
+        // $loanedItemRepository = new LoanedItemRepository($db->conn);
 
-        $transaction = new TransactionManager($db->conn);
+        $this->transaction = new TransactionManager($db->conn);
     }
 
     public function handle(CloseLoanCommand $command) {
@@ -43,9 +43,9 @@ class CloseLoanHandler {
             throw new Exception("Il Prestito non e' stato trovato");
         }
         
-         $returnDate = new DateTime(now);
+        $returnDate = new DateTime(now);
           
-        $transaction->begin();
+        $this->transaction->begin();
         try {
 
             $result = $this->loanRepository->closeLoan($loanToClose->id, $returnDate);
@@ -73,11 +73,11 @@ class CloseLoanHandler {
                     
             }
 
-            $transaction->commit();   
+            $this->transaction->commit();   
 
             }catch(Exception ex) {
 
-                $transaction->rollback();
+                $this->transaction->rollback();
                 throw new Exception("Si e' verificato qualche problema nella chiusura del Prestito");
             }
 

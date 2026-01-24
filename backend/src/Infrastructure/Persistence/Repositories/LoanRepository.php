@@ -61,6 +61,21 @@ class LoanRepository{
         ]);
     }
 
+        public function update(Loan $loan): void
+    {
+        $stmt = $this->connection->prepare("
+            UPDATE loans 
+            SET notes = :notes, quantity = :quantity
+            WHERE id = :loanId
+        ");
+
+        $stmt->execute([
+            'notes' => $loan->getNotes(),
+            'quantity' => $loan->getQuantity(),
+            'loanId' => $loan->getId()
+        ]);
+    }
+
     public function updateQuantity(int $loanId, int $quantity): void
     {
         $stmt = $this->connection->prepare("

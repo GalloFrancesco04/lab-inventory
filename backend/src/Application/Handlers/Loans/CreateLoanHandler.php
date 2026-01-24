@@ -21,12 +21,12 @@ class CreateLoanHandler {
     public function __construct() {
         $db = new Database();
 
-        $loanRepository = new LoanRepository($db->conn);
-        $itemRepository = new ItemRepository($db->conn);
-        $clientRepository = new ClientRepository($db->conn);
-        // $loanedItemRepository = new LoanedItemRepository();
+        $this->loanRepository = new LoanRepository($db->conn);
+        $this->itemRepository = new ItemRepository($db->conn);
+        $this->clientRepository = new ClientRepository($db->conn);
+        // $this->loanedItemRepository = new LoanedItemRepository($db->conn);
 
-        $transaction = new TransactionManager($db->conn);
+        $this->transaction = new TransactionManager($db->conn);
     }
 
     // Handle the CreateLoanCommand
@@ -56,7 +56,7 @@ class CreateLoanHandler {
 
         // loan fields are valid here
 
-        $transaction->begin();
+        $this->transaction->begin();
         try{
             $client = $this->clientRepository->findById($command->client_id);
 
@@ -105,10 +105,10 @@ class CreateLoanHandler {
             // after I'm sure of the number of loanedObject successfully created I update the loan with the quantity
             $quantityUpdateResult = $this->loanRepository->updateQuantity($createdLoan->id, $quantity);
 
-            $transaction->commit();
+            $this->transaction->commit();
 
         }catch(Exception ex) {
-             $transaction->rollback();
+             $this->transaction->rollback();
             throw new Exception("Si e' verificato qualche problema nella creazione del Prestito");
         }
 
