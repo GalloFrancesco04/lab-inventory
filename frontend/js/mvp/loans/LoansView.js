@@ -1,4 +1,4 @@
-import { modalManager } from "../../utils/ModalManager.js";
+import { BaseView } from "../core/BaseView.js";
 
 function setStatusBadge(el, statusText) {
   el.textContent = statusText;
@@ -16,80 +16,112 @@ function renderItems(container, items) {
   });
 }
 
-export function initLoansView(presenter) {
-  // New Loan modal elements
-  const newLoanModal = document.getElementById("new-loan-modal");
-  const newLoanBtn = document.getElementById("new-loan-btn");
-  const cancelLoanBtn = document.getElementById("cancel-loan-btn");
-  const modalCloseBtn = document.querySelector("#new-loan-modal .modal-close");
-  const newLoanForm = document.getElementById("new-loan-form");
-  const loansTbody = document.getElementById("loans-tbody");
-
-  const loanDetailModal = document.getElementById("loan-detail-modal");
-  const loanDetailClose = document.getElementById("loan-detail-close");
-  const detailTitle = document.getElementById("detail-loan-title");
-  const detailStatus = document.getElementById("detail-loan-status");
-  const detailClient = document.getElementById("detail-loan-client");
-  const detailReturn = document.getElementById("detail-loan-return");
-  const detailId = document.getElementById("detail-loan-id");
-  const detailItems = document.getElementById("detail-loan-items");
-  const closeLoanBtn = document.getElementById("detail-close-loan");
-
-  const closeLoanModal = document.getElementById("close-loan-modal");
-  const closeLoanCloseBtn = document.getElementById("close-loan-notes-close");
-  const closeLoanCancelBtn = document.getElementById("close-loan-cancel");
-  const closeLoanForm = document.getElementById("close-loan-form");
-  const closeLoanNotes = document.getElementById("close-loan-notes");
-  const closeLoanDamaged = document.getElementById("close-loan-damaged");
-
-  // Register all modals
-  modalManager.register("new-loan-modal", {
-    onClose: () => {
-      newLoanForm?.reset();
-    },
-  });
-
-  modalManager.register("loan-detail-modal");
-  modalManager.register("close-loan-modal", {
-    onClose: () => {
-      closeLoanForm?.reset();
-    },
-  });
-
-  // Setup close buttons
-  modalManager.setupCloseButtons("new-loan-modal", [
-    "cancel-loan-btn",
-    "new-loan-modal .modal-close",
-  ]);
-  modalManager.setupCloseButtons("loan-detail-modal", ["loan-detail-close"]);
-  modalManager.setupCloseButtons("close-loan-modal", [
-    "close-loan-notes-close",
-    "close-loan-cancel",
-  ]);
-
-  function showLoanDetails(loanId) {
-    const loan = presenter.getLoanById(loanId);
-    if (!loan) return;
-
-    detailTitle.textContent = `Loan #${loan.id}`;
-    detailId.textContent = loan.id;
-    detailClient.textContent = loan.client;
-    detailReturn.textContent = loan.returnDate || "-";
-    setStatusBadge(detailStatus, loan.status);
-    renderItems(detailItems, loan.items);
-    modalManager.open("loan-detail-modal");
+class LoansView extends BaseView {
+  constructor(presenter) {
+    super(presenter);
+    this.setupElements();
+    this.setupModals();
+    this.setupEventListeners();
+    this.renderLoansTable();
   }
 
-  function getStatusBadgeClass(status) {
+  setupElements() {
+    // Table
+    this.loansTbody = this.getElement("loans-tbody");
+    this.newLoanBtn = this.getElement("new-loan-btn");
+
+    // New loan modal
+    this.newLoanForm = this.getElement("new-loan-form");
+
+    // Loan detail modal
+    this.detailTitle = this.getElement("detail-loan-title");
+    this.detailStatus = this.getElement("detail-loan-status");
+    this.detailClient = this.getElement("detail-loan-client");
+    this.detailReturn = this.getElement("detail-loan-return");
+    this.detailId = this.getElement("detail-loan-id");
+    this.detailItems = this.getElement("detail-loan-items");
+    this.closeLoanBtn = this.getElement("detail-close-loan");
+
+    // Close loan modal
+    this.closeLoanForm = this.getElement("close-loan-form");
+    this.closeLoanNotes = this.getElement("close-loan-notes");
+    this.closeLoanDamaged = this.getElement("close-loan-damaged");
+  }
+
+  setupModals() {
+    this.registerModal("new-loan-modal", {
+      onClose: () => {
+        this.newLoanForm?.reset();
+      },
+    });
+
+    this.registerModal("loan-detail-modal");
+    this.registerModal("close-loan-modal", {
+      onClose: () => {
+        this.closeLoanForm?.reset();
+      },
+    });
+
+    this.setupModalCloseButtons("new-loan-modal", [
+      "cancel-loan-btn",
+      "new-loan-modal .modal-close",
+    ]);
+    this.setupModalCloseButtons("loan-detail-modal", ["loan-detail-close"]);
+    this.setupModalCloseButtons("close-loan-modal", [
+      "close-loan-notes-close",
+      "close-loan-cancel",
+    ]);
+  }
+
+  setupEventListeners() {
+    this.newLoanBtn?.addEventListener("click", () =>
+      this.openModal("new-loan-modal"),
+    );
+
+    this.newLoanForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      console.log("New loan created (mock)");
+      this.closeModal("new-loan-modal");
+    });
+
+    this.closeLoanBtn?.addEventListener("click", () => {
+      this.openModal("close-loan-modal");
+    });
+
+    this.closeLoanForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      console.log("Close loan notes (mock)", {
+        notes: this.closeLoanNotes?.value || "",
+        damaged: this.closeLoanDamaged?.checked || false,
+      });
+      this.closeModal("close-loan-modal");
+      this.closeModal("loan-detail-modal");
+    });
+  }
+
+  showLoanDetails(loanId) {
+    const loan = this.presenter.getLoanById(loanId);
+    if (!loan) return;
+
+    this.detailTitle.textContent = `Loan #${loan.id}`;
+    this.detailId.textContent = loan.id;
+    this.detailClient.textContent = loan.client;
+    this.detailReturn.textContent = loan.returnDate || "-";
+    setStatusBadge(this.detailStatus, loan.status);
+    renderItems(this.detailItems, loan.items);
+    this.openModal("loan-detail-modal");
+  }
+
+  getStatusBadgeClass(status) {
     if (status === "Active") return "badge badge-success";
     if (status === "Closed") return "badge badge-neutral";
     return "badge";
   }
 
-  function renderLoansTable() {
-    if (!loansTbody) return;
-    loansTbody.innerHTML = "";
-    presenter.getLoans().forEach((loan) => {
+  renderLoansTable() {
+    if (!this.loansTbody) return;
+    this.loansTbody.innerHTML = "";
+    this.presenter.getLoans().forEach((loan) => {
       const row = document.createElement("tr");
       row.className = "table-row";
       row.dataset.loanId = loan.id;
@@ -105,42 +137,18 @@ export function initLoansView(presenter) {
 
       const statusCell = document.createElement("td");
       const statusBadge = document.createElement("span");
-      statusBadge.className = getStatusBadgeClass(loan.status);
+      statusBadge.className = this.getStatusBadgeClass(loan.status);
       statusBadge.textContent = loan.status;
       statusCell.appendChild(statusBadge);
 
       row.append(idCell, clientCell, itemCell, statusCell);
-      row.addEventListener("click", () => showLoanDetails(loan.id));
+      row.addEventListener("click", () => this.showLoanDetails(loan.id));
 
-      loansTbody.appendChild(row);
+      this.loansTbody.appendChild(row);
     });
   }
+}
 
-  // New Loan modal events
-  newLoanBtn?.addEventListener("click", () =>
-    modalManager.open("new-loan-modal"),
-  );
-
-  newLoanForm?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    console.log("New loan created (mock)");
-    modalManager.close("new-loan-modal");
-  });
-
-  // Loan detail modal events
-  closeLoanBtn?.addEventListener("click", () => {
-    modalManager.open("close-loan-modal");
-  });
-
-  closeLoanForm?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    console.log("Close loan notes (mock)", {
-      notes: closeLoanNotes?.value || "",
-      damaged: closeLoanDamaged?.checked || false,
-    });
-    modalManager.close("close-loan-modal");
-    modalManager.close("loan-detail-modal");
-  });
-
-  renderLoansTable();
+export function initLoansView(presenter) {
+  return new LoansView(presenter);
 }

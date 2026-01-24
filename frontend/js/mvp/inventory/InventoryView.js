@@ -1,4 +1,4 @@
-import { modalManager } from "../../utils/ModalManager.js";
+import { BaseView } from "../core/BaseView.js";
 
 function statusBadgeClass(status) {
   if (status === "Available") return "badge badge-success";
@@ -6,39 +6,62 @@ function statusBadgeClass(status) {
   return "badge";
 }
 
-export function initInventoryView(presenter) {
-  const rows = document.querySelectorAll("#inventory-view [data-item-id]");
+class InventoryView extends BaseView {
+  constructor(presenter) {
+    super(presenter);
+    this.setupElements();
+    this.setupModals();
+    this.setupEventListeners();
+  }
 
-  const itemModal = document.getElementById("item-detail-modal");
-  const itemModalClose = document.getElementById("item-detail-close");
-  const itemTitle = document.getElementById("item-modal-title");
-  const itemName = document.getElementById("item-name");
-  const itemType = document.getElementById("item-type");
-  const itemStatus = document.getElementById("item-status");
-  const itemLocation = document.getElementById("item-location");
-  const maintTbody = document.getElementById("item-maintenance-tbody");
-  const sendToMaintBtn = document.getElementById("send-to-maintenance-btn");
+  setupElements() {
+    // Modal
+    this.itemTitle = this.getElement("item-modal-title");
+    this.itemName = this.getElement("item-name");
+    this.itemType = this.getElement("item-type");
+    this.itemStatus = this.getElement("item-status");
+    this.itemLocation = this.getElement("item-location");
+    this.maintTbody = this.getElement("item-maintenance-tbody");
 
-  // Register modal
-  modalManager.register("item-detail-modal");
-  modalManager.setupCloseButtons("item-detail-modal", ["item-detail-close"]);
+    // Buttons
+    this.sendToMaintBtn = this.getElement("send-to-maintenance-btn");
 
-  function typeBadgeClass(type) {
+    // Table rows (dynamic)
+    this.rows = document.querySelectorAll("#inventory-view [data-item-id]");
+  }
+
+  setupModals() {
+    this.registerModal("item-detail-modal");
+    this.setupModalCloseButtons("item-detail-modal", ["item-detail-close"]);
+  }
+
+  setupEventListeners() {
+    this.rows.forEach((row) => {
+      row.addEventListener("click", () => {
+        this.openItemModal(row.dataset.itemId);
+      });
+    });
+
+    this.sendToMaintBtn?.addEventListener("click", () => {
+      console.log("Send to maintenance (mock)");
+    });
+  }
+
+  typeBadgeClass(type) {
     if (type === "Repair") return "badge badge-danger";
     if (type === "Replacement") return "badge badge-warning";
     if (type === "Preventive") return "badge badge-success";
     return "badge";
   }
 
-  // Render maintenance entries as stacked cards instead of a table
-  function renderMaintenance(list) {
-    maintTbody.innerHTML = "";
+  renderMaintenance(list) {
+    this.maintTbody.innerHTML = "";
     if (!list || list.length === 0) {
       const div = document.createElement("div");
       div.style.color = "var(--text-muted)";
       div.style.padding = "var(--space-3)";
       div.textContent = "No maintenance yet";
-      maintTbody.appendChild(div);
+      this.maintTbody.appendChild(div);
       return;
     }
     list.forEach((m) => {
@@ -58,30 +81,24 @@ export function initInventoryView(presenter) {
           <div class="maint-value">${m.desc || "-"}</div>
         </div>
       `;
-      maintTbody.appendChild(div);
+      this.maintTbody.appendChild(div);
     });
   }
 
-  function openItemModal(itemId) {
-    const item = presenter.getItemById(itemId);
+  openItemModal(itemId) {
+    const item = this.presenter.getItemById(itemId);
     if (!item) return;
-    itemTitle.textContent = `Item #${item.id}`;
-    itemName.textContent = item.name;
-    itemType.textContent = item.type;
-    itemLocation.textContent = item.location;
-    itemStatus.className = statusBadgeClass(item.status);
-    itemStatus.textContent = item.status;
-    renderMaintenance(item.maintenance);
-    modalManager.open("item-detail-modal");
+    this.itemTitle.textContent = `Item #${item.id}`;
+    this.itemName.textContent = item.name;
+    this.itemType.textContent = item.type;
+    this.itemLocation.textContent = item.location;
+    this.itemStatus.className = statusBadgeClass(item.status);
+    this.itemStatus.textContent = item.status;
+    this.renderMaintenance(item.maintenance);
+    this.openModal("item-detail-modal");
   }
+}
 
-  rows.forEach((row) => {
-    row.addEventListener("click", () => {
-      openItemModal(row.dataset.itemId);
-    });
-  });
-
-  sendToMaintBtn?.addEventListener("click", () => {
-    console.log("Send to maintenance (mock)");
-  });
+export function initInventoryView(presenter) {
+  return new InventoryView(presenter);
 }
