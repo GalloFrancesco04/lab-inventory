@@ -33,9 +33,6 @@ class InventoryView extends BaseView {
 
     // Buttons
     this.sendToMaintBtn = this.getElement("send-to-maintenance-btn");
-
-    // Table rows (dynamic)
-    this.rows = document.querySelectorAll("#inventory-view [data-item-id]");
   }
 
   setupModals() {
@@ -82,11 +79,13 @@ class InventoryView extends BaseView {
       this.render();
     });
 
-    // Item Detail Modal
-    this.rows.forEach((row) => {
-      row.addEventListener("click", () => {
+    // Event delegation for table rows
+    const tbody = document.querySelector("#inventory-view tbody");
+    tbody?.addEventListener("click", (e) => {
+      const row = e.target.closest("[data-item-id]");
+      if (row) {
         this.openItemModal(row.dataset.itemId);
-      });
+      }
     });
 
     this.sendToMaintBtn?.addEventListener("click", () => {
@@ -120,13 +119,8 @@ class InventoryView extends BaseView {
         <td>${item.location}</td>
       `;
       tr.style.cursor = "pointer";
-      tr.addEventListener("click", () => {
-        this.openItemModal(item.id);
-      });
       tbody.appendChild(tr);
     });
-    // Re-setup rows after render
-    this.rows = document.querySelectorAll("#inventory-view [data-item-id]");
   }
 
   renderMaintenance(list) {
