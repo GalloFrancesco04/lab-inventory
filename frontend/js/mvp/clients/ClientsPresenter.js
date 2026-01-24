@@ -46,8 +46,34 @@ export class ClientsPresenter {
       activeLoans: 0,
       totalLoans: 0,
       lastLoan: "—",
+      blocked: false,
+      blockedUntil: null,
     };
     this.clients.push(newClient);
     return newClient;
+  }
+
+  getClientById(id) {
+    return this.clients.find((c) => c.id === id);
+  }
+
+  deleteClient(id) {
+    const index = this.clients.findIndex((c) => c.id === id);
+    if (index > -1) {
+      this.clients.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
+
+  blockClient(id, days, reason) {
+    const client = this.getClientById(id);
+    if (!client) return false;
+    const blockedUntil = new Date();
+    blockedUntil.setDate(blockedUntil.getDate() + days);
+    client.blocked = true;
+    client.blockedUntil = blockedUntil.toISOString().split("T")[0];
+    client.blockReason = reason || "";
+    return true;
   }
 }

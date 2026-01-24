@@ -262,5 +262,93 @@
             </form>
         </div>
     </div>
+
+    <!-- Client Detail Modal -->
+    <div class="modal-overlay" id="client-detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="client-detail-title">Client Details</h2>
+                <button class="modal-close" aria-label="Close modal" id="client-detail-close">&times;</button>
+            </div>
+            <div class="detail-card">
+                <div class="detail-meta">
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Client ID</span>
+                        <span class="detail-meta-value" id="client-detail-id">-</span>
+                    </div>
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Email</span>
+                        <span class="detail-meta-value" id="client-detail-email">-</span>
+                    </div>
+                </div>
+                <div class="detail-meta">
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Status</span>
+                        <span class="detail-meta-value" id="client-detail-status">Active</span>
+                    </div>
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Last Loan</span>
+                        <span class="detail-meta-value" id="client-detail-last">-</span>
+                    </div>
+                </div>
+                <div class="detail-meta">
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Active Loans</span>
+                        <span class="detail-meta-value" id="client-detail-active">-</span>
+                    </div>
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Total Loans</span>
+                        <span class="detail-meta-value" id="client-detail-total">-</span>
+                    </div>
+                </div>
+                <div class="detail-actions" style="margin-top: var(--space-4); display: flex; gap: var(--space-2);">
+                    <button class="btn btn-danger" id="client-block-btn">Block Client</button>
+                    <button class="btn btn-warning" id="client-delete-btn">Delete Client</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Block Client Modal -->
+    <div class="modal-overlay" id="block-client-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Block Client</h2>
+                <button class="modal-close" aria-label="Close modal" id="block-client-close">&times;</button>
+            </div>
+            <form class="form" id="block-client-form">
+                <p style="margin: 0; color: var(--text-muted);">Block client temporarily from making new loans.</p>
+                <div class="form-group">
+                    <label for="block-days">Block Duration (days)</label>
+                    <input type="number" id="block-days" min="1" max="365" value="30" required>
+                </div>
+                <div class="form-group">
+                    <label for="block-reason">Reason</label>
+                    <textarea id="block-reason" rows="3" placeholder="Optional reason for blocking"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="block-client-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Block Client</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Client Confirmation Modal -->
+    <div class="modal-overlay" id="delete-client-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Delete Client</h2>
+                <button class="modal-close" aria-label="Close modal" id="delete-client-close">&times;</button>
+            </div>
+            <div class="form">
+                <p style="margin: 0; color: var(--text-muted);">Are you sure you want to permanently delete this client? This action cannot be undone.</p>
+                <div class="form-actions" style="margin-top: var(--space-4);">
+                    <button type="button" class="btn btn-ghost" id="delete-client-cancel">Cancel</button>
+                    <button type="button" class="btn btn-primary" style="background: var(--danger); border-color: var(--danger);" id="delete-client-confirm">Delete Client</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
