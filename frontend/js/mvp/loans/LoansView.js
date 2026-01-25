@@ -1,11 +1,8 @@
 import { BaseView } from "../core/BaseView.js";
-import { logger } from "../../utils/logger.js";
-import { toaster } from "../../utils/toaster.js";
-import { searchManager } from "../../utils/SearchManager.js";
 
 class LoansView extends BaseView {
-  constructor(presenter) {
-    super(presenter);
+  constructor(presenter, mediator) {
+    super(presenter, mediator);
     this.searchQuery = "";
     this.sortColumn = null;
     this.sortDirection = null; // 'asc' | 'desc' | null
@@ -14,7 +11,9 @@ class LoansView extends BaseView {
     this.setupEventListeners();
     this.setupSorting();
     // Register search callback
-    searchManager.registerView("loans", (query) => this.handleSearch(query));
+    this.mediator.searchManager.registerView("loans", (query) =>
+      this.handleSearch(query),
+    );
     // Auto re-render on presenter data changes
     this.setupAutoRender(() => this.renderLoansTable());
     this.renderLoansTable();
@@ -58,7 +57,7 @@ class LoansView extends BaseView {
 
     this.setupModalCloseButtons("new-loan-modal", [
       "cancel-loan-btn",
-      "new-loan-modal .modal-close",
+      "new-loan-close",
     ]);
     this.setupModalCloseButtons("loan-detail-modal", ["loan-detail-close"]);
     this.setupModalCloseButtons("close-loan-modal", [
@@ -74,8 +73,8 @@ class LoansView extends BaseView {
 
     this.newLoanForm?.addEventListener("submit", (e) => {
       e.preventDefault();
-      logger.mock("New loan created");
-      toaster.success("New loan created successfully");
+      this.mediator.logger.mock("New loan created");
+      this.mediator.toaster.success("New loan created successfully");
       this.closeModal("new-loan-modal");
     });
 
@@ -85,11 +84,11 @@ class LoansView extends BaseView {
 
     this.closeLoanForm?.addEventListener("submit", (e) => {
       e.preventDefault();
-      logger.mock("Close loan", {
+      this.mediator.logger.mock("Close loan", {
         notes: this.closeLoanNotes?.value || "",
         damaged: this.closeLoanDamaged?.checked || false,
       });
-      toaster.info("Loan closed successfully");
+      this.mediator.toaster.info("Loan closed successfully");
       this.closeModal("close-loan-modal");
       this.closeModal("loan-detail-modal");
     });
@@ -277,6 +276,6 @@ class LoansView extends BaseView {
   }
 }
 
-export function initLoansView(presenter) {
-  return new LoansView(presenter);
+export function initLoansView(presenter, mediator) {
+  return new LoansView(presenter, mediator);
 }

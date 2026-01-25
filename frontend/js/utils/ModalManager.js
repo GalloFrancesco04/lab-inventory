@@ -126,5 +126,3 @@ export class ModalManager {
     });
   }
 }
-
-export const modalManager = new ModalManager();

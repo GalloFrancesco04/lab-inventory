@@ -1,8 +1,7 @@
-import { modalManager } from "../../utils/ModalManager.js";
-
 export class BaseView {
-  constructor(presenter) {
+  constructor(presenter, mediator) {
     this.presenter = presenter;
+    this.mediator = mediator;
     this.modalIds = [];
   }
 
@@ -22,23 +21,23 @@ export class BaseView {
 
   // Register a modal for this view
   registerModal(modalId, options = {}) {
-    modalManager.register(modalId, options);
+    this.mediator.modalManager.register(modalId, options);
     this.modalIds.push(modalId);
   }
 
   // Setup close buttons for a modal
   setupModalCloseButtons(modalId, buttonIds) {
-    modalManager.setupCloseButtons(modalId, buttonIds);
+    this.mediator.modalManager.setupCloseButtons(modalId, buttonIds);
   }
 
   // Open a modal
   openModal(modalId) {
-    modalManager.open(modalId);
+    this.mediator.modalManager.open(modalId);
   }
 
   // Close a modal
   closeModal(modalId) {
-    modalManager.close(modalId);
+    this.mediator.modalManager.close(modalId);
   }
 
   // Setup auto-rerender on presenter data changes
@@ -96,8 +95,8 @@ export class BaseView {
   destroy() {
     // Close all registered modals
     this.modalIds.forEach((modalId) => {
-      if (modalManager.isOpen(modalId)) {
-        modalManager.close(modalId);
+      if (this.mediator?.modalManager?.isOpen(modalId)) {
+        this.mediator.modalManager.close(modalId);
       }
     });
   }

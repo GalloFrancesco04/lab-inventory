@@ -1,16 +1,15 @@
 import { BaseView } from "../core/BaseView.js";
-import { searchManager } from "../../utils/SearchManager.js";
 
 class MaintenanceView extends BaseView {
-  constructor(presenter) {
-    super(presenter);
+  constructor(presenter, mediator) {
+    super(presenter, mediator);
     this.searchQuery = "";
     this.sortColumn = null;
     this.sortDirection = null;
     this.setupElements();
     this.setupSorting();
     // Register search callback
-    searchManager.registerView("maintenance", (query) =>
+    this.mediator.searchManager.registerView("maintenance", (query) =>
       this.handleSearch(query),
     );
     this.setupAutoRender(() => this.render());
@@ -173,6 +172,6 @@ class MaintenanceView extends BaseView {
   }
 }
 
-export function initMaintenanceView(presenter) {
-  return new MaintenanceView(presenter);
+export function initMaintenanceView(presenter, mediator) {
+  return new MaintenanceView(presenter, mediator);
 }

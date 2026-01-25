@@ -1,10 +1,8 @@
 import { BaseView } from "../core/BaseView.js";
-import { toaster } from "../../utils/toaster.js";
-import { searchManager } from "../../utils/SearchManager.js";
 
 class ClientsView extends BaseView {
-  constructor(presenter) {
-    super(presenter);
+  constructor(presenter, mediator) {
+    super(presenter, mediator);
     this.currentClientId = null;
     this.searchQuery = "";
     this.sortColumn = null;
@@ -14,7 +12,9 @@ class ClientsView extends BaseView {
     this.setupEventListeners();
     this.setupSorting();
     // Register search callback
-    searchManager.registerView("clients", (query) => this.handleSearch(query));
+    this.mediator.searchManager.registerView("clients", (query) =>
+      this.handleSearch(query),
+    );
     // Auto re-render on presenter data changes
     this.setupAutoRender(() => this.render());
     this.render();
@@ -121,7 +121,7 @@ class ClientsView extends BaseView {
       }
 
       this.presenter.addClient(payload);
-      toaster.success(
+      this.mediator.toaster.success(
         `Client "${payload.firstName} ${payload.lastName}" added successfully`,
       );
       this.closeModal("new-client-modal");
@@ -143,7 +143,7 @@ class ClientsView extends BaseView {
       const days = Number(this.blockDaysInput?.value || 30);
       const reason = this.blockReasonInput?.value?.trim() || "";
       this.presenter.blockClient(this.currentClientId, days, reason);
-      toaster.warning(`Client blocked for ${days} days`);
+      this.mediator.toaster.warning(`Client blocked for ${days} days`);
       this.closeModal("block-client-modal");
       this.openClientDetail(this.currentClientId);
     });
@@ -151,7 +151,7 @@ class ClientsView extends BaseView {
     this.deleteClientConfirm?.addEventListener("click", () => {
       if (!this.currentClientId) return;
       this.presenter.deleteClient(this.currentClientId);
-      toaster.error("Client deleted");
+      this.mediator.toaster.error("Client deleted");
       this.closeModal("delete-client-modal");
       this.closeModal("client-detail-modal");
     });
@@ -323,6 +323,6 @@ class ClientsView extends BaseView {
   }
 }
 
-export function initClientsView(presenter) {
-  return new ClientsView(presenter);
+export function initClientsView(presenter, mediator) {
+  return new ClientsView(presenter, mediator);
 }

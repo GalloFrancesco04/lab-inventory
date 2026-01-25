@@ -7,9 +7,12 @@ import { initClientsView } from "./mvp/clients/ClientsView.js";
 import { ClientsPresenter } from "./mvp/clients/ClientsPresenter.js";
 import { initMaintenanceView } from "./mvp/maintenance/MaintenanceView.js";
 import { MaintenancePresenter } from "./mvp/maintenance/MaintenancePresenter.js";
-import { searchManager } from "./utils/SearchManager.js";
+import { Mediator } from "./utils/Mediator.js";
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Create mediator instance
+  const mediator = new Mediator();
+
   const routes = {
     "#/loans": "loans-view",
     "#/inventory": "inventory-view",
@@ -32,9 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (newItemBtn) newItemBtn.classList.toggle("hidden", !isInventoryRoute);
     if (newClientBtn) newClientBtn.classList.toggle("hidden", !isClientsRoute);
 
-    // Update search manager
-    searchManager.setActiveView(viewName);
-    searchManager.clearSearch();
+    // Update search manager via mediator
+    mediator.searchManager.setActiveView(viewName);
+    mediator.searchManager.clearSearch();
   }
 
   document.querySelectorAll("[data-route]").forEach((btn) => {
@@ -47,8 +50,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const inventoryPresenter = new InventoryPresenter();
   const clientsPresenter = new ClientsPresenter();
   const maintenancePresenter = new MaintenancePresenter(inventoryPresenter);
-  initInventoryView(inventoryPresenter);
-  initClientsView(clientsPresenter);
-  initLoansView(loansPresenter);
-  initMaintenanceView(maintenancePresenter);
+  initInventoryView(inventoryPresenter, mediator);
+  initClientsView(clientsPresenter, mediator);
+  initLoansView(loansPresenter, mediator);
+  initMaintenanceView(maintenancePresenter, mediator);
 });

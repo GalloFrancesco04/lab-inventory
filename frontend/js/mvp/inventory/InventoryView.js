@@ -1,7 +1,4 @@
 import { BaseView } from "../core/BaseView.js";
-import { logger } from "../../utils/logger.js";
-import { toaster } from "../../utils/toaster.js";
-import { searchManager } from "../../utils/SearchManager.js";
 
 function statusBadgeClass(status) {
   if (status === "available") return "badge badge-success";
@@ -12,8 +9,8 @@ function statusBadgeClass(status) {
 }
 
 class InventoryView extends BaseView {
-  constructor(presenter) {
-    super(presenter);
+  constructor(presenter, mediator) {
+    super(presenter, mediator);
     this.searchQuery = "";
     this.sortColumn = null;
     this.sortDirection = null;
@@ -22,7 +19,7 @@ class InventoryView extends BaseView {
     this.setupEventListeners();
     this.setupSorting();
     // Register search callback
-    searchManager.registerView("inventory", (query) =>
+    this.mediator.searchManager.registerView("inventory", (query) =>
       this.handleSearch(query),
     );
     // Auto re-render on presenter data changes
@@ -126,7 +123,9 @@ class InventoryView extends BaseView {
 
       const newItem = this.presenter.addItem(itemData);
       if (newItem) {
-        toaster.success(`Item "${newItem.name}" added successfully`);
+        this.mediator.toaster.success(
+          `Item "${newItem.name}" added successfully`,
+        );
       }
       this.closeModal("new-item-modal");
     });
@@ -141,7 +140,7 @@ class InventoryView extends BaseView {
     });
 
     this.sendToMaintBtn?.addEventListener("click", () => {
-      logger.mock("Send to maintenance");
+      this.mediator.logger.mock("Send to maintenance");
     });
   }
 
@@ -337,6 +336,6 @@ class InventoryView extends BaseView {
   }
 }
 
-export function initInventoryView(presenter) {
-  return new InventoryView(presenter);
+export function initInventoryView(presenter, mediator) {
+  return new InventoryView(presenter, mediator);
 }

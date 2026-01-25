@@ -16,7 +16,7 @@ class Toaster {
     }
   }
 
- // Show toast message
+  // Show toast message
   show(message, type = "info", duration = 4000) {
     const toast = document.createElement("div");
     toast.className = `toast toast-${type}`;
@@ -89,5 +89,4 @@ class Toaster {
   }
 }
 
-// Export singleton instance
-export const toaster = new Toaster();
+export { Toaster };

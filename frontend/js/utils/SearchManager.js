@@ -52,5 +52,4 @@ class SearchManager {
   }
 }
 
-// Export singleton instance
-export const searchManager = new SearchManager();
+export { SearchManager };
