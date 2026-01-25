@@ -285,4 +285,52 @@ export class InventoryPresenter {
     this.notifyListeners();
     return newItem;
   }
+
+  getTechnicians() {
+    // Return list of available technicians
+    return ["M. Rossi", "S. Bianchi", "R. Verdi", "A. Neri"];
+  }
+
+  createMaintenance(itemId, description, technicianName) {
+    const item = this.getItemById(itemId);
+    if (!item) return null;
+
+    // Generate new maintenance ID
+    const newMaintenanceId = String(
+      1000 +
+        Math.max(
+          0,
+          ...this.items.flatMap((i) =>
+            i.maintenance.map((m) => parseInt(m.id) || 0),
+          ),
+        ) +
+        1,
+    );
+
+    // Create maintenance record
+    const today = new Date();
+    const dateStr = `${String(today.getDate()).padStart(2, "0")}/${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFullYear()}`;
+
+    const newMaintenance = {
+      id: newMaintenanceId,
+      startDate: dateStr,
+      endDate: "",
+      status: "open",
+      type: "repair",
+      tech: technicianName,
+      desc: description,
+      operations: [],
+    };
+
+    // Add maintenance to item
+    item.maintenance.unshift(newMaintenance);
+
+    // Update item status to maintenance
+    item.status = "maintenance";
+
+    // Notify listeners to update UI
+    this.notifyListeners();
+
+    return newMaintenance;
+  }
 }

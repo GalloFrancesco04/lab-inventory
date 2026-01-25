@@ -46,6 +46,16 @@ class InventoryView extends BaseView {
 
     // Buttons
     this.sendToMaintBtn = this.getElement("send-to-maintenance-btn");
+
+    // Send to Maintenance Modal
+    this.sendToMaintForm = this.getElement("send-to-maintenance-form");
+    this.maintenanceDescInput = this.getElement("maintenance-desc");
+    this.maintenanceTechnicianSelect = this.getElement(
+      "maintenance-technician",
+    );
+    this.sendToMaintCancelBtn = this.getElement("send-to-maintenance-cancel");
+
+    this.currentItemId = null;
   }
 
   setupModals() {
@@ -63,6 +73,16 @@ class InventoryView extends BaseView {
 
     this.registerModal("item-detail-modal");
     this.setupModalCloseButtons("item-detail-modal", ["item-detail-close"]);
+
+    this.registerModal("send-to-maintenance-modal", {
+      onOpen: () => {
+        this.clearFormErrors(this.sendToMaintForm);
+      },
+      onClose: () => this.resetSendToMaintenanceForm(),
+    });
+    this.setupModalCloseButtons("send-to-maintenance-modal", [
+      "send-to-maintenance-close",
+    ]);
   }
 
   populateObjectTypes() {
@@ -140,7 +160,16 @@ class InventoryView extends BaseView {
     });
 
     this.sendToMaintBtn?.addEventListener("click", () => {
-      this.mediator.logger.mock("Send to maintenance");
+      this.openModal("send-to-maintenance-modal");
+    });
+
+    this.sendToMaintCancelBtn?.addEventListener("click", () => {
+      this.closeModal("send-to-maintenance-modal");
+    });
+
+    this.sendToMaintForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      this.handleSendToMaintenance();
     });
   }
 
@@ -326,6 +355,9 @@ class InventoryView extends BaseView {
   openItemModal(itemId) {
     const item = this.presenter.getItemById(itemId);
     if (!item) return;
+
+    this.currentItemId = itemId;
+
     this.itemTitle.textContent = `Item #${item.id}`;
     this.itemName.textContent = item.name;
     this.itemType.textContent = item.type;
@@ -333,7 +365,70 @@ class InventoryView extends BaseView {
     this.itemStatus.className = statusBadgeClass(item.status);
     this.itemStatus.textContent = item.status;
     this.renderMaintenance(item.maintenance);
+
+    // Populate technician dropdown
+    this.populateTechnicians();
+
     this.openModal("item-detail-modal");
+  }
+
+  populateTechnicians() {
+    const technicians = this.presenter.getTechnicians();
+    this.maintenanceTechnicianSelect.innerHTML =
+      '<option value="">Select a technician...</option>';
+    technicians.forEach((tech) => {
+      const option = document.createElement("option");
+      option.value = tech;
+      option.textContent = tech;
+      this.maintenanceTechnicianSelect.appendChild(option);
+    });
+  }
+
+  handleSendToMaintenance() {
+    this.clearFormErrors(this.sendToMaintForm);
+
+    const description = this.maintenanceDescInput.value.trim();
+    const technician = this.maintenanceTechnicianSelect.value;
+
+    let hasError = false;
+
+    if (!description) {
+      this.showFieldError(
+        this.maintenanceDescInput,
+        "Problem description is required",
+      );
+      hasError = true;
+    }
+
+    if (!technician) {
+      this.showFieldError(
+        this.maintenanceTechnicianSelect,
+        "Please select a technician",
+      );
+      hasError = true;
+    }
+
+    if (hasError) {
+      const firstError = this.sendToMaintForm.querySelector(".input-error");
+      if (firstError) firstError.focus();
+      return;
+    }
+
+    const result = this.presenter.createMaintenance(
+      this.currentItemId,
+      description,
+      technician,
+    );
+
+    if (result) {
+      this.mediator.toaster.success("Item sent to maintenance successfully");
+      this.closeModal("send-to-maintenance-modal");
+      this.closeModal("item-detail-modal");
+    }
+  }
+
+  resetSendToMaintenanceForm() {
+    this.sendToMaintForm.reset();
   }
 }
 

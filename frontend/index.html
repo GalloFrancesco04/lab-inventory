@@ -313,6 +313,36 @@
         </div>
     </div>
 
+    <!-- Send to Maintenance Modal -->
+    <div class="modal-overlay" id="send-to-maintenance-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Send to Maintenance</h2>
+                <button class="modal-close" aria-label="Close modal" id="send-to-maintenance-close">&times;</button>
+            </div>
+            <form class="form" id="send-to-maintenance-form">
+                <div class="form-group">
+                    <label for="maintenance-desc">Problem Description</label>
+                    <textarea id="maintenance-desc" rows="3" required placeholder="Describe the issue or maintenance needed"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="maintenance-technician">Assign to Technician</label>
+                    <select id="maintenance-technician" required>
+                        <option value="">Select a technician...</option>
+                        <option value="M. Rossi">M. Rossi</option>
+                        <option value="S. Bianchi">S. Bianchi</option>
+                        <option value="A. Neri">A. Neri</option>
+                        <option value="R. Verdi">R. Verdi</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="send-to-maintenance-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send to Maintenance</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- New Client Modal -->
     <div class="modal-overlay" id="new-client-modal">
         <div class="modal-content">
