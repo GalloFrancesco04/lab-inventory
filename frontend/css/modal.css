@@ -1,167 +1,170 @@
+/* Modal Overlay & Container */
 .modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
 }
 
 .modal-overlay.open {
-    display: flex;
+  display: flex;
 }
 
 .modal-content {
-    background: var(--surface);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md);
-    padding: var(--space-5);
-    max-width: 500px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-5);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .modal-content.modal-lg {
-    max-width: 760px;
+  max-width: 760px;
 }
 
+/* Modal Header */
 .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-4);
-    border-bottom: 1px solid var(--border);
-    padding-bottom: var(--space-3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-3);
 }
 
 .modal-title {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 800;
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 800;
 }
 
 .modal-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--text-muted);
-    padding: 0;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-close:hover {
-    color: var(--text);
+  color: var(--text);
 }
 
-/* Item detail modal layout */
+/* Item Detail Modal */
 .item-detail-grid {
-    display: grid;
-    grid-template-columns: 220px 1fr;
-    gap: var(--space-4);
-    align-items: start;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: var(--space-4);
+  align-items: start;
 }
 
 .item-image-box {
-    width: 100%;
-    aspect-ratio: 4/3;
-    background: var(--surface-muted);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    display: grid;
-    place-items: center;
-    color: var(--text-muted);
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
 }
 
 .item-info-stack {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
+/* Maintenance List */
 .item-maint-list {
-    margin-top: var(--space-4);
+  margin-top: var(--space-4);
 }
 
 /* Maintenance list title spacing for the modal */
 .item-maint-list .section-title {
-    font-size: 1rem;
-    margin-bottom: var(--space-3);
+  font-size: 1rem;
+  margin-bottom: var(--space-3);
 }
 
 .item-info-action {
-    margin-top: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 /* Scrollable maintenance list with a slim scrollbar */
 .maintenance-list-container {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    max-height: 320px;
-    overflow-y: auto;
-    padding-right: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: var(--space-2);
 }
 
 .maintenance-list-container::-webkit-scrollbar {
-    width: 6px;
+  width: 6px;
 }
 
 .maintenance-list-container::-webkit-scrollbar-track {
-    background: rgba(17, 24, 39, 0.05);
-    border-radius: 3px;
+  background: rgba(17, 24, 39, 0.05);
+  border-radius: 3px;
 }
 
 .maintenance-list-container::-webkit-scrollbar-thumb {
-    background: rgba(17, 24, 39, 0.2);
-    border-radius: 3px;
+  background: rgba(17, 24, 39, 0.2);
+  border-radius: 3px;
 }
 
 .maintenance-list-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(17, 24, 39, 0.3);
+  background: rgba(17, 24, 39, 0.3);
 }
 
 .maintenance-entry {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: var(--space-3);
-    background: rgba(17, 24, 39, 0.01);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  background: rgba(17, 24, 39, 0.01);
 }
 
 .maintenance-entry:first-child {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 .maint-row {
-    display: grid;
-    grid-template-columns: 100px 1fr;
-    gap: var(--space-3);
-    font-size: 0.9rem;
-    padding-bottom: var(--space-2);
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: var(--space-3);
+  font-size: 0.9rem;
+  padding-bottom: var(--space-2);
 }
 
 .maint-row:last-child {
-    padding-bottom: 0;
+  padding-bottom: 0;
 }
 
 .maint-label {
-    font-weight: 600;
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .maint-value {
-    color: var(--text);
-    word-break: break-word;
+  color: var(--text);
+  word-break: break-word;
 }
