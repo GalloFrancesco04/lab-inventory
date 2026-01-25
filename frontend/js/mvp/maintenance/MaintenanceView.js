@@ -323,6 +323,13 @@ class MaintenanceView extends BaseView {
         : "none";
     }
 
+    if (this.addOperationBtn) {
+      // Only the assigned technician on an open maintenance can add operations
+      this.addOperationBtn.style.display = canTechnicianClose
+        ? "inline-flex"
+        : "none";
+    }
+
     this.renderOperations(maintenance.operations || []);
     this.openModal("maintenance-detail-modal");
   }
