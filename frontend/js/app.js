@@ -17,34 +17,31 @@ document.addEventListener("DOMContentLoaded", () => {
     "#/maintenance": "maintenance-view",
   };
 
-  document.querySelectorAll("[data-route]").forEach((btn) => {
-    btn.addEventListener("click", () => navigateTo(btn.dataset.route));
-  });
-
   const newLoanBtn = document.getElementById("new-loan-btn");
   const newItemBtn = document.getElementById("new-item-btn");
   const newClientBtn = document.getElementById("new-client-btn");
 
-  function updateToolbarVisibility() {
-    const current = window.location.hash || "#/loans";
-    const isLoansRoute = current === "#/loans";
-    const isInventoryRoute = current === "#/inventory";
-    const isClientsRoute = current === "#/clients";
+  // Route change callback
+  function handleRouteChange(viewName, fullRoute) {
+    // Update toolbar visibility
+    const isLoansRoute = viewName === "loans";
+    const isInventoryRoute = viewName === "inventory";
+    const isClientsRoute = viewName === "clients";
 
     if (newLoanBtn) newLoanBtn.classList.toggle("hidden", !isLoansRoute);
     if (newItemBtn) newItemBtn.classList.toggle("hidden", !isInventoryRoute);
     if (newClientBtn) newClientBtn.classList.toggle("hidden", !isClientsRoute);
 
-    // Update active view for search
-    const viewName = current.replace("#/", "");
+    // Update search manager
     searchManager.setActiveView(viewName);
     searchManager.clearSearch();
   }
 
-  initRouter(routes, "#/loans");
+  document.querySelectorAll("[data-route]").forEach((btn) => {
+    btn.addEventListener("click", () => navigateTo(btn.dataset.route));
+  });
 
-  window.addEventListener("hashchange", updateToolbarVisibility);
-  updateToolbarVisibility();
+  initRouter(routes, handleRouteChange, "#/loans");
 
   const loansPresenter = new LoansPresenter();
   const inventoryPresenter = new InventoryPresenter();

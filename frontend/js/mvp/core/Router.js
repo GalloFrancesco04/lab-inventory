@@ -1,5 +1,6 @@
 let routes = {};
-let defaultRoute = "#\/loans";
+let defaultRoute = "#/loans";
+let onRouteChangeCallback = null;
 
 function setActiveNav(route) {
   document.querySelectorAll("[data-route]").forEach((btn) => {
@@ -26,11 +27,22 @@ function renderRoute() {
   const viewId = routes[current] || routes[defaultRoute] || "";
   showView(viewId);
   setActiveNav(current in routes ? current : defaultRoute);
+
+  // Call route change callback
+  if (onRouteChangeCallback) {
+    const routeName = current.replace("#/", "");
+    onRouteChangeCallback(routeName, current);
+  }
 }
 
-export function initRouter(routeMap, fallbackRoute = "#\/loans") {
+export function initRouter(
+  routeMap,
+  onRouteChange = null,
+  fallbackRoute = "#/loans",
+) {
   routes = routeMap;
   defaultRoute = fallbackRoute;
+  onRouteChangeCallback = onRouteChange;
   window.addEventListener("hashchange", renderRoute);
   renderRoute();
 }
