@@ -15,9 +15,12 @@ class InventoryView extends BaseView {
   constructor(presenter) {
     super(presenter);
     this.searchQuery = "";
+    this.sortColumn = null;
+    this.sortDirection = null;
     this.setupElements();
     this.setupModals();
     this.setupEventListeners();
+    this.setupSorting();
     // Register search callback
     searchManager.registerView("inventory", (query) =>
       this.handleSearch(query),
@@ -178,10 +181,90 @@ class InventoryView extends BaseView {
     });
   }
 
+  getSortedItems() {
+    let items = this.getFilteredItems();
+
+    if (!this.sortColumn) return items;
+
+    return [...items].sort((a, b) => {
+      let aVal, bVal;
+
+      switch (this.sortColumn) {
+        case "id":
+          aVal = a.id;
+          bVal = b.id;
+          break;
+        case "name":
+          aVal = a.name.toLowerCase();
+          bVal = b.name.toLowerCase();
+          break;
+        case "type":
+          aVal = a.type.toLowerCase();
+          bVal = b.type.toLowerCase();
+          break;
+        case "status":
+          aVal = a.status.toLowerCase();
+          bVal = b.status.toLowerCase();
+          break;
+        case "location":
+          aVal = a.location.toLowerCase();
+          bVal = b.location.toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aVal < bVal) return this.sortDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return this.sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+  }
+
+  setupSorting() {
+    const headers = document.querySelectorAll(
+      "#inventory-view th[data-sortable]",
+    );
+    headers.forEach((header) => {
+      header.addEventListener("click", () => {
+        const sortKey = header.dataset.sortKey;
+        this.handleSort(sortKey, header);
+      });
+    });
+  }
+
+  handleSort(column, headerElement) {
+    if (this.sortColumn === column) {
+      if (this.sortDirection === "asc") {
+        this.sortDirection = "desc";
+      } else if (this.sortDirection === "desc") {
+        this.sortColumn = null;
+        this.sortDirection = null;
+      } else {
+        this.sortDirection = "asc";
+      }
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = "asc";
+    }
+
+    const allHeaders = document.querySelectorAll(
+      "#inventory-view th[data-sortable]",
+    );
+    allHeaders.forEach((h) => {
+      h.classList.remove("sorted-asc", "sorted-desc");
+    });
+
+    if (this.sortDirection) {
+      headerElement.classList.add(`sorted-${this.sortDirection}`);
+    }
+
+    this.render();
+  }
+
   render() {
     const tbody = document.querySelector("#inventory-view tbody");
     tbody.innerHTML = "";
-    this.getFilteredItems().forEach((item) => {
+    this.getSortedItems().forEach((item) => {
       const tr = document.createElement("tr");
       tr.setAttribute("data-item-id", item.id);
 

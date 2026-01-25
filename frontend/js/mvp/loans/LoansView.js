@@ -7,9 +7,12 @@ class LoansView extends BaseView {
   constructor(presenter) {
     super(presenter);
     this.searchQuery = "";
+    this.sortColumn = null;
+    this.sortDirection = null; // 'asc' | 'desc' | null
     this.setupElements();
     this.setupModals();
     this.setupEventListeners();
+    this.setupSorting();
     // Register search callback
     searchManager.registerView("loans", (query) => this.handleSearch(query));
     // Auto re-render on presenter data changes
@@ -151,10 +154,98 @@ class LoansView extends BaseView {
     });
   }
 
+  getSortedLoans() {
+    let loans = this.getFilteredLoans();
+
+    if (!this.sortColumn) return loans;
+
+    return [...loans].sort((a, b) => {
+      let aVal, bVal;
+
+      switch (this.sortColumn) {
+        case "id":
+          aVal = a.id;
+          bVal = b.id;
+          break;
+        case "client":
+          aVal = a.client.toLowerCase();
+          bVal = b.client.toLowerCase();
+          break;
+        case "items":
+          aVal =
+            a.items
+              ?.map((i) => i.name)
+              .join(", ")
+              .toLowerCase() || "";
+          bVal =
+            b.items
+              ?.map((i) => i.name)
+              .join(", ")
+              .toLowerCase() || "";
+          break;
+        case "returnDate":
+          aVal = a.returnDate || "";
+          bVal = b.returnDate || "";
+          break;
+        case "status":
+          aVal = a.status.toLowerCase();
+          bVal = b.status.toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aVal < bVal) return this.sortDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return this.sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+  }
+
+  setupSorting() {
+    const headers = document.querySelectorAll("#loans-view th[data-sortable]");
+    headers.forEach((header) => {
+      header.addEventListener("click", () => {
+        const sortKey = header.dataset.sortKey;
+        this.handleSort(sortKey, header);
+      });
+    });
+  }
+
+  handleSort(column, headerElement) {
+    // Toggle sort direction
+    if (this.sortColumn === column) {
+      if (this.sortDirection === "asc") {
+        this.sortDirection = "desc";
+      } else if (this.sortDirection === "desc") {
+        this.sortColumn = null;
+        this.sortDirection = null;
+      } else {
+        this.sortDirection = "asc";
+      }
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = "asc";
+    }
+
+    // Update header classes
+    const allHeaders = document.querySelectorAll(
+      "#loans-view th[data-sortable]",
+    );
+    allHeaders.forEach((h) => {
+      h.classList.remove("sorted-asc", "sorted-desc");
+    });
+
+    if (this.sortDirection) {
+      headerElement.classList.add(`sorted-${this.sortDirection}`);
+    }
+
+    this.renderLoansTable();
+  }
+
   renderLoansTable() {
     if (!this.loansTbody) return;
     this.loansTbody.innerHTML = "";
-    this.getFilteredLoans().forEach((loan) => {
+    this.getSortedLoans().forEach((loan) => {
       const row = document.createElement("tr");
       row.className = "table-row";
       row.dataset.loanId = loan.id;

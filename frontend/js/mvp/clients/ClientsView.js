@@ -7,9 +7,12 @@ class ClientsView extends BaseView {
     super(presenter);
     this.currentClientId = null;
     this.searchQuery = "";
+    this.sortColumn = null;
+    this.sortDirection = null;
     this.setupElements();
     this.setupModals();
     this.setupEventListeners();
+    this.setupSorting();
     // Register search callback
     searchManager.registerView("clients", (query) => this.handleSearch(query));
     // Auto re-render on presenter data changes
@@ -177,10 +180,94 @@ class ClientsView extends BaseView {
     });
   }
 
+  getSortedClients() {
+    let clients = this.getFilteredClients();
+
+    if (!this.sortColumn) return clients;
+
+    return [...clients].sort((a, b) => {
+      let aVal, bVal;
+
+      switch (this.sortColumn) {
+        case "id":
+          aVal = a.id;
+          bVal = b.id;
+          break;
+        case "name":
+          aVal = a.name.toLowerCase();
+          bVal = b.name.toLowerCase();
+          break;
+        case "email":
+          aVal = a.email.toLowerCase();
+          bVal = b.email.toLowerCase();
+          break;
+        case "activeLoans":
+          aVal = a.activeLoans || 0;
+          bVal = b.activeLoans || 0;
+          break;
+        case "totalLoans":
+          aVal = a.totalLoans || 0;
+          bVal = b.totalLoans || 0;
+          break;
+        case "lastLoan":
+          aVal = a.lastLoan || "";
+          bVal = b.lastLoan || "";
+          break;
+        default:
+          return 0;
+      }
+
+      if (aVal < bVal) return this.sortDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return this.sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+  }
+
+  setupSorting() {
+    const headers = document.querySelectorAll(
+      "#clients-view th[data-sortable]",
+    );
+    headers.forEach((header) => {
+      header.addEventListener("click", () => {
+        const sortKey = header.dataset.sortKey;
+        this.handleSort(sortKey, header);
+      });
+    });
+  }
+
+  handleSort(column, headerElement) {
+    if (this.sortColumn === column) {
+      if (this.sortDirection === "asc") {
+        this.sortDirection = "desc";
+      } else if (this.sortDirection === "desc") {
+        this.sortColumn = null;
+        this.sortDirection = null;
+      } else {
+        this.sortDirection = "asc";
+      }
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = "asc";
+    }
+
+    const allHeaders = document.querySelectorAll(
+      "#clients-view th[data-sortable]",
+    );
+    allHeaders.forEach((h) => {
+      h.classList.remove("sorted-asc", "sorted-desc");
+    });
+
+    if (this.sortDirection) {
+      headerElement.classList.add(`sorted-${this.sortDirection}`);
+    }
+
+    this.render();
+  }
+
   render() {
     if (!this.tbody) return;
 
-    const clients = this.getFilteredClients();
+    const clients = this.getSortedClients();
     this.tbody.innerHTML = "";
 
     clients.forEach((client) => {
