@@ -27,11 +27,18 @@ class LoansView extends BaseView {
     // New loan modal
     this.newLoanForm = this.getElement("new-loan-form");
     this.loanClient = this.getElement("loan-client");
+    this.newClientBtn = this.getElement("loan-new-client-btn");
     this.loanItemsSelect = this.getElement("loan-items-select");
     this.loanItemsPanel = this.getElement("loan-items-panel");
     this.loanItemsSearch = this.getElement("loan-items-search");
     this.loanItemsSelected = this.getElement("loan-items-selected");
     this.loanDate = this.getElement("loan-date");
+
+    // New client modal
+    this.newClientForm = this.getElement("new-client-form");
+    this.clientFirstInput = this.getElement("new-client-first");
+    this.clientLastInput = this.getElement("new-client-last");
+    this.clientEmailInput = this.getElement("new-client-email");
 
     this.availableItems = this.presenter.getAvailableItems
       ? this.presenter.getAvailableItems()
@@ -94,6 +101,7 @@ class LoansView extends BaseView {
     this.registerModal("new-loan-modal", {
       onOpen: () => {
         this.newLoanForm?.reset();
+        this.populateClients();
         this.resetItemPicker();
       },
       onClose: () => {
@@ -109,6 +117,19 @@ class LoansView extends BaseView {
       },
     });
 
+    const isNewClientModalRegistered =
+      this.mediator?.modalManager?.modals?.has("new-client-modal");
+    if (!isNewClientModalRegistered) {
+      this.registerModal("new-client-modal", {
+        onOpen: () => {
+          this.clearFormErrors(this.newClientForm);
+        },
+        onClose: () => {
+          this.newClientForm?.reset();
+        },
+      });
+    }
+
     this.setupModalCloseButtons("new-loan-modal", [
       "cancel-loan-btn",
       "new-loan-close",
@@ -117,6 +138,10 @@ class LoansView extends BaseView {
     this.setupModalCloseButtons("close-loan-modal", [
       "close-loan-notes-close",
       "close-loan-cancel",
+    ]);
+    this.setupModalCloseButtons("new-client-modal", [
+      "new-client-close",
+      "new-client-cancel",
     ]);
   }
 
@@ -226,6 +251,56 @@ class LoansView extends BaseView {
       this.closeModal("close-loan-modal");
       this.closeModal("loan-detail-modal");
     });
+
+    this.newClientBtn?.addEventListener("click", () => {
+      this.openModal("new-client-modal");
+    });
+
+    this.newClientForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      this.handleCreateClient();
+    });
+  }
+
+  populateClients() {
+    const clients = this.presenter.getClients();
+    this.loanClient.innerHTML = '<option value="">Select a client</option>';
+    clients.forEach((client) => {
+      const option = document.createElement("option");
+      option.value = client;
+      option.textContent = client;
+      this.loanClient.appendChild(option);
+    });
+  }
+
+  handleCreateClient() {
+    this.clearFormErrors(this.newClientForm);
+
+    const first = this.clientFirstInput?.value?.trim() || "";
+    const last = this.clientLastInput?.value?.trim() || "";
+    const email = this.clientEmailInput?.value?.trim() || "";
+
+    const displayName = [first, last].filter(Boolean).join(" ") || first;
+
+    if (!first) {
+      this.showFieldError(this.clientFirstInput, "First name is required");
+      this.clientFirstInput?.focus();
+      return;
+    }
+
+    const result = this.presenter.addClient(displayName, email);
+
+    if (result) {
+      this.mediator.toaster.success(
+        `Client "${displayName}" added successfully`,
+      );
+      this.closeModal("new-client-modal");
+      this.populateClients();
+      // Auto-select the newly created client
+      this.loanClient.value = displayName;
+    } else {
+      this.mediator.toaster.error("Unable to add client");
+    }
   }
 
   showLoanDetails(loanId) {

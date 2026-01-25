@@ -145,12 +145,12 @@
             <form class="form" id="new-loan-form">
                 <div class="form-group">
                     <label for="loan-client">Client</label>
-                    <select id="loan-client" required>
-                        <option value="">Select a client</option>
-                        <option value="Mario Sale">Mario Sale</option>
-                        <option value="Sale Mario">Sale Mario</option>
-                        <option value="Marius Salis">Marius Salis</option>
-                    </select>
+                    <div style="display: flex; gap: 8px; align-items: flex-start;">
+                        <select id="loan-client" required style="flex: 1;">
+                            <option value="">Select a client</option>
+                        </select>
+                        <button type="button" id="loan-new-client-btn" class="btn btn-ghost" style="padding: 8px 12px; white-space: nowrap;">+ New Client</button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="loan-items-select">Items (max 5)</label>

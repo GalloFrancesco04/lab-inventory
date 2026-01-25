@@ -1,6 +1,8 @@
 export class LoansPresenter {
-  constructor() {
+  constructor(clientsPresenter = null) {
     this.listeners = [];
+    this.clientsPresenter = clientsPresenter;
+    this.clients = ["Mario Sale", "Sale Mario", "Marius Salis"];
     this.loans = [
       {
         id: "10001",
@@ -85,5 +87,32 @@ export class LoansPresenter {
 
   getAvailableItems() {
     return this.availableItems;
+  }
+
+  getClients() {
+    return this.clients;
+  }
+
+  addClient(name, email) {
+    if (!name) return null;
+
+    // Check if client already exists
+    if (this.clients.includes(name)) {
+      return null;
+    }
+
+    this.clients.push(name);
+
+    // Also add to clients presenter if provided
+    if (this.clientsPresenter?.addClient) {
+      this.clientsPresenter.addClient({
+        firstName: name,
+        lastName: "",
+        email,
+      });
+    }
+
+    this.notifyListeners();
+    return { name, email };
   }
 }

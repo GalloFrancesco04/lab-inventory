@@ -68,9 +68,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initRouter(routes, handleRouteChange, "#/loans");
 
-  const loansPresenter = new LoansPresenter();
   const inventoryPresenter = new InventoryPresenter();
   const clientsPresenter = new ClientsPresenter();
+  const loansPresenter = new LoansPresenter(clientsPresenter);
   const maintenancePresenter = new MaintenancePresenter(
     inventoryPresenter,
     authPresenter,
