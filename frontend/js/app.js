@@ -7,6 +7,7 @@ import { initClientsView } from "./mvp/clients/ClientsView.js";
 import { ClientsPresenter } from "./mvp/clients/ClientsPresenter.js";
 import { initMaintenanceView } from "./mvp/maintenance/MaintenanceView.js";
 import { MaintenancePresenter } from "./mvp/maintenance/MaintenancePresenter.js";
+import { searchManager } from "./utils/SearchManager.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const routes = {
@@ -33,6 +34,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (newLoanBtn) newLoanBtn.classList.toggle("hidden", !isLoansRoute);
     if (newItemBtn) newItemBtn.classList.toggle("hidden", !isInventoryRoute);
     if (newClientBtn) newClientBtn.classList.toggle("hidden", !isClientsRoute);
+
+    // Update active view for search
+    const viewName = current.replace("#/", "");
+    searchManager.setActiveView(viewName);
+    searchManager.clearSearch();
   }
 
   initRouter(routes, "#/loans");

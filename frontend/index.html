@@ -23,11 +23,12 @@
         <button class="btn btn-primary" id="new-loan-btn">New Loan</button>
         <button class="btn btn-primary hidden" id="new-item-btn">New Item</button>
         <button class="btn btn-primary hidden" id="new-client-btn">New Client</button>
-        <div class="search-bar">
+        <form class="search-bar" id="search-form">
             <span class="search-icon">🔍</span>
-            <input type="text" class="search-input" placeholder="Search" aria-label="Search">
-        </div>
-        <button class="btn btn-ghost">Filters</button>
+            <input type="text" class="search-input" id="search-input" placeholder="Search" aria-label="Search">
+            <button type="submit" class="btn btn-ghost" id="search-btn">Search</button>
+        </form>
+        <button class="btn btn-ghost" id="filters-btn">Filters</button>
     </section>
     <main class="main-area">
         <!-- Loans View -->

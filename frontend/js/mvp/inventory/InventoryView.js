@@ -1,6 +1,7 @@
 import { BaseView } from "../core/BaseView.js";
 import { logger } from "../../utils/logger.js";
 import { toaster } from "../../utils/toaster.js";
+import { searchManager } from "../../utils/SearchManager.js";
 
 function statusBadgeClass(status) {
   if (status === "available") return "badge badge-success";
@@ -13,9 +14,14 @@ function statusBadgeClass(status) {
 class InventoryView extends BaseView {
   constructor(presenter) {
     super(presenter);
+    this.searchQuery = "";
     this.setupElements();
     this.setupModals();
     this.setupEventListeners();
+    // Register search callback
+    searchManager.registerView("inventory", (query) =>
+      this.handleSearch(query),
+    );
     // Auto re-render on presenter data changes
     this.setupAutoRender(() => this.render());
     this.render();
@@ -148,10 +154,34 @@ class InventoryView extends BaseView {
     this.newItemType.focus();
   }
 
+  handleSearch(query) {
+    this.searchQuery = query.toLowerCase();
+    this.render();
+  }
+
+  getFilteredItems() {
+    const items = this.presenter.getItems();
+    if (!this.searchQuery) return items;
+
+    return items.filter((item) => {
+      const searchableText = [
+        item.id,
+        item.name,
+        item.type,
+        item.status,
+        item.location,
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(this.searchQuery);
+    });
+  }
+
   render() {
     const tbody = document.querySelector("#inventory-view tbody");
     tbody.innerHTML = "";
-    this.presenter.getItems().forEach((item) => {
+    this.getFilteredItems().forEach((item) => {
       const tr = document.createElement("tr");
       tr.setAttribute("data-item-id", item.id);
 

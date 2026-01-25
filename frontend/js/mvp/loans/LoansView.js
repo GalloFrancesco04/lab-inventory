@@ -1,13 +1,17 @@
 import { BaseView } from "../core/BaseView.js";
 import { logger } from "../../utils/logger.js";
 import { toaster } from "../../utils/toaster.js";
+import { searchManager } from "../../utils/SearchManager.js";
 
 class LoansView extends BaseView {
   constructor(presenter) {
     super(presenter);
+    this.searchQuery = "";
     this.setupElements();
     this.setupModals();
     this.setupEventListeners();
+    // Register search callback
+    searchManager.registerView("loans", (query) => this.handleSearch(query));
     // Auto re-render on presenter data changes
     this.setupAutoRender(() => this.renderLoansTable());
     this.renderLoansTable();
@@ -123,10 +127,34 @@ class LoansView extends BaseView {
     return "badge";
   }
 
+  handleSearch(query) {
+    this.searchQuery = query.toLowerCase();
+    this.renderLoansTable();
+  }
+
+  getFilteredLoans() {
+    const loans = this.presenter.getLoans();
+    if (!this.searchQuery) return loans;
+
+    return loans.filter((loan) => {
+      const searchableText = [
+        loan.id,
+        loan.client,
+        loan.status,
+        loan.returnDate || "",
+        ...(loan.items?.map((item) => item.name) || []),
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(this.searchQuery);
+    });
+  }
+
   renderLoansTable() {
     if (!this.loansTbody) return;
     this.loansTbody.innerHTML = "";
-    this.presenter.getLoans().forEach((loan) => {
+    this.getFilteredLoans().forEach((loan) => {
       const row = document.createElement("tr");
       row.className = "table-row";
       row.dataset.loanId = loan.id;

@@ -1,13 +1,17 @@
 import { BaseView } from "../core/BaseView.js";
 import { toaster } from "../../utils/toaster.js";
+import { searchManager } from "../../utils/SearchManager.js";
 
 class ClientsView extends BaseView {
   constructor(presenter) {
     super(presenter);
     this.currentClientId = null;
+    this.searchQuery = "";
     this.setupElements();
     this.setupModals();
     this.setupEventListeners();
+    // Register search callback
+    searchManager.registerView("clients", (query) => this.handleSearch(query));
     // Auto re-render on presenter data changes
     this.setupAutoRender(() => this.render());
     this.render();
@@ -150,10 +154,33 @@ class ClientsView extends BaseView {
     });
   }
 
+  handleSearch(query) {
+    this.searchQuery = query.toLowerCase();
+    this.render();
+  }
+
+  getFilteredClients() {
+    const clients = this.presenter.getClients();
+    if (!this.searchQuery) return clients;
+
+    return clients.filter((client) => {
+      const searchableText = [
+        client.id,
+        client.name,
+        client.email,
+        client.blocked ? "blocked" : "",
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(this.searchQuery);
+    });
+  }
+
   render() {
     if (!this.tbody) return;
 
-    const clients = this.presenter.getClients();
+    const clients = this.getFilteredClients();
     this.tbody.innerHTML = "";
 
     clients.forEach((client) => {

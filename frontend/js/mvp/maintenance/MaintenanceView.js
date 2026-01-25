@@ -1,9 +1,15 @@
 import { BaseView } from "../core/BaseView.js";
+import { searchManager } from "../../utils/SearchManager.js";
 
 class MaintenanceView extends BaseView {
   constructor(presenter) {
     super(presenter);
+    this.searchQuery = "";
     this.setupElements();
+    // Register search callback
+    searchManager.registerView("maintenance", (query) =>
+      this.handleSearch(query),
+    );
     this.setupAutoRender(() => this.render());
     this.render();
   }
@@ -19,11 +25,35 @@ class MaintenanceView extends BaseView {
     return "badge";
   }
 
+  handleSearch(query) {
+    this.searchQuery = query.toLowerCase();
+    this.render();
+  }
+
+  getFilteredHistory() {
+    const history = this.presenter.getMaintenanceHistory();
+    if (!this.searchQuery) return history;
+
+    return history.filter((entry) => {
+      const searchableText = [
+        entry.date,
+        entry.itemName,
+        entry.type,
+        entry.tech || "",
+        entry.desc || "",
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(this.searchQuery);
+    });
+  }
+
   render() {
     if (!this.tbody) return;
     this.tbody.innerHTML = "";
 
-    const history = this.presenter.getMaintenanceHistory();
+    const history = this.getFilteredHistory();
 
     if (history.length === 0) {
       const tr = document.createElement("tr");
