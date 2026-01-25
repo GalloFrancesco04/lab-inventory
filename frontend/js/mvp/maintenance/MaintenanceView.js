@@ -147,6 +147,7 @@ class MaintenanceView extends BaseView {
 
     history.forEach((entry) => {
       const tr = document.createElement("tr");
+      tr.className = "table-row";
 
       const dateCell = document.createElement("td");
       dateCell.textContent = entry.date;

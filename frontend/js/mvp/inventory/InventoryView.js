@@ -265,6 +265,7 @@ class InventoryView extends BaseView {
     tbody.innerHTML = "";
     this.getSortedItems().forEach((item) => {
       const tr = document.createElement("tr");
+      tr.className = "table-row";
       tr.setAttribute("data-item-id", item.id);
 
       const idCell = document.createElement("td");
@@ -286,7 +287,7 @@ class InventoryView extends BaseView {
       locationCell.textContent = item.location;
 
       tr.append(idCell, nameCell, typeCell, statusCell, locationCell);
-      tr.style.cursor = "pointer";
+      tr.addEventListener("click", () => this.showItemDetails(item.id));
       tbody.appendChild(tr);
     });
   }

@@ -274,24 +274,46 @@ class ClientsView extends BaseView {
       const tr = document.createElement("tr");
       tr.className = "table-row";
       tr.dataset.clientId = client.id;
-      tr.style.cursor = "pointer";
 
-      tr.innerHTML = `
-        <td>${client.id}</td>
-        <td>
-          ${client.name}
-          ${client.blocked ? '<span class="badge badge-danger" style="margin-left: var(--space-2)">Blocked</span>' : ""}
-        </td>
-        <td>${client.email}</td>
-        <td>
-          <span class="badge ${client.activeLoans > 0 ? "badge-warning" : "badge-success"}">
-            ${client.activeLoans}
-          </span>
-        </td>
-        <td>${client.totalLoans}</td>
-        <td>${client.lastLoan}</td>
-      `;
+      const idCell = document.createElement("td");
+      idCell.textContent = client.id;
 
+      const nameCell = document.createElement("td");
+      const nameSpan = document.createElement("span");
+      nameSpan.textContent = client.name;
+      nameCell.appendChild(nameSpan);
+
+      if (client.blocked) {
+        const badge = document.createElement("span");
+        badge.className = "badge badge-danger";
+        badge.style.marginLeft = "var(--space-2)";
+        badge.textContent = "Blocked";
+        nameCell.appendChild(badge);
+      }
+
+      const emailCell = document.createElement("td");
+      emailCell.textContent = client.email;
+
+      const activeLoansCell = document.createElement("td");
+      const activeBadge = document.createElement("span");
+      activeBadge.className = `badge ${client.activeLoans > 0 ? "badge-warning" : "badge-success"}`;
+      activeBadge.textContent = client.activeLoans;
+      activeLoansCell.appendChild(activeBadge);
+
+      const totalLoansCell = document.createElement("td");
+      totalLoansCell.textContent = client.totalLoans;
+
+      const lastLoanCell = document.createElement("td");
+      lastLoanCell.textContent = client.lastLoan;
+
+      tr.append(
+        idCell,
+        nameCell,
+        emailCell,
+        activeLoansCell,
+        totalLoansCell,
+        lastLoanCell,
+      );
       tr.addEventListener("click", () => this.openClientDetail(client.id));
       this.tbody.appendChild(tr);
     });

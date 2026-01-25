@@ -152,15 +152,18 @@
 
 .table-row {
   cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: background-color 0.15s ease;
+}
+
+.table-row:hover {
+  background: rgba(37, 99, 235, 0.08);
 }
 
 .table-row:hover td {
   background: rgba(37, 99, 235, 0.12);
 }
 
+.table-row.selected,
 .table-row.selected td {
   background: rgba(37, 99, 235, 0.08);
 }
