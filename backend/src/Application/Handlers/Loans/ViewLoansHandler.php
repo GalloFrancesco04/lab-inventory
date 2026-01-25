@@ -1,28 +1,30 @@
 <?php
 
-require_once __DIR__ . '/../../../Infrastructure/Persistence/LoanRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanRepository.php';
 require_once __DIR__ . '/../../../../config/Database.php';
 
-require_once __DIR__ . "../../Commands/ViewLoansCommand.php"
+require_once __DIR__ . '/../../Commands/ViewLoansCommand.php';
 
 
 class ViewLoansHandler {
-    private $repository;
+    private $loanRepository;
 
     public function __construct() {
         $db = new Database();
 
-        $this->repository = new LoanRepository($db->conn);
+        $this->loanRepository = new LoanRepository($db->getConnection());
     }
 
     public function handle(ViewLoansCommand $command) {
 
-         $loans = $this->repository->getAllLoansOfUser($command->user_id);
+        try {
 
-        if (empty($loans)){
-         throw new Exception("Si e' verificato un problema durante il recupero dei Prestiti");
+            $loans = $this->loanRepository->getAllLoansOfUser($command->user_id);
+            
+            return $loans;
+
+        }catch(Exception $ex) {
+             throw new Exception("Si e' verificato un errore durante il recupero dei Prestiti: " . $ex->getMessage(), 0, $ex);
         }
-
-        return $loans;
     }
 }

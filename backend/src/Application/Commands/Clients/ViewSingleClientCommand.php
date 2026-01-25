@@ -1,6 +1,7 @@
 <?php
-// Command class to encapsulate data for deleting a client
-class DeleteClientCommand {
+
+class ViewSingleClientCommand {
+
     public $id;
 
     public function __construct($id) {
