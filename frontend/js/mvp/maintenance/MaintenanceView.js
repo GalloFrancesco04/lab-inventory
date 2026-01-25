@@ -33,6 +33,14 @@ class MaintenanceView extends BaseView {
     this.operationsList = this.getElement("operations-list");
     this.addOperationBtn = this.getElement("add-operation-btn");
 
+    // Add operation form elements
+    this.operationForm = this.getElement("add-operation-form");
+    this.operationDescInput = this.getElement("operation-desc");
+    this.operationCostInput = this.getElement("operation-cost");
+    this.operationStartInput = this.getElement("operation-start");
+    this.operationEndInput = this.getElement("operation-end");
+    this.addOperationCancelBtn = this.getElement("add-operation-cancel");
+
     this.currentMaintenanceId = null;
   }
 
@@ -41,11 +49,23 @@ class MaintenanceView extends BaseView {
     this.setupModalCloseButtons("maintenance-detail-modal", [
       "maintenance-detail-close",
     ]);
+
+    this.registerModal("add-operation-modal");
+    this.setupModalCloseButtons("add-operation-modal", ["add-operation-close"]);
   }
 
   setupEventListeners() {
     this.addOperationBtn?.addEventListener("click", () => {
       this.addOperation();
+    });
+
+    this.addOperationCancelBtn?.addEventListener("click", () => {
+      this.closeModal("add-operation-modal");
+    });
+
+    this.operationForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      this.handleAddOperation();
     });
   }
 
@@ -353,7 +373,82 @@ class MaintenanceView extends BaseView {
   }
 
   addOperation() {
-    this.mediator.toaster.info("Add operation feature coming soon!");
+    if (!this.currentMaintenanceId) {
+      this.mediator.toaster.error("No maintenance selected");
+      return;
+    }
+
+    // Reset form
+    this.operationForm.reset();
+
+    // Set default dates to maintenance dates
+    const maintenance = this.presenter.getMaintenanceById(
+      this.currentMaintenanceId,
+    );
+    if (maintenance) {
+      // Convert DD/MM/YYYY to YYYY-MM-DD for input[type="date"]
+      const formatDateForInput = (dateStr) => {
+        const [day, month, year] = dateStr.split("/");
+        return `${year}-${month}-${day}`;
+      };
+
+      this.operationStartInput.value = formatDateForInput(
+        maintenance.startDate,
+      );
+      this.operationEndInput.value = formatDateForInput(maintenance.endDate);
+    }
+
+    this.openModal("add-operation-modal");
+  }
+
+  handleAddOperation() {
+    const desc = this.operationDescInput.value.trim();
+    const cost = parseFloat(this.operationCostInput.value);
+    const startDate = this.operationStartInput.value;
+    const endDate = this.operationEndInput.value;
+
+    if (!desc || isNaN(cost) || !startDate || !endDate) {
+      this.mediator.toaster.error("Please fill all fields correctly");
+      return;
+    }
+
+    // Convert YYYY-MM-DD to DD/MM/YYYY
+    const formatDateForDisplay = (dateStr) => {
+      const [year, month, day] = dateStr.split("-");
+      return `${day}/${month}/${year}`;
+    };
+
+    const newOperation = {
+      desc,
+      cost,
+      startDate: formatDateForDisplay(startDate),
+      endDate: formatDateForDisplay(endDate),
+    };
+
+    // Add operation via presenter
+    const success = this.presenter.addOperation(
+      this.currentMaintenanceId,
+      newOperation,
+    );
+
+    if (success) {
+      this.closeModal("add-operation-modal");
+      this.mediator.toaster.success("Operation added successfully");
+
+      // Refresh the maintenance detail view
+      const maintenance = this.presenter.getMaintenanceById(
+        this.currentMaintenanceId,
+      );
+      if (maintenance) {
+        this.detailTotal.textContent = `€${maintenance.totalCost.toFixed(2)}`;
+        this.renderOperations(maintenance.operations || []);
+      }
+
+      // Re-render table to show updated total cost
+      this.render();
+    } else {
+      this.mediator.toaster.error("Failed to add operation");
+    }
   }
 }
 

@@ -47,4 +47,31 @@ export class MaintenancePresenter {
   getMaintenanceById(id) {
     return this.getMaintenanceHistory().find((m) => m.id === id);
   }
+
+  addOperation(maintenanceId, operation) {
+    const items = this.inventoryPresenter.getItems();
+
+    // Find the item and maintenance record
+    for (const item of items) {
+      if (item.maintenance && item.maintenance.length > 0) {
+        const maintenanceRecord = item.maintenance.find(
+          (m) => (m.id || `${item.id}-${m.startDate}`) === maintenanceId,
+        );
+
+        if (maintenanceRecord) {
+          // Add the operation
+          if (!maintenanceRecord.operations) {
+            maintenanceRecord.operations = [];
+          }
+          maintenanceRecord.operations.push(operation);
+
+          // Notify listeners to update views
+          this.notifyListeners();
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
 }
