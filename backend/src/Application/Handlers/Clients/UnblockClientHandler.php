@@ -19,6 +19,8 @@ class UnblockClientHandler {
 
     public function handle(UnblockClientCommand $command) {
   
+        try{
+            
         if(empty($command->id)) {
             throw new Exception("L'id non puo' essere vuoto");
         }
@@ -29,11 +31,11 @@ class UnblockClientHandler {
             throw new Exception("Non esiste un Client con l'id specificato");
         }
 
-        try{
 
             $this->clientRepository->unblockClient($command->id);
         }catch(Exception $ex) {
-            throw new Exception("C'e' stato un problema durante lo sblocco del Cliente");
+            throw new Exception("Si e' verificato un errore durante lo sblocco del Cliente: " . $ex->getMessage(), 0, $ex);
+
         }
 
     }

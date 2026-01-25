@@ -7,7 +7,7 @@ class Client {
     private $surname;
     private $state;
 
-    public function __construct($id = null, $email = "", $name = "", $surname = "", $state = 1) {
+    public function __construct($id = null,  $name = "", $surname = "", $email = "", $state = 1) {
         $this->id = $id;
         $this->email = $email;
         $this->name = $name;

@@ -18,7 +18,8 @@ class BlockClientHandler {
     
 
     public function handle(BlockClientCommand $command) {
-  
+        
+        try{
         if(empty($command->id)) {
             throw new Exception("L'id non puo' essere vuoto");
         }
@@ -29,11 +30,10 @@ class BlockClientHandler {
             throw new Exception("Non esiste un Client con l'id specificato");
         }
 
-        try{
-
-            $this->clientRepository->blockClient($command->id);
+        $this->clientRepository->blockClient($command->id);
         }catch(Exception $ex) {
-            throw new Exception("C'e' stato un problema durante il blocco del Cliente");
+            throw new Exception("Si e' verificato un errore durante il blocco del Cliente: " . $ex->getMessage(), 0, $ex);
+
         }
 
     }

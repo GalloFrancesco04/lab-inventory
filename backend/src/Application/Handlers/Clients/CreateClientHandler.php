@@ -1,36 +1,41 @@
 <?php
-// Handler class to process CreateClientCommand
-require_once __DIR__ . '/../../../../config/Database.php';
-require_once __DIR__ . '/../../Commands/Clients/CreateClientCommand.php';
-// Import Database connection and Command class
-class CreateClientHandler {
-    private $conn;
 
-    // Initialize with Database connection
+require_once __DIR__ . '/../../../../config/Database.php';
+
+require_once __DIR__ . '/../../../Domain/Entities/Client.php';
+
+require_once __DIR__ . '/../../Commands/Clients/CreateClientCommand.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ClientRepository.php';
+
+class CreateClientHandler {
+    private $clientRepository;
+
     public function __construct() {
         $db = new Database();
-        $this->conn = $db->getConnection();
+        $this->clientRepository = new ClientRepository($db->getConnection());
     }
 
-    // Handle the CreateClientCommand
     public function handle(CreateClientCommand $command) {
+        try {
+
         if (empty($command->name) || empty($command->email)|| empty($command->surname)) {
              throw new Exception("Nome, Email e Cognome sono obbligatori");
         }
 
-        // Insert new client into the database
-        $sql = "INSERT INTO client (email, name, surname, state) VALUES (:email, :name, :surname, :state)";
-        $stmt = $this->conn->prepare($sql);
-        
-        // Bind parameters and execute
-        $stmt->execute([
-            ':name' => $command->name,
-            ':email' => $command->email,
-            ':surname' => $command->surname,
-            ':state' => $command->state
-        ]);
+        if($command->state < 0 || $command->state > 1) {
+            throw new Exception("Stato Cliente inserito non ammesso");
+        }
 
-        // Return the ID of the newly created client
-        return $this->conn->lastInsertId();
+        $foundClient = $this->clientRepository->findByEmail($command->email);
+
+        $clientToCreate = new Client(null, $command->name, $command->surname, $command->email, 1);
+
+        $createdClientId = $this->clientRepository->create($clientToCreate);
+
+        return $createdClientId;
+
+        }catch(Exception $ex) {
+            throw new Exception("Si e' verificato un errore durante la creazione del Cliente: " . $ex->getMessage(), 0, $ex);
+        }
     }
 }

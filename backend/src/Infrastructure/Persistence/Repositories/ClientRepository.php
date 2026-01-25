@@ -15,7 +15,7 @@ class ClientRepository
     }
 
     //Create a new Client in the database
-    public function create(Client $client): void
+    public function create(Client $client): int
     {
         $stmt = $this->connection->prepare("
         INSERT INTO client (email, name, surname, state)
@@ -29,6 +29,7 @@ class ClientRepository
 
         //Set the generated ID to the Client entity
         $client->setId((int) $this->connection->lastInsertId());
+        return $client->getId();
     }
 
     //Update client's information
