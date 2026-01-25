@@ -3,6 +3,8 @@
 use PDO;
 use Application\Domain\Entities\InventoryItem;
 
+require_once __DIR__ . '/../../../Domain/Entities/InventoryItem.php';
+
 class ItemRepository
 {
     private PDO $connection;

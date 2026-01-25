@@ -4,6 +4,8 @@ use PDO;
 use Application\Domain\Entities\Operation;
 use DateTime;
 
+require_once __DIR__ . '/../../../Domain/Entities/Operation.php';
+
 class OperationRepository
 {
     private PDO $connection;

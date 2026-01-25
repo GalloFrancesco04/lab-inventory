@@ -4,6 +4,8 @@ use PDO;
 use Application\Domain\Entities\Loan;
 use DateTime;
 
+require_once __DIR__ . '/../../../Domain/Entities/Loan.php';
+
 class LoanRepository{
 
     private PDO $connection;

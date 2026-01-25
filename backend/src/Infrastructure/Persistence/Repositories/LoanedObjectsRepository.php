@@ -6,6 +6,10 @@ use Application\Domain\Entities\LoanedObject;
 use Application\Domain\Entities\InventoryItem;
 
 
+require_once __DIR__ . '/../../../Domain/Entities/LoanedObject.php';
+require_once __DIR__ . '/../../../Domain/Entities/InventoryItem.php';
+require_once __DIR__ . '/../../../Domain/Entities/Loan.php';
+
 class LoanedObjectRepository
 {
     private PDO $connection;

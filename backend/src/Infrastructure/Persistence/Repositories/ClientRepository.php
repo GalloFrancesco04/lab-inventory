@@ -3,6 +3,8 @@
 use PDO;
 use Application\Domain\Entities\Client;
 
+require_once __DIR__ . '/../../../Domain/Entities/Client.php';
+
 class ClientRepository
 {
     private PDO $connection;

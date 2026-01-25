@@ -4,6 +4,8 @@ use PDO;
 use Application\Domain\Entities\Maintenance;
 use DateTime;
 
+require_once __DIR__ . '/../../../Domain/Entities/Maintenance.php';
+
 class MaintenanceRepository
 {
     private PDO $connection;

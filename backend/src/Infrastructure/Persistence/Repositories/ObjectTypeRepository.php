@@ -3,6 +3,8 @@
 use PDO;
 use Application\Domain\Entities\ObjectType;
 
+require_once __DIR__ . '/../../../Domain/Entities/ObjectType.php';
+
 class ObjectTypeRepository
 {
     private PDO $connection;
