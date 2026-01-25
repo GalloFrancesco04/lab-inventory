@@ -22,6 +22,12 @@ class BlockClientHandler {
         if(empty($command->id)) {
             throw new Exception("L'id non puo' essere vuoto");
         }
+        
+        $client = $this->clientRepository->findById($command->id);
+        
+        if(empty($client)) {
+            throw new Exception("Non esiste un Client con l'id specificato");
+        }
 
         try{
 
