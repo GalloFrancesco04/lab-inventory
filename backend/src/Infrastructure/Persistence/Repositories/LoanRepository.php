@@ -218,6 +218,7 @@ class LoanRepository{
         $return_date =(!empty($row['return_date'])) ? new DateTime($row['return_date']) : null;
 
         $Loan = new Loan(
+            $row['id'],
             $start_date,
             $end_date,
             $return_date,
@@ -227,7 +228,6 @@ class LoanRepository{
             (bool)$row['state'],
         );
 
-        $Loan->setId((int) $row['id']);
         return $Loan;
     }
 }

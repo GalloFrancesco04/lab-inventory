@@ -97,6 +97,10 @@ class CreateLoanHandler {
                 // I check if the quantity of the object_type is > 0 and if it is I loan it if not I return an error
                 $objectType = $this->objectTypeRepository->findByCode($object->getObjectTypeCode());
 
+                if(empty($objectType)) {
+                    throw new Exception("Non e' stato trovato un object type");
+                }
+
                 if($objectType->getQuantity() == 0) {
                     throw new Exception("Non e' possibile prendere in prestito l'oggetto con type code: " . $objectType->getCode());
                 }

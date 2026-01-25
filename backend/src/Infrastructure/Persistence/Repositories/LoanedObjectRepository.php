@@ -81,24 +81,24 @@ class LoanedObjectRepository
         return null;
     }
 
-    public function getObjectsByLoanId(int $loan_id): array
+    public function getLoanedObjectsByLoanId(int $loan_id): array
     {
         $stmt = $this->connection->prepare("
-            SELECT o.id, o.object_type_code, o.state, o.location
-            FROM loanedobjects lo JOIN object_ o ON lo.object_id = o.id
-            WHERE lo.loan_id = :loan_id
+            SELECT *
+            FROM loanedobjects 
+            WHERE loan_id = :loan_id
         ");
 
         $stmt->execute(['loan_id' => $loan_id]);
 
         $objects = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $item = new InventoryItem(
+            $item = new LoanedObject(
                 $row['object_type_code'],
-                $row['state'],
-                $row['location']
+                $row['object_id'],
+                $row['loan_id'],
+                (bool)$row['damaged']
             );
-            $item->setId((int) $row['id']);
 
             $objects[] = $item;
         }
