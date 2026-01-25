@@ -1,7 +1,9 @@
 <?php
 
+require_once __DIR__ . '/../../../Domain/Entities/Client.php';
+
 use PDO;
-use Application\Domain\Entities\Client;
+
 
 class ClientRepository
 {
