@@ -37,12 +37,11 @@ class ClientRepository
     {
         $stmt = $this->connection->prepare("
             UPDATE client 
-            SET email = :email, name = :name, surname = :surname
+            SET name = :name, surname = :surname
             WHERE id = :id
             ");
 
         $stmt->execute([
-            'email' => $client->getEmail(),
             'name'  => $client->getName(),
             'surname' => $client->getSurname(),
             'id'    => $client->getId()

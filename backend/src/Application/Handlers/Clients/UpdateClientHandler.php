@@ -1,45 +1,45 @@
 <?php
-// Handler class to process UpdateClientCommand
+
 require_once __DIR__ . '/../../../../config/Database.php';
+
+require_once __DIR__ . '/../../../Domain/Entities/Client.php';
+
 require_once __DIR__ . '/../../Commands/Clients/UpdateClientCommand.php';
 
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ClientRepository.php';
+
+
 class UpdateClientHandler {
-    private $conn;
+    private $clientRepository;
 
     public function __construct() {
         $db = new Database();
-        $this->conn = $db->getConnection();
+        $this->clientRepository = new ClientRepository($db->getConnection());
     }
 
     // Handle the UpdateClientCommand 
     public function handle(UpdateClientCommand $command) {
         
-        // Validate that ID is provided
-        if (empty($command->id)) {
-            throw new Exception("ID cliente mancante per l'aggiornamento");
+        try {
+
+            if (empty($command->id) || empty($command->name) || empty($command->surname)) {
+                throw new Exception("ID cliente, nome e cognome sono campi obbligatori.");
+            }
+
+            $client = $this->clientRepository->findById($command->id);
+
+            if(empty($client)) {
+                throw new Exception("Non esiste un Client con l'id specificato");
+            }
+
+            $clientToUpdate = new Client($command->id, $client->getEmail(), $command->name, $command->surname, 1);
+            
+            $this->clientRepository->update($clientToUpdate);
+
+        }catch(Exception $ex) {
+            throw new Exception("Si e' verificato un errore durante la modifica del Cliente: " . $ex->getMessage(), 0, $ex);
         }
-
-        // Update client in the database
-        $sql = "UPDATE client
-                SET name = :name, email = :email, surname = :surname  
-                WHERE id = :id";
-        
-        $stmt = $this->conn->prepare($sql);
-        
-        // Bind parameters and execute
-        $stmt->execute([
-            ':id' => $command->id,
-            ':name' => $command->name,
-            ':email' => $command->email,
-            ':surname' => $command->surname,
-        ]);
-
-       
-        if ($stmt->rowCount() === 0) {
-           
-        }
-
-        return true;
+      
     }
 }
     

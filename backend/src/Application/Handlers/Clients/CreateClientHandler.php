@@ -28,7 +28,7 @@ class CreateClientHandler {
 
         $foundClient = $this->clientRepository->findByEmail($command->email);
 
-        $clientToCreate = new Client(null, $command->name, $command->surname, $command->email, 1);
+        $clientToCreate = new Client(null, $command->email, $command->name, $command->surname, 1);
 
         $createdClientId = $this->clientRepository->create($clientToCreate);
 
