@@ -61,7 +61,8 @@ export class InventoryPresenter {
           {
             id: "1002",
             startDate: "22/12/2025",
-            endDate: "22/12/2025",
+            endDate: "",
+            status: "open",
             type: "repair",
             tech: "M. Rossi",
             desc: "Keyboard key replacement",
@@ -211,7 +212,8 @@ export class InventoryPresenter {
           {
             id: "1009",
             startDate: "22/09/2025",
-            endDate: "23/09/2025",
+            endDate: "",
+            status: "open",
             type: "repair",
             tech: "M. Rossi",
             desc: "HDMI port soldered",

@@ -59,12 +59,20 @@ export class LoginView extends BaseView {
       this.hideError();
       this.loginForm.reset();
 
-      // Simply reload the page - this will cause the browser to reload with the user already logged in
-      // The localStorage will persist, so when the page reloads, the user will still be logged in
-      console.log("Login successful, reloading page...");
+      // Set target route based on role before reload so the hash persists
+      const targetHash =
+        result.user.role === "technician" ? "#/maintenance" : "#/loans";
+      window.location.hash = targetHash;
+
+      // Reload to ensure layout renders correctly with persisted session
+      console.log(
+        "Login successful, navigating to",
+        targetHash,
+        "and reloading page...",
+      );
       setTimeout(() => {
         window.location.reload();
-      }, 500);
+      }, 200);
     } else {
       this.showError(result.error);
     }

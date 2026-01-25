@@ -20,6 +20,9 @@ class MaintenanceView extends BaseView {
 
   setupElements() {
     this.tbody = this.getElement("maintenance-tbody");
+    this.endDateHeader = document.querySelector(
+      '#maintenance-view th[data-sort-key="endDate"]',
+    );
 
     // Detail modal elements
     this.detailModalTitle = this.getElement("maintenance-modal-title");
@@ -32,6 +35,18 @@ class MaintenanceView extends BaseView {
     this.detailTotal = this.getElement("maintenance-detail-total");
     this.operationsList = this.getElement("operations-list");
     this.addOperationBtn = this.getElement("add-operation-btn");
+    this.closeMaintenanceBtn = this.getElement("maintenance-close-btn");
+    this.closeConfirmAccept = this.getElement(
+      "maintenance-close-confirm-accept",
+    );
+    this.closeConfirmCancel = this.getElement(
+      "maintenance-close-confirm-cancel",
+    );
+    this.closeConfirmClose = this.getElement("maintenance-close-confirm-close");
+    this.closeNotesInput = this.getElement("maintenance-close-notes");
+    this.closeStillBrokenCheckbox = this.getElement(
+      "maintenance-close-still-broken",
+    );
 
     // Add operation form elements
     this.operationForm = this.getElement("add-operation-form");
@@ -52,12 +67,34 @@ class MaintenanceView extends BaseView {
 
     this.registerModal("add-operation-modal");
     this.setupModalCloseButtons("add-operation-modal", ["add-operation-close"]);
+
+    // Register confirmation modal used before closing a maintenance
+    this.registerModal("maintenance-close-confirm-modal", {
+      onOpen: () => {
+        if (this.closeNotesInput) this.closeNotesInput.value = "";
+        if (this.closeStillBrokenCheckbox)
+          this.closeStillBrokenCheckbox.checked = false;
+      },
+    });
   }
 
   setupEventListeners() {
     this.addOperationBtn?.addEventListener("click", () => {
       this.addOperation();
     });
+
+    this.closeMaintenanceBtn?.addEventListener("click", () => {
+      this.openModal("maintenance-close-confirm-modal");
+    });
+
+    this.closeConfirmAccept?.addEventListener("click", () => {
+      this.handleCloseMaintenance();
+    });
+
+    const closeConfirm = () =>
+      this.closeModal("maintenance-close-confirm-modal");
+    this.closeConfirmCancel?.addEventListener("click", closeConfirm);
+    this.closeConfirmClose?.addEventListener("click", closeConfirm);
 
     this.addOperationCancelBtn?.addEventListener("click", () => {
       this.closeModal("add-operation-modal");
@@ -184,12 +221,19 @@ class MaintenanceView extends BaseView {
     if (!this.tbody) return;
     this.tbody.innerHTML = "";
 
+    const currentUser = this.presenter.getCurrentUser?.();
+    const hideEndDate = currentUser && currentUser.role === "technician";
+
+    if (this.endDateHeader) {
+      this.endDateHeader.style.display = hideEndDate ? "none" : "table-cell";
+    }
+
     const history = this.getSortedHistory();
 
     if (history.length === 0) {
       const tr = document.createElement("tr");
-      tr.innerHTML =
-        '<td colspan="5" style="text-align: center; color: var(--text-muted);">No maintenance records</td>';
+      const colspan = hideEndDate ? 6 : 7;
+      tr.innerHTML = `<td colspan="${colspan}" style="text-align: center; color: var(--text-muted);">No maintenance records</td>`;
       this.tbody.appendChild(tr);
       return;
     }
@@ -207,6 +251,7 @@ class MaintenanceView extends BaseView {
 
       const endCell = document.createElement("td");
       endCell.textContent = entry.endDate;
+      if (hideEndDate) endCell.style.display = "none";
 
       const itemCell = document.createElement("td");
       itemCell.textContent = entry.itemName;
@@ -222,15 +267,9 @@ class MaintenanceView extends BaseView {
       costCell.style.color = "var(--primary)";
       costCell.textContent = `€${entry.totalCost.toFixed(2)}`;
 
-      tr.append(
-        idCell,
-        startCell,
-        endCell,
-        itemCell,
-        techCell,
-        descCell,
-        costCell,
-      );
+      tr.append(idCell, startCell);
+      if (!hideEndDate) tr.append(endCell);
+      tr.append(itemCell, techCell, descCell, costCell);
       tr.addEventListener("click", () => this.showMaintenanceDetails(entry.id));
       this.tbody.appendChild(tr);
     });
@@ -244,15 +283,70 @@ class MaintenanceView extends BaseView {
     this.detailModalTitle.textContent = `Maintenance #${id}`;
     this.detailId.textContent = id;
     this.detailStart.textContent = maintenance.startDate;
-    this.detailEnd.textContent = maintenance.endDate;
+    this.detailEnd.textContent = maintenance.endDate || "-";
     this.detailItem.textContent = maintenance.itemName;
 
     this.detailTech.textContent = maintenance.tech || "-";
     this.detailDesc.textContent = maintenance.desc || "-";
     this.detailTotal.textContent = `€${maintenance.totalCost.toFixed(2)}`;
 
+    const currentUser = this.presenter.getCurrentUser?.();
+    const canTechnicianClose =
+      currentUser &&
+      currentUser.role === "technician" &&
+      currentUser.techName === maintenance.tech &&
+      maintenance.status !== "closed";
+
+    if (this.closeMaintenanceBtn) {
+      this.closeMaintenanceBtn.style.display = canTechnicianClose
+        ? "inline-flex"
+        : "none";
+    }
+
     this.renderOperations(maintenance.operations || []);
     this.openModal("maintenance-detail-modal");
+  }
+
+  handleCloseMaintenance() {
+    if (!this.currentMaintenanceId) return;
+    const maintenance = this.presenter.getMaintenanceById(
+      this.currentMaintenanceId,
+    );
+    if (!maintenance || maintenance.status === "closed") return;
+
+    const closeOptions = {
+      notes: this.closeNotesInput?.value.trim() || "",
+      stillBroken: Boolean(this.closeStillBrokenCheckbox?.checked),
+    };
+
+    if (!closeOptions.notes) {
+      this.mediator?.toaster?.error("Please provide a work summary");
+      this.closeNotesInput?.focus();
+      return;
+    }
+
+    const success = this.presenter.closeMaintenance(
+      this.currentMaintenanceId,
+      closeOptions,
+    );
+    if (success) {
+      const updated = this.presenter.getMaintenanceById(
+        this.currentMaintenanceId,
+      );
+      if (updated) {
+        this.detailEnd.textContent = updated.endDate || "-";
+      }
+      if (this.closeMaintenanceBtn) {
+        this.closeMaintenanceBtn.style.display = "none";
+      }
+      this.closeModal("maintenance-close-confirm-modal");
+      this.closeModal("maintenance-detail-modal");
+      this.render();
+      this.mediator?.toaster?.success("Maintenance closed");
+    } else {
+      this.closeModal("maintenance-close-confirm-modal");
+      this.mediator?.toaster?.error("Unable to close maintenance");
+    }
   }
 
   renderOperations(operations) {
@@ -395,7 +489,8 @@ class MaintenanceView extends BaseView {
       this.operationStartInput.value = formatDateForInput(
         maintenance.startDate,
       );
-      this.operationEndInput.value = formatDateForInput(maintenance.endDate);
+      const effectiveEndDate = maintenance.endDate || maintenance.startDate;
+      this.operationEndInput.value = formatDateForInput(effectiveEndDate);
     }
 
     this.openModal("add-operation-modal");
