@@ -23,6 +23,9 @@ class MaintenanceView extends BaseView {
     this.endDateHeader = document.querySelector(
       '#maintenance-view th[data-sort-key="endDate"]',
     );
+    this.statusHeader = document.querySelector(
+      '#maintenance-view th[data-sort-key="status"]',
+    );
 
     // Detail modal elements
     this.detailModalTitle = this.getElement("maintenance-modal-title");
@@ -166,6 +169,10 @@ class MaintenanceView extends BaseView {
           aVal = (a.desc || "").toLowerCase();
           bVal = (b.desc || "").toLowerCase();
           break;
+        case "status":
+          aVal = (a.status || "").toLowerCase();
+          bVal = (b.status || "").toLowerCase();
+          break;
         default:
           return 0;
       }
@@ -223,16 +230,22 @@ class MaintenanceView extends BaseView {
 
     const currentUser = this.presenter.getCurrentUser?.();
     const hideEndDate = currentUser && currentUser.role === "technician";
+    const hideStatus = currentUser && currentUser.role === "technician";
 
     if (this.endDateHeader) {
       this.endDateHeader.style.display = hideEndDate ? "none" : "table-cell";
+    }
+    if (this.statusHeader) {
+      this.statusHeader.style.display = hideStatus ? "none" : "table-cell";
     }
 
     const history = this.getSortedHistory();
 
     if (history.length === 0) {
       const tr = document.createElement("tr");
-      const colspan = hideEndDate ? 6 : 7;
+      const totalColumns = 8;
+      const hiddenCount = (hideEndDate ? 1 : 0) + (hideStatus ? 1 : 0);
+      const colspan = totalColumns - hiddenCount;
       tr.innerHTML = `<td colspan="${colspan}" style="text-align: center; color: var(--text-muted);">No maintenance records</td>`;
       this.tbody.appendChild(tr);
       return;
@@ -267,9 +280,16 @@ class MaintenanceView extends BaseView {
       costCell.style.color = "var(--primary)";
       costCell.textContent = `€${entry.totalCost.toFixed(2)}`;
 
+      const statusCell = document.createElement("td");
+      statusCell.textContent = entry.status || "-";
+      statusCell.style.fontWeight = "600";
+      statusCell.style.color =
+        entry.status === "closed" ? "#16a34a" : "#d97706";
+
       tr.append(idCell, startCell);
       if (!hideEndDate) tr.append(endCell);
       tr.append(itemCell, techCell, descCell, costCell);
+      if (!hideStatus) tr.append(statusCell);
       tr.addEventListener("click", () => this.showMaintenanceDetails(entry.id));
       this.tbody.appendChild(tr);
     });
