@@ -24,7 +24,8 @@ class MaintenanceView extends BaseView {
     // Detail modal elements
     this.detailModalTitle = this.getElement("maintenance-modal-title");
     this.detailId = this.getElement("maintenance-detail-id");
-    this.detailDate = this.getElement("maintenance-detail-date");
+    this.detailStart = this.getElement("maintenance-detail-start");
+    this.detailEnd = this.getElement("maintenance-detail-end");
     this.detailItem = this.getElement("maintenance-detail-item");
     this.detailTech = this.getElement("maintenance-detail-tech");
     this.detailDesc = this.getElement("maintenance-detail-desc");
@@ -181,8 +182,11 @@ class MaintenanceView extends BaseView {
       const idCell = document.createElement("td");
       idCell.textContent = entry.id;
 
-      const dateCell = document.createElement("td");
-      dateCell.textContent = entry.date;
+      const startCell = document.createElement("td");
+      startCell.textContent = entry.startDate;
+
+      const endCell = document.createElement("td");
+      endCell.textContent = entry.endDate;
 
       const itemCell = document.createElement("td");
       itemCell.textContent = entry.itemName;
@@ -198,7 +202,15 @@ class MaintenanceView extends BaseView {
       costCell.style.color = "var(--primary)";
       costCell.textContent = `€${entry.totalCost.toFixed(2)}`;
 
-      tr.append(idCell, dateCell, itemCell, techCell, descCell, costCell);
+      tr.append(
+        idCell,
+        startCell,
+        endCell,
+        itemCell,
+        techCell,
+        descCell,
+        costCell,
+      );
       tr.addEventListener("click", () => this.showMaintenanceDetails(entry.id));
       this.tbody.appendChild(tr);
     });
@@ -211,7 +223,8 @@ class MaintenanceView extends BaseView {
     this.currentMaintenanceId = id;
     this.detailModalTitle.textContent = `Maintenance #${id}`;
     this.detailId.textContent = id;
-    this.detailDate.textContent = maintenance.date;
+    this.detailStart.textContent = maintenance.startDate;
+    this.detailEnd.textContent = maintenance.endDate;
     this.detailItem.textContent = maintenance.itemName;
 
     this.detailTech.textContent = maintenance.tech || "-";
@@ -256,7 +269,6 @@ class MaintenanceView extends BaseView {
       descValue.textContent = op.desc;
       descValue.style.fontSize = "0.875rem";
       descValue.style.color = "var(--text-primary)";
-      descValue.style.marginBottom = "var(--space-3)";
 
       const costLabel = document.createElement("div");
       costLabel.textContent = "COST";
@@ -272,10 +284,69 @@ class MaintenanceView extends BaseView {
       costValue.style.fontWeight = "600";
       costValue.style.color = "var(--primary)";
 
-      card.appendChild(descLabel);
-      card.appendChild(descValue);
-      card.appendChild(costLabel);
-      card.appendChild(costValue);
+      // Create a container for description and cost side by side
+      const descCostContainer = document.createElement("div");
+      descCostContainer.style.display = "grid";
+      descCostContainer.style.gridTemplateColumns = "1fr 1fr";
+      descCostContainer.style.gap = "var(--space-3)";
+      descCostContainer.style.marginBottom = "var(--space-3)";
+
+      const descDiv = document.createElement("div");
+      descDiv.appendChild(descLabel);
+      descDiv.appendChild(descValue);
+
+      const costDiv = document.createElement("div");
+      costDiv.appendChild(costLabel);
+      costDiv.appendChild(costValue);
+
+      descCostContainer.appendChild(descDiv);
+      descCostContainer.appendChild(costDiv);
+
+      // Create a container for dates side by side
+      const datesContainer = document.createElement("div");
+      datesContainer.style.display = "grid";
+      datesContainer.style.gridTemplateColumns = "1fr 1fr";
+      datesContainer.style.gap = "var(--space-3)";
+
+      const startDateDiv = document.createElement("div");
+      const startLabel = document.createElement("div");
+      startLabel.textContent = "START DATE";
+      startLabel.style.fontSize = "0.75rem";
+      startLabel.style.fontWeight = "600";
+      startLabel.style.color = "var(--text-muted)";
+      startLabel.style.marginBottom = "var(--space-1)";
+      startLabel.style.letterSpacing = "0.05em";
+
+      const startValue = document.createElement("div");
+      startValue.textContent = op.startDate || "-";
+      startValue.style.fontSize = "0.875rem";
+      startValue.style.color = "var(--text-primary)";
+
+      startDateDiv.appendChild(startLabel);
+      startDateDiv.appendChild(startValue);
+
+      const endDateDiv = document.createElement("div");
+      const endLabel = document.createElement("div");
+      endLabel.textContent = "END DATE";
+      endLabel.style.fontSize = "0.75rem";
+      endLabel.style.fontWeight = "600";
+      endLabel.style.color = "var(--text-muted)";
+      endLabel.style.marginBottom = "var(--space-1)";
+      endLabel.style.letterSpacing = "0.05em";
+
+      const endValue = document.createElement("div");
+      endValue.textContent = op.endDate || "-";
+      endValue.style.fontSize = "0.875rem";
+      endValue.style.color = "var(--text-primary)";
+
+      endDateDiv.appendChild(endLabel);
+      endDateDiv.appendChild(endValue);
+
+      datesContainer.appendChild(startDateDiv);
+      datesContainer.appendChild(endDateDiv);
+
+      card.appendChild(descCostContainer);
+      card.appendChild(datesContainer);
 
       this.operationsList.appendChild(card);
     });

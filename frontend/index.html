@@ -84,7 +84,8 @@
                 <thead>
                     <tr>
                         <th data-sortable data-sort-key="id">ID</th>
-                        <th data-sortable data-sort-key="date">Date</th>
+                        <th data-sortable data-sort-key="startDate">Start Date</th>
+                        <th data-sortable data-sort-key="endDate">End Date</th>
                         <th data-sortable data-sort-key="objectName">Object</th>
                         <th data-sortable data-sort-key="tech">Technician</th>
                         <th data-sortable data-sort-key="desc">Description</th>
@@ -410,21 +411,24 @@
                             <div class="detail-value" id="maintenance-detail-item">-</div>
                         </div>
                         <div>
-                            <label class="detail-label">Date</label>
-                            <div class="detail-value" id="maintenance-detail-date">-</div>
+                            <label class="detail-label">Start Date</label>
+                            <div class="detail-value" id="maintenance-detail-start">-</div>
+                        </div>
+                        <div>
+                            <label class="detail-label">End Date</label>
+                            <div class="detail-value" id="maintenance-detail-end">-</div>
+                        </div>
+                        <div>
+                            <label class="detail-label">Technician</label>
+                            <div class="detail-value" id="maintenance-detail-tech">-</div>
                         </div>
                         <div>
                             <label class="detail-label">Total Cost</label>
                             <div class="detail-value" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);" id="maintenance-detail-total">€0.00</div>
                         </div>
-                        <div>
-
+                        <div style="grid-column: 1 / -1;">
                             <label class="detail-label">Description</label>
                             <div class="detail-value" id="maintenance-detail-desc">-</div>
-                        </div>
-                        <div>
-                            <label class="detail-label">Technician</label>
-                            <div class="detail-value" id="maintenance-detail-tech">-</div>
                         </div>
                     </div>
                 </div>

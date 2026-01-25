@@ -22,8 +22,9 @@ export class MaintenancePresenter {
       if (item.maintenance && item.maintenance.length > 0) {
         item.maintenance.forEach((m) => {
           history.push({
-            id: m.id || `${item.id}-${m.date}`, // Generate unique ID
-            date: m.date,
+            id: m.id || `${item.id}-${m.startDate}`,
+            startDate: m.startDate,
+            endDate: m.endDate,
             itemId: item.id,
             itemName: item.name,
             type: m.type,
