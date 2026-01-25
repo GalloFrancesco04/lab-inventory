@@ -7,6 +7,8 @@ class MaintenanceView extends BaseView {
     this.sortColumn = null;
     this.sortDirection = null;
     this.setupElements();
+    this.setupModals();
+    this.setupEventListeners();
     this.setupSorting();
     // Register search callback
     this.mediator.searchManager.registerView("maintenance", (query) =>
@@ -18,6 +20,32 @@ class MaintenanceView extends BaseView {
 
   setupElements() {
     this.tbody = this.getElement("maintenance-tbody");
+
+    // Detail modal elements
+    this.detailModalTitle = this.getElement("maintenance-modal-title");
+    this.detailId = this.getElement("maintenance-detail-id");
+    this.detailDate = this.getElement("maintenance-detail-date");
+    this.detailItem = this.getElement("maintenance-detail-item");
+    this.detailTech = this.getElement("maintenance-detail-tech");
+    this.detailDesc = this.getElement("maintenance-detail-desc");
+    this.detailTotal = this.getElement("maintenance-detail-total");
+    this.operationsList = this.getElement("operations-list");
+    this.addOperationBtn = this.getElement("add-operation-btn");
+
+    this.currentMaintenanceId = null;
+  }
+
+  setupModals() {
+    this.registerModal("maintenance-detail-modal");
+    this.setupModalCloseButtons("maintenance-detail-modal", [
+      "maintenance-detail-close",
+    ]);
+  }
+
+  setupEventListeners() {
+    this.addOperationBtn?.addEventListener("click", () => {
+      this.addOperation();
+    });
   }
 
   typeBadgeClass(type) {
@@ -148,6 +176,10 @@ class MaintenanceView extends BaseView {
     history.forEach((entry) => {
       const tr = document.createElement("tr");
       tr.className = "table-row";
+      tr.dataset.maintenanceId = entry.id;
+
+      const idCell = document.createElement("td");
+      idCell.textContent = entry.id;
 
       const dateCell = document.createElement("td");
       dateCell.textContent = entry.date;
@@ -155,21 +187,102 @@ class MaintenanceView extends BaseView {
       const itemCell = document.createElement("td");
       itemCell.textContent = entry.itemName;
 
-      const typeCell = document.createElement("td");
-      const typeBadge = document.createElement("span");
-      typeBadge.className = this.typeBadgeClass(entry.type);
-      typeBadge.textContent = entry.type;
-      typeCell.appendChild(typeBadge);
-
       const techCell = document.createElement("td");
       techCell.textContent = entry.tech || "-";
 
       const descCell = document.createElement("td");
       descCell.textContent = entry.desc || "-";
 
-      tr.append(dateCell, itemCell, typeCell, techCell, descCell);
+      const costCell = document.createElement("td");
+      costCell.style.fontWeight = "600";
+      costCell.style.color = "var(--primary)";
+      costCell.textContent = `€${entry.totalCost.toFixed(2)}`;
+
+      tr.append(idCell, dateCell, itemCell, techCell, descCell, costCell);
+      tr.addEventListener("click", () => this.showMaintenanceDetails(entry.id));
       this.tbody.appendChild(tr);
     });
+  }
+
+  showMaintenanceDetails(id) {
+    const maintenance = this.presenter.getMaintenanceById(id);
+    if (!maintenance) return;
+
+    this.currentMaintenanceId = id;
+    this.detailModalTitle.textContent = `Maintenance #${id}`;
+    this.detailId.textContent = id;
+    this.detailDate.textContent = maintenance.date;
+    this.detailItem.textContent = maintenance.itemName;
+
+    this.detailTech.textContent = maintenance.tech || "-";
+    this.detailDesc.textContent = maintenance.desc || "-";
+    this.detailTotal.textContent = `€${maintenance.totalCost.toFixed(2)}`;
+
+    this.renderOperations(maintenance.operations || []);
+    this.openModal("maintenance-detail-modal");
+  }
+
+  renderOperations(operations) {
+    if (!this.operationsList) return;
+    this.operationsList.innerHTML = "";
+
+    if (operations.length === 0) {
+      const empty = document.createElement("div");
+      empty.style.padding = "var(--space-4)";
+      empty.style.textAlign = "center";
+      empty.style.color = "var(--text-muted)";
+      empty.textContent = "No operations recorded yet";
+      this.operationsList.appendChild(empty);
+      return;
+    }
+
+    operations.forEach((op, index) => {
+      const card = document.createElement("div");
+      card.style.padding = "var(--space-4)";
+      card.style.background = "#f8f9fa";
+      card.style.border = "1px solid #dee2e6";
+      card.style.borderRadius = "var(--radius-sm)";
+      card.style.boxShadow = "0 1px 3px rgba(0, 0, 0, 0.05)";
+
+      const descLabel = document.createElement("div");
+      descLabel.textContent = "DESCRIPTION";
+      descLabel.style.fontSize = "0.75rem";
+      descLabel.style.fontWeight = "600";
+      descLabel.style.color = "var(--text-muted)";
+      descLabel.style.marginBottom = "var(--space-1)";
+      descLabel.style.letterSpacing = "0.05em";
+
+      const descValue = document.createElement("div");
+      descValue.textContent = op.desc;
+      descValue.style.fontSize = "0.875rem";
+      descValue.style.color = "var(--text-primary)";
+      descValue.style.marginBottom = "var(--space-3)";
+
+      const costLabel = document.createElement("div");
+      costLabel.textContent = "COST";
+      costLabel.style.fontSize = "0.75rem";
+      costLabel.style.fontWeight = "600";
+      costLabel.style.color = "var(--text-muted)";
+      costLabel.style.marginBottom = "var(--space-1)";
+      costLabel.style.letterSpacing = "0.05em";
+
+      const costValue = document.createElement("div");
+      costValue.textContent = `€${op.cost.toFixed(2)}`;
+      costValue.style.fontSize = "1.125rem";
+      costValue.style.fontWeight = "600";
+      costValue.style.color = "var(--primary)";
+
+      card.appendChild(descLabel);
+      card.appendChild(descValue);
+      card.appendChild(costLabel);
+      card.appendChild(costValue);
+
+      this.operationsList.appendChild(card);
+    });
+  }
+
+  addOperation() {
+    this.mediator.toaster.info("Add operation feature coming soon!");
   }
 }
 

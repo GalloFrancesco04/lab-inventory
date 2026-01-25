@@ -22,12 +22,17 @@ export class MaintenancePresenter {
       if (item.maintenance && item.maintenance.length > 0) {
         item.maintenance.forEach((m) => {
           history.push({
+            id: m.id || `${item.id}-${m.date}`, // Generate unique ID
             date: m.date,
             itemId: item.id,
             itemName: item.name,
             type: m.type,
             tech: m.tech,
             desc: m.desc,
+            operations: m.operations || [],
+            totalCost: m.operations
+              ? m.operations.reduce((sum, op) => sum + (op.cost || 0), 0)
+              : 0,
           });
         });
       }
@@ -36,5 +41,9 @@ export class MaintenancePresenter {
     // Sort by date descending
     history.sort((a, b) => new Date(b.date) - new Date(a.date));
     return history;
+  }
+
+  getMaintenanceById(id) {
+    return this.getMaintenanceHistory().find((m) => m.id === id);
   }
 }
