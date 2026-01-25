@@ -337,7 +337,7 @@ class InventoryView extends BaseView {
       div.innerHTML = `
         <div class="maint-row">
           <div class="maint-label">Date</div>
-          <div class="maint-value">${m.date}</div>
+          <div class="maint-value">${m.startDate || "-"}</div>
         </div>
         <div class="maint-row">
           <div class="maint-label">Technician</div>
