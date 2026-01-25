@@ -1,6 +1,7 @@
 <?php
 
 use PDO;
+require_once __DIR__ . '/../../../Domain/Entities/LoanedObject.php';
 use Application\Domain\Entities\Loan;
 use Application\Domain\Entities\LoanedObject;
 use Application\Domain\Entities\InventoryItem;
@@ -15,7 +16,7 @@ class LoanedObjectRepository
         $this->connection = $connection;
     }
 
-    public function create(int $loan_id, InventoryItem $object): void
+    public function create(int $loan_id, LoanedObject $object): void
     {
         $stmt = $this->connection->prepare("
             INSERT INTO loanedobjects (object_type_code, object_id, loan_id, damaged)

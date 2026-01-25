@@ -38,7 +38,6 @@ class InventoryItem {
                 break;
         }
 
-        $this->state = $state;
         $this->location = $location;
     }
 

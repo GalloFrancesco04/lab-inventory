@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__."/../../../Domain/States/LoanedState.php";
+require_once __DIR__."/../../../Domain/Entities/InventoryItem.php";
 
 class CreateLoanCommand {
     public $start_date;
@@ -10,7 +10,7 @@ class CreateLoanCommand {
     public $state;
     public array $objects;
 
-    public function __construct($start_date, $end_date = null, $client_id, $notes = null, $objects = []) {
+    public function __construct($start_date, $end_date, $client_id, $notes = null, InventoryItem ...$objects) {
         $this->start_date = $start_date;
         $this->end_date = $end_date;
         $this->client_id = $client_id;
