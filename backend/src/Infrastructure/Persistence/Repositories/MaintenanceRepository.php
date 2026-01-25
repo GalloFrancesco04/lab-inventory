@@ -148,6 +148,44 @@ class MaintenanceRepository
 
         return (float) $stmt->fetchColumn();
     }
+
+    public function searchByDate(DateTime $date): array
+    {
+        $stmt = $this->connection->prepare("
+            SELECT * FROM maintenance 
+            WHERE start_date <= :date AND (end_date IS NULL OR end_date >= :date)
+        ");
+
+        $stmt->execute([
+            'date' => $date->format('Y-m-d')
+        ]);
+
+        $maintenances = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $maintenances[] = $this->mapRowToMaintenance($row);
+        }
+
+        return $maintenances;
+    }
+
+    public function searchByType(string $type): array
+    {
+        $stmt = $this->connection->prepare("
+            SELECT * FROM maintenance 
+            WHERE type = :type
+        ");
+
+        $stmt->execute([
+            'type' => $type
+        ]);
+
+        $maintenances = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $maintenances[] = $this->mapRowToMaintenance($row);
+        }
+
+        return $maintenances;
+    }
     
     private function mapRowToMaintenance(array $row): Maintenance 
     {
@@ -155,12 +193,12 @@ class MaintenanceRepository
         $endDate = (!empty($row['end_date'])) ? new DateTime($row['end_date']) : null;
 
         $maintenance =  new Maintenance(
-            $row['object_id'],
+            (int)$row['object_id'],
             $row['description'],
             $startDate,
             $endDate,
             $row['type'],
-            $row['technician_id'],
+            (int)$row['technician_id'],
             $row['phone_number'],
             (float)$row['cost'],
         );

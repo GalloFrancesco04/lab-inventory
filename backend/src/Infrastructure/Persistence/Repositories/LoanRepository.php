@@ -163,6 +163,70 @@ class LoanRepository{
         return $loans;
     }
 
+    public function getActiveLoans(): array
+    {
+        $stmt = $this->connection->prepare("
+            SELECT * FROM loans WHERE state = true
+        ");
+
+        $stmt->execute();
+
+        $loans = [];
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $loans[] = $this->mapRowToLoan($row);
+        }
+
+        return $loans;
+    }
+
+    //Input array of the function : 
+    //     $filters = [
+    //                                         // key => value (User input) 
+    //     start_date (date)   =>    , 
+    //     end_date   (date)   =>    ,  
+    //      client_id (int)    =>    ,     
+    //     object_type_code   (string) =>    ,
+    //     state (bool) =>    ,         
+    // ];
+    public function combinableFilters(array $filters): array
+    {
+        $query = "SELECT l.id,lo.id,lo.object_type_code, l.startDate, l.endDate, l.returnDate, l.clientId, l.notes, l.quantity, l.state
+            FROM loans l JOIN loanedobjects lo ON l.id = lo.loan_id
+            WHERE 1=1"; 
+
+        $params = [];
+        if(!empty($filters['start_date'])){
+            $query .= " AND l.startDate = :start_date";
+            $params['start_date'] = $filters['start_date'];
+        }
+
+        if(!empty($filters['end_date'])){
+            $query .= " AND l.endDate = :end_date";
+            $params['end_date'] = $filters['end_date'];
+        }
+
+        if(!empty($filters['client_id'])){
+            $query .= " AND l.clientId = :client_id";
+            $params['client_id'] = $filters['client_id'];     
+        }
+
+        if(!empty($filters['object_type_code'])){
+            $query .= " AND lo.object_type_code LIKE :object_type_code";
+            $params['object_type_code'] = $filters['object_type_code'];     
+        }
+
+        if(isset($filters['state'])){
+            $query .= " AND l.state = :state";
+            $params['state'] = $filters['state'];     
+        }
+
+        $stmt = $this->connection->prepare($query);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);; //return multidimensional array [[loan_id,object_id, object_type_code, startDate, endDate, returnDate, clientId, notes, quantity, state], [...], [...]]
+    }
+
     public function getAll(): array
     {
         $stmt = $this->connection->prepare("SELECT * FROM loans");

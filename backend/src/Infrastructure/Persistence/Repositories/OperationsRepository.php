@@ -110,6 +110,24 @@ class OperationRepository
         return $operations;
     }
 
+    public function getAllObjectOperations(int $objectId): array 
+    {
+        $stmt = $this->connection->prepare("
+            SELECT o.* FROM operations o
+            JOIN maintenance m ON o.maintenance_id = m.id
+            WHERE m.object_id = :object_id
+        ");
+
+        $stmt->execute(['object_id' => $objectId]);
+
+        $operations = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $operations[] = $this->mapRowToOperation($row);
+        }
+
+        return $operations;
+    }
+
     private function mapRowToOperation(array $row): Operation 
     {
         $startDate = new DateTime($row['start_date']);
