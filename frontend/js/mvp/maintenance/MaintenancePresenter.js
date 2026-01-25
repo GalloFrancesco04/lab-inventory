@@ -1,6 +1,7 @@
 export class MaintenancePresenter {
-  constructor(inventoryPresenter) {
+  constructor(inventoryPresenter, authPresenter = null) {
     this.inventoryPresenter = inventoryPresenter;
+    this.authPresenter = authPresenter;
     this.listeners = [];
   }
 
@@ -39,9 +40,24 @@ export class MaintenancePresenter {
       }
     });
 
+    // Filter by technician if user is technician
+    let filteredHistory = history;
+    if (this.authPresenter) {
+      const currentUser = this.authPresenter.getCurrentUser();
+      if (
+        currentUser &&
+        currentUser.role === "technician" &&
+        currentUser.techName
+      ) {
+        filteredHistory = history.filter(
+          (m) => m.tech === currentUser.techName,
+        );
+      }
+    }
+
     // Sort by date descending
-    history.sort((a, b) => new Date(b.date) - new Date(a.date));
-    return history;
+    filteredHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return filteredHistory;
   }
 
   getMaintenanceById(id) {

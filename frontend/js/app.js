@@ -7,11 +7,17 @@ import { initClientsView } from "./mvp/clients/ClientsView.js";
 import { ClientsPresenter } from "./mvp/clients/ClientsPresenter.js";
 import { initMaintenanceView } from "./mvp/maintenance/MaintenanceView.js";
 import { MaintenancePresenter } from "./mvp/maintenance/MaintenancePresenter.js";
+import { initLoginView } from "./mvp/auth/LoginView.js";
+import { AuthPresenter } from "./mvp/auth/LoginPresenter.js";
 import { Mediator } from "./utils/Mediator.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   // Create mediator instance
   const mediator = new Mediator();
+
+  // Initialize auth
+  const authPresenter = new AuthPresenter();
+  const loginView = initLoginView(authPresenter, mediator);
 
   const routes = {
     "#/loans": "loans-view",
@@ -26,6 +32,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Route change callback
   function handleRouteChange(viewName, fullRoute) {
+    // Check if user is logged in
+    if (!authPresenter.isLoggedIn()) {
+      loginView.showLoginView();
+      return;
+    }
+
     // Update toolbar visibility
     const isLoansRoute = viewName === "loans";
     const isInventoryRoute = viewName === "inventory";
@@ -44,12 +56,25 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => navigateTo(btn.dataset.route));
   });
 
+  // Check authentication BEFORE initializing router
+  const isLoggedIn = authPresenter.isLoggedIn();
+
+  if (!isLoggedIn) {
+    loginView.showLoginView();
+  } else {
+    const user = authPresenter.getCurrentUser();
+    loginView.showMainApp(user);
+  }
+
   initRouter(routes, handleRouteChange, "#/loans");
 
   const loansPresenter = new LoansPresenter();
   const inventoryPresenter = new InventoryPresenter();
   const clientsPresenter = new ClientsPresenter();
-  const maintenancePresenter = new MaintenancePresenter(inventoryPresenter);
+  const maintenancePresenter = new MaintenancePresenter(
+    inventoryPresenter,
+    authPresenter,
+  );
   initInventoryView(inventoryPresenter, mediator);
   initClientsView(clientsPresenter, mediator);
   initLoansView(loansPresenter, mediator);

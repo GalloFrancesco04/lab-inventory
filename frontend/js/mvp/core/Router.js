@@ -10,7 +10,10 @@ function setActiveNav(route) {
 
 function hideAllViews() {
   document.querySelectorAll(".view").forEach((el) => {
-    el.classList.add("hidden");
+    // Don't hide login view - it's managed by LoginView
+    if (el.id !== "login-view") {
+      el.classList.add("hidden");
+    }
   });
 }
 
