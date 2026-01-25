@@ -146,6 +146,7 @@ textarea {
 
 input[type="text"]:not(.search-input),
 input[type="email"],
+input[type="password"],
 input[type="number"],
 input[type="tel"],
 input[type="date"],
@@ -161,6 +162,7 @@ select {
 
 input[type="text"]:not(.search-input):focus,
 input[type="email"]:focus,
+input[type="password"]:focus,
 input[type="number"]:focus,
 input[type="tel"]:focus,
 input[type="date"]:focus,

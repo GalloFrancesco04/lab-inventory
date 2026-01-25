@@ -15,20 +15,30 @@
 <body class="page">
     <!-- Login View -->
     <div class="view" id="login-view" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--surface-primary);">
-        <div style="background: var(--surface-secondary); padding: var(--space-6); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 100%; max-width: 400px;">
-            <h1 style="font-size: var(--text-2xl); font-weight: 600; margin-bottom: var(--space-6); text-align: center; color: var(--text-primary);">Login</h1>
-            <form id="login-form" style="display: flex; flex-direction: column; gap: var(--space-4);">
-                <div>
-                    <label for="login-username" style="display: block; margin-bottom: var(--space-2); font-weight: 500; color: var(--text-primary);">Username</label>
-                    <input type="text" id="login-username" required 
-                           style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-primary); border-radius: var(--radius-md); font-size: var(--text-base);">
+        <div class="modal-content" style="max-width: 400px; width: 100%;">
+            <div class="modal-header">
+                <h2 class="modal-title">Login</h2>
+            </div>
+            <form class="form" id="login-form">
+                <div class="form-group">
+                    <label for="login-username">Email</label>
+                    <input type="email" id="login-username" required placeholder="Enter your email">
                 </div>
-                <div>
-                    <label for="login-password" style="display: block; margin-bottom: var(--space-2); font-weight: 500; color: var(--text-primary);">Password</label>
-                    <input type="password" id="login-password" required 
-                           style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-primary); border-radius: var(--radius-md); font-size: var(--text-base);">
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <div style="position: relative;">
+                        <input type="password" id="login-password" required placeholder="Enter your password" style="padding-right: 2.5rem !important;">
+                        <button type="button" id="toggle-password" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0; line-height: 1; display: flex; align-items: center;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--space-2);">Login</button>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: var(--space-3) var(--space-4); font-size: 1rem; text-align: center; justify-content: center; display: flex; align-items: center;">Login</button>
+                </div>
             </form>
             <div id="login-error" style="margin-top: var(--space-4); padding: var(--space-3); border-radius: var(--radius-md); background: #fee; color: #c00; display: none;"></div>
         </div>

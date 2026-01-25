@@ -8,14 +8,14 @@ export class AuthPresenter extends BasePresenter {
     this.users = [
       {
         id: 1,
-        username: "admin",
+        email: "admin@library.com",
         password: "admin123",
         role: "admin",
         fullName: "Administrator",
       },
       {
         id: 2,
-        username: "mario",
+        email: "mario.rossi@library.com",
         password: "tech123",
         role: "technician",
         fullName: "Mario Rossi",
@@ -23,7 +23,7 @@ export class AuthPresenter extends BasePresenter {
       },
       {
         id: 3,
-        username: "luigi",
+        email: "luigi.verdi@library.com",
         password: "tech123",
         role: "technician",
         fullName: "Luigi Verdi",
@@ -31,7 +31,7 @@ export class AuthPresenter extends BasePresenter {
       },
       {
         id: 4,
-        username: "anna",
+        email: "anna.bianchi@library.com",
         password: "tech123",
         role: "technician",
         fullName: "Anna Bianchi",
@@ -56,16 +56,16 @@ export class AuthPresenter extends BasePresenter {
     }
   }
 
-  login(username, password) {
+  login(email, password) {
     const user = this.users.find(
-      (u) => u.username === username && u.password === password,
+      (u) => u.email === email && u.password === password,
     );
 
     if (user) {
       // Don't store password in currentUser
       this.currentUser = {
         id: user.id,
-        username: user.username,
+        email: user.email,
         role: user.role,
         fullName: user.fullName,
         techName: user.techName, // For filtering maintenance by technician
@@ -75,7 +75,7 @@ export class AuthPresenter extends BasePresenter {
       return { success: true, user: this.currentUser };
     }
 
-    return { success: false, error: "Invalid username or password" };
+    return { success: false, error: "Invalid email or password" };
   }
 
   logout() {
