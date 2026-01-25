@@ -1,7 +1,8 @@
 <?php
 
 use PDO;
-use Application\Domain\Entities\InventoryItem;
+require_once __DIR__ . '/../../../Domain/Entities/InventoryItem.php';
+
 
 class ItemRepository
 {
@@ -196,12 +197,11 @@ class ItemRepository
     private function mapRowToItem(array $row): InventoryItem
     {
         $item = new InventoryItem(
+            (int) $row['id'],
             $row['object_type_code'],
             $row['state'],
             $row['location']
         );
-
-        $item->setId((int) $row['id']);
 
         return $item;
     }

@@ -2,9 +2,6 @@
 
 use PDO;
 require_once __DIR__ . '/../../../Domain/Entities/LoanedObject.php';
-use Application\Domain\Entities\Loan;
-use Application\Domain\Entities\LoanedObject;
-use Application\Domain\Entities\InventoryItem;
 
 
 class LoanedObjectRepository
@@ -25,7 +22,7 @@ class LoanedObjectRepository
 
         $stmt->execute([
             'object_type_code' => $object->getObjectTypeCode(),
-            'object_id' => $object->getId(),
+            'object_id' => $object->getObjectId(),
             'loan_id' => $loan_id
         ]); 
     }

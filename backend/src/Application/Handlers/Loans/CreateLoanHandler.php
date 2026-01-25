@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanRe
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ItemRepository.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ClientRepository.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanedObjectRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ObjectTypeRepository.php';
 
 require_once __DIR__ . '/../../../Domain/Entities/Loan.php';
 require_once __DIR__ . '/../../../Domain/Entities/LoanedObject.php';
@@ -19,6 +20,7 @@ class CreateLoanHandler {
     private $clientRepository;
     private $transaction;
     private $loanedObjectRepository;
+    private $objectTypeRepository;
 
 
     public function __construct() {
@@ -29,6 +31,7 @@ class CreateLoanHandler {
         $this->itemRepository = new ItemRepository($connection);
         $this->clientRepository = new ClientRepository($connection);
         $this->loanedObjectRepository = new LoanedObjectRepository($connection);
+        $this->objectTypeRepository = new ObjectTypeRepository($connection);
 
         $this->transaction = new TransactionManager($connection);
     }
@@ -91,27 +94,37 @@ class CreateLoanHandler {
             // for each object of the loan I have to insert a new loanedObject
             foreach($command->objects as $object){
 
-                $objectToLoan = new LoanedObject($object->object_type_code, $object->id, $createdLoanId, 0);
+                // I check if the quantity of the object_type is > 0 and if it is I loan it if not I return an error
+                $objectType = $this->objectTypeRepository->findByCode($object->getObjectTypeCode());
 
-                $createdLoanedItem = $this->loanedObjectRepository->create($createdLoanId, $object);
+                if($objectType->getQuantity() == 0) {
+                    throw new Exception("Non e' possibile prendere in prestito l'oggetto con type code: " . $objectType->getCode());
+                }
 
-                if (empty($createdLoanedItem)){
-                    // loaned object not created
-                    continue;
+                // I check if the user passes an object_id with no correspondence to the objecttype
+                $objectFromDb = $this->itemRepository->findById($object->getId());
+
+                if(empty($objectFromDb)) {
+                    throw new Exception("Non esiste un oggetto con l'id specificato");
                 }
-                        
-                // i put the state of the objects as loaned
-                $item = $this->itemRepository->findById($object->id);
-                    
-                if(empty($item)) {
-                    // item not found 
-                    continue;
+
+                if($objectFromDb->getObjectTypeCode() != $objectType->getCode()) {
+                    throw new Exception("L'id dell'oggetto e il codice dell'object type non corrispondono a nessun oggetto");
                 }
+
+                // the object is correct and the quantity is >= 0 so I decrement it on db
+                $objectType->removeQuantity(1);
+                $this->objectTypeRepository->updateQuantity($objectType->getCode(), $objectType->getQuantity());
+
+                // creating the loaned object
+                $objectToLoan = new LoanedObject($object->getObjectTypeCode(), $object->getId(), $createdLoanId, 0);
+
+                $createdLoanedItem = $this->loanedObjectRepository->create($createdLoanId, $objectToLoan);
                         
                 // i use the state pattern to update the item state and then i also update it on db
-                $item->loaned();
+                $objectFromDb->loan();
 
-                $this->itemRepository->updateState($object->id, $item->getStateCode());
+                $this->itemRepository->updateState($object->getId(), $objectFromDb->getStateCode());
 
                 // the object has been successfully loaned so I increase the quantity
                 $quantity++;

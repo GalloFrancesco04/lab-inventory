@@ -1,7 +1,8 @@
 <?php
 
 use PDO;
-use Application\Domain\Entities\ObjectType;
+require_once __DIR__ . '/../../../Domain/Entities/ObjectType.php';
+
 
 class ObjectTypeRepository
 {
@@ -50,6 +51,20 @@ class ObjectTypeRepository
             'brand' => $objectType->getBrand(),
             'quantity' => $objectType->getQuantity(),
             'code'    => $objectType->getCode()
+        ]);
+    }
+
+    public function updateQuantity(string $code, int $quantity) :void
+    {
+        $stmt = $this->connection->prepare("
+            UPDATE objecttype SET 
+                quantity = :quantity
+            WHERE code = :code
+            ");
+
+        $stmt->execute([
+            'quantity' => $quantity,
+            'code'    => $code
         ]);
     }
 
@@ -137,14 +152,7 @@ class ObjectTypeRepository
 
     private function mapRowToObjectType(array $row): ObjectType
     {
-        $objectType = new ObjectType(
-            $row['code'],
-            $row['name'],
-            $row['description'],
-            $row['model'],
-            $row['brand'],
-            (int)$row['quantity']
-        );
+        $objectType = new ObjectType($row['code'],$row['name'], $row['quantity'], $row['description'], $row['brand'], $row['model']);
 
         return $objectType;
     }
