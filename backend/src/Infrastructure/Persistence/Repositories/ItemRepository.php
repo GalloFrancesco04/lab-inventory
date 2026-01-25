@@ -142,10 +142,10 @@ class ItemRepository
     //     $filters = [
     //                                         // key => value (User input) 
     //     'state'  (int)   =>    ,       
-    //     'name'   (string) =>    ,
+    //     'object_type_code'   (string) =>    ,
     //     'location' (string) =>    ,         
     // ];
-    public function searchByStateNameLocation(array $filters): array
+    public function searchByStateTypeLocation(array $filters): array
     {
         $query = "SELECT o.id, ot.code, ot.name, ot.description, o.state, o.location
             FROM object_ o JOIN objecttype ot ON o.object_type_code = ot.code
@@ -159,10 +159,9 @@ class ItemRepository
             $params['state'] = $filters['state'];
         }
 
-        if(!empty($filters['name'])){
-            $query .= " AND ot.name LIKE :name";
-            $params['name'] = $filters['name'];         //match
-            // $params['name'] = $filters['name'] . '%'  ; //starts with
+        if(!empty($filters['object_type_code'])){
+            $query .= " AND ot.code LIKE :object_type_code";
+            $params['object_type_code'] = $filters['object_type_code'];     
         }
 
         if(!empty($filters['location'])){
