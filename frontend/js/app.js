@@ -75,6 +75,10 @@ document.addEventListener("DOMContentLoaded", () => {
     inventoryPresenter,
     authPresenter,
   );
+
+  // Set maintenance presenter on login view for refresh on login
+  loginView.setMaintenancePresenter(maintenancePresenter);
+
   initInventoryView(inventoryPresenter, mediator);
   initClientsView(clientsPresenter, mediator);
   initLoansView(loansPresenter, mediator);

@@ -4,8 +4,13 @@ export class LoginView extends BaseView {
   constructor(presenter, mediator) {
     super(mediator);
     this.presenter = presenter;
+    this.maintenancePresenter = null; // Will be set after initialization
     this.setupElements();
     this.setupEventListeners();
+  }
+
+  setMaintenancePresenter(maintenancePresenter) {
+    this.maintenancePresenter = maintenancePresenter;
   }
 
   setupElements() {
@@ -53,19 +58,13 @@ export class LoginView extends BaseView {
     if (result.success) {
       this.hideError();
       this.loginForm.reset();
-      this.showMainApp(result.user);
 
-      // Navigate to appropriate view based on role
-      if (result.user.role === "admin") {
-        window.location.hash = "#/loans";
-      } else {
-        window.location.hash = "#/maintenance";
-      }
-
-      // Show success toast if available
-      if (this.mediator?.toaster) {
-        this.mediator.toaster.success(`Welcome, ${result.user.fullName}!`);
-      }
+      // Simply reload the page - this will cause the browser to reload with the user already logged in
+      // The localStorage will persist, so when the page reloads, the user will still be logged in
+      console.log("Login successful, reloading page...");
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } else {
       this.showError(result.error);
     }
@@ -133,9 +132,19 @@ export class LoginView extends BaseView {
 
   showMainApp(user) {
     this.loginView.style.display = "none";
-    this.mainNavbar.style.display = "flex";
-    this.mainToolbar.style.display = "flex";
-    this.mainContent.style.display = "block";
+
+    if (this.mainNavbar) {
+      this.mainNavbar.style.display = "flex";
+    }
+
+    if (this.mainToolbar) {
+      this.mainToolbar.style.display = "flex";
+    }
+
+    if (this.mainContent) {
+      this.mainContent.style.display = "block";
+    }
+
     this.userNameSpan.textContent = user.fullName;
 
     // Hide tabs based on role
