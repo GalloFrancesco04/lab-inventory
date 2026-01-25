@@ -26,6 +26,54 @@ class LoansView extends BaseView {
 
     // New loan modal
     this.newLoanForm = this.getElement("new-loan-form");
+    this.loanClient = this.getElement("loan-client");
+    this.loanItemsSelect = this.getElement("loan-items-select");
+    this.loanItemsPanel = this.getElement("loan-items-panel");
+    this.loanItemsSearch = this.getElement("loan-items-search");
+    this.loanItemsSelected = this.getElement("loan-items-selected");
+    this.loanDate = this.getElement("loan-date");
+
+    this.availableItems = this.presenter.getAvailableItems
+      ? this.presenter.getAvailableItems()
+      : [];
+    this.selectedItemIds = new Set();
+    this.itemLabelsMap = new Map(); // Store label refs for filtering
+
+    // Populate the panel with checkboxes
+    if (this.loanItemsPanel) {
+      this.availableItems.forEach((item) => {
+        const label = document.createElement("label");
+        label.style.display = "flex";
+        label.style.alignItems = "center";
+        label.style.gap = "12px";
+        label.style.padding = "10px 12px";
+        label.style.borderBottom = "1px solid #f0f0f0";
+        label.style.cursor = "pointer";
+        label.style.userSelect = "none";
+        label.style.width = "100%";
+        label.style.boxSizing = "border-box";
+        label.dataset.itemId = item.id;
+        label.dataset.itemSearch =
+          `${item.name} ${item.type} ${item.id}`.toLowerCase();
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = item.id;
+        checkbox.dataset.itemId = item.id;
+        checkbox.dataset.itemName = item.name;
+        checkbox.dataset.itemType = item.type;
+        checkbox.style.cursor = "pointer";
+        checkbox.style.flexShrink = "0";
+
+        const text = document.createElement("span");
+        text.textContent = `${item.name} (${item.type}) - ID: ${item.id}`;
+        text.style.flex = "1";
+
+        label.append(checkbox, text);
+        this.loanItemsPanel.appendChild(label);
+        this.itemLabelsMap.set(item.id, label);
+      });
+    }
 
     // Loan detail modal
     this.detailTitle = this.getElement("detail-loan-title");
@@ -44,8 +92,14 @@ class LoansView extends BaseView {
 
   setupModals() {
     this.registerModal("new-loan-modal", {
-      onOpen: () => this.newLoanForm?.reset(),
-      onClose: () => this.newLoanForm?.reset(),
+      onOpen: () => {
+        this.newLoanForm?.reset();
+        this.resetItemPicker();
+      },
+      onClose: () => {
+        this.newLoanForm?.reset();
+        this.resetItemPicker();
+      },
     });
 
     this.registerModal("loan-detail-modal");
@@ -71,11 +125,91 @@ class LoansView extends BaseView {
       this.openModal("new-loan-modal"),
     );
 
+    // Toggle dropdown panel
+    this.loanItemsSelect?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!this.loanItemsPanel) return;
+      const isOpen = this.loanItemsPanel.style.display === "flex";
+      this.loanItemsPanel.style.display = isOpen ? "none" : "flex";
+      if (!isOpen) {
+        // Focus search input when opening
+        this.loanItemsSearch?.focus();
+      }
+    });
+
+    // Search/filter items
+    this.loanItemsSearch?.addEventListener("input", (e) => {
+      const query = e.target.value.toLowerCase();
+      this.itemLabelsMap.forEach((label) => {
+        const matches = label.dataset.itemSearch.includes(query);
+        label.style.display = matches ? "flex" : "none";
+      });
+    });
+
+    // Close panel when clicking outside
+    document.addEventListener("click", (e) => {
+      if (
+        !this.loanItemsPanel ||
+        this.loanItemsPanel.style.display !== "flex"
+      ) {
+        return;
+      }
+      const clickedInsidePanel = this.loanItemsPanel.contains(e.target);
+      const clickedButton = this.loanItemsSelect?.contains(e.target);
+      if (!clickedInsidePanel && !clickedButton) {
+        this.loanItemsPanel.style.display = "none";
+      }
+    });
+
+    // Handle checkbox changes in panel
+    this.loanItemsPanel?.addEventListener("change", (e) => {
+      if (e.target && e.target.type === "checkbox") {
+        const selected = this.getSelectedItemsFromDOM();
+        if (selected.length > 5) {
+          e.target.checked = false;
+          this.mediator.toaster.warning("Max 5 items per loan");
+          return;
+        }
+        this.selectedItemIds = new Set(selected.map((i) => i.id));
+        this.renderSelectedChips(this.getSelectedItems());
+      }
+    });
+
     this.newLoanForm?.addEventListener("submit", (e) => {
       e.preventDefault();
-      this.mediator.logger.mock("New loan created");
-      this.mediator.toaster.success("New loan created successfully");
-      this.closeModal("new-loan-modal");
+      const items = this.getSelectedItems();
+      const client = this.loanClient?.value?.trim();
+      const returnDate = this.loanDate?.value || "";
+
+      if (!client) {
+        this.mediator.toaster.error("Select a client");
+        return;
+      }
+
+      if (items.length === 0) {
+        this.mediator.toaster.error("Select at least one item (max 5)");
+        return;
+      }
+
+      if (items.length > 5) {
+        this.mediator.toaster.error("You can select at most 5 items");
+        return;
+      }
+
+      const newLoan = this.presenter.addLoan({
+        client,
+        returnDate,
+        items,
+      });
+
+      if (newLoan) {
+        this.mediator.logger.mock("New loan created", newLoan);
+        this.mediator.toaster.success("New loan created successfully");
+        this.closeModal("new-loan-modal");
+        this.resetItemPicker();
+      } else {
+        this.mediator.toaster.error("Unable to create loan");
+      }
     });
 
     this.closeLoanBtn?.addEventListener("click", () => {
@@ -120,6 +254,102 @@ class LoansView extends BaseView {
       span.className = "chip";
       span.textContent = item.name || item;
       container.appendChild(span);
+    });
+  }
+
+  getSelectedItems() {
+    const selectedIds = Array.from(this.selectedItemIds);
+    return this.availableItems.filter((item) => selectedIds.includes(item.id));
+  }
+
+  getSelectedItemsFromDOM() {
+    if (!this.loanItemsPanel) return [];
+    const checked = this.loanItemsPanel.querySelectorAll(
+      'input[type="checkbox"]:checked',
+    );
+    return Array.from(checked).map((input) => ({
+      id: input.value,
+      name: input.dataset.itemName,
+      type: input.dataset.itemType,
+    }));
+  }
+
+  renderSelectedChips(selected) {
+    if (!this.loanItemsSelected) return;
+    this.loanItemsSelected.innerHTML = "";
+    selected.forEach((item) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.textContent = item.name;
+      const closeBtn = document.createElement("button");
+      closeBtn.type = "button";
+      closeBtn.textContent = "×";
+      closeBtn.addEventListener("click", () => {
+        this.uncheckItem(item.id);
+      });
+      chip.appendChild(closeBtn);
+      this.loanItemsSelected.appendChild(chip);
+    });
+  }
+
+  resetItemPicker() {
+    this.selectedItemIds = new Set();
+    if (this.loanItemsPanel) {
+      const checkboxes = this.loanItemsPanel.querySelectorAll(
+        'input[type="checkbox"]',
+      );
+      checkboxes.forEach((cb) => (cb.checked = false));
+    }
+    if (this.loanItemsSearch) {
+      this.loanItemsSearch.value = "";
+    }
+    // Show all items again
+    this.itemLabelsMap.forEach((label) => {
+      label.style.display = "flex";
+    });
+    this.renderSelectedChips([]);
+    if (this.loanItemsPanel) {
+      this.loanItemsPanel.style.display = "none";
+    }
+  }
+
+  uncheckItem(id) {
+    if (this.loanItemsPanel) {
+      const checkbox = this.loanItemsPanel.querySelector(
+        `input[type="checkbox"][value="${id}"]`,
+      );
+      if (checkbox) checkbox.checked = false;
+    }
+    this.selectedItemIds.delete(id);
+    this.renderSelectedChips(this.getSelectedItems());
+  }
+
+  getSelectedItems() {
+    const selectedIds = Array.from(this.selectedItemIds);
+    return this.availableItems.filter((item) => selectedIds.includes(item.id));
+  }
+
+  renderSelectedChips(selected) {
+    if (!this.loanItemsSelected) return;
+    this.loanItemsSelected.innerHTML = "";
+    selected.forEach((item) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.textContent = item.name;
+      const closeBtn = document.createElement("button");
+      closeBtn.type = "button";
+      closeBtn.textContent = "×";
+      closeBtn.addEventListener("click", () => {
+        this.selectedItemIds.delete(item.id);
+        if (this.loanItemsSelect) {
+          Array.from(this.loanItemsSelect.options).forEach((opt) => {
+            if (opt.value === item.id) opt.selected = false;
+          });
+        }
+        this.renderSelectedChips(this.getSelectedItems());
+      });
+      chip.appendChild(closeBtn);
+      this.loanItemsSelected.appendChild(chip);
     });
   }
 

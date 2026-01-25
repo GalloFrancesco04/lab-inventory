@@ -355,6 +355,137 @@ select.input-error {
 
 .toast-info {
   border-left-color: var(--primary);
+  .loan-item-picker {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .loan-item-toggle {
+    width: 100%;
+    justify-content: space-between;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    background: var(--surface-elevated);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .loan-item-caret {
+    margin-left: var(--space-2);
+  }
+
+  /* Panel display is controlled by inline style="display: none|flex" */
+  .loan-item-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    z-index: 30;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .loan-item-toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+
+  #loan-items-filter {
+    flex: 1;
+    min-width: 200px;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+  }
+
+  #loan-items-type {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+  }
+
+  .loan-item-list {
+    flex: 1;
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    background: #fff;
+  }
+
+  .loan-item-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .loan-item-row:last-child {
+    border-bottom: none;
+  }
+
+  .loan-item-row:hover {
+    background: var(--surface-hover);
+  }
+
+  .loan-item-row input[type="checkbox"] {
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  .loan-item-name {
+    font-weight: 600;
+    flex: 1;
+  }
+
+  .loan-item-type {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .loan-item-selected {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    min-height: 0;
+    padding: var(--space-1) 0;
+    font-size: 0.9rem;
+  }
+
+  .loan-item-selected .chip {
+    background: var(--primary);
+    color: #fff;
+    border: 1px solid var(--primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .loan-item-selected .chip button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    font-weight: 600;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0;
+    margin: 0 -2px;
+  }
 }
 
 .toast-info .toast-icon {
