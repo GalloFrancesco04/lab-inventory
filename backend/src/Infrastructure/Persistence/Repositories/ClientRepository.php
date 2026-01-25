@@ -145,13 +145,13 @@ class ClientRepository
 
     private function mapRowToClient(array $row): Client
     {
-        $client = new Client(
-            $row['email'],
-            $row['name'],
-            $row['surname'],
-            $row['state']
-        );
+        $client = new Client();
+
         $client->setId((int) $row['id']);
+        $client->setEmail($row['email']);
+        $client->setName($row['name']);
+        $client->setSurname($row['surname']);
+        $client->setState($row['state']);
         return $client;
     }
 }

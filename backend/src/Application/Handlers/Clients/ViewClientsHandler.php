@@ -7,19 +7,19 @@ require_once __DIR__ . '/../../Commands/Clients/ViewClientsCommand.php';
 
 
 class ViewClientsHandler {
-    private $repository;
+    private $clientRepository;
 
     public function __construct() {
         $db = new Database();
 
-        $this->repository = new ClientRepository($db->getConnection());
+        $this->clientRepository = new ClientRepository($db->getConnection());
     }
 
     public function handle(ViewClientsCommand $command) {
 
         try{
 
-            $clients = $this->repository->getAll();    
+            $clients = $this->clientRepository->getAll();    
                 
             return $clients;
 
