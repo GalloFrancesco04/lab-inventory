@@ -1,7 +1,7 @@
 import { BaseView } from "../core/BaseView.js";
-import { FormValidator } from "../../utils/validators.js";
 import { ItemDetailModal } from "./ItemDetailModal.js";
 import { SendToMaintenanceForm } from "./SendToMaintenanceForm.js";
+import { NewItemForm } from "./NewItemForm.js";
 
 function statusBadgeClass(status) {
   if (status === "available") return "badge badge-success";
@@ -60,7 +60,31 @@ class InventoryView extends BaseView {
 
     this.currentItemId = null;
 
-    this.newItemValidator = new FormValidator(this.newItemForm);
+    this.newItemFormHandler = new NewItemForm({
+      form: this.newItemForm,
+      typeSelect: this.newItemType,
+      nameInput: this.newItemName,
+      locationInput: this.newItemLocation,
+      statusSelect: this.newItemStatus,
+      toaster: this.mediator.toaster,
+      onCreate: (itemData) => {
+        try {
+          const newItem = this.presenter.addItem(itemData);
+          if (newItem) {
+            this.mediator.toaster.success(
+              `Item "${newItem.name}" added successfully`,
+            );
+            this.closeModal("new-item-modal");
+            return true;
+          }
+          this.mediator.toaster.error("Unable to add item");
+          return false;
+        } catch (error) {
+          this.handleError("Unable to add item", error);
+          return false;
+        }
+      },
+    });
 
     this.itemDetailModal = new ItemDetailModal({
       modalId: "item-detail-modal",
@@ -110,9 +134,9 @@ class InventoryView extends BaseView {
     this.registerModal("new-item-modal", {
       onOpen: () => {
         this.populateObjectTypes();
-        this.newItemValidator?.clearAll();
+        this.newItemFormHandler?.reset();
       },
-      onClose: () => this.resetNewItemForm(),
+      onClose: () => this.newItemFormHandler?.reset(),
     });
     this.setupModalCloseButtons("new-item-modal", [
       "new-item-close",
@@ -156,53 +180,6 @@ class InventoryView extends BaseView {
       this.openModal("new-item-modal");
     });
 
-    // New Item Form Submit
-    this.newItemForm?.addEventListener("submit", (e) => {
-      e.preventDefault();
-      this.newItemValidator.clearAll();
-
-      const itemData = {
-        typeCode: this.newItemType.value.trim(),
-        name: this.newItemName.value.trim(),
-        location: this.newItemLocation.value.trim(),
-        status: this.newItemStatus.value,
-      };
-
-      const typeOk = this.newItemValidator.required(
-        this.newItemType,
-        "Please select an object type",
-      );
-      const nameOk = this.newItemValidator.required(
-        this.newItemName,
-        "Name is required",
-      );
-      const locationOk = this.newItemValidator.required(
-        this.newItemLocation,
-        "Location is required (e.g., Lab 1)",
-      );
-
-      if (!typeOk || !nameOk || !locationOk) {
-        this.newItemValidator.displayErrors();
-        this.mediator.toaster.error("Fix the highlighted errors");
-        this.newItemValidator.focusFirstError();
-        return;
-      }
-
-      try {
-        const newItem = this.presenter.addItem(itemData);
-        if (newItem) {
-          this.mediator.toaster.success(
-            `Item "${newItem.name}" added successfully`,
-          );
-          this.closeModal("new-item-modal");
-        } else {
-          this.mediator.toaster.error("Unable to add item");
-        }
-      } catch (error) {
-        this.handleError("Unable to add item", error);
-      }
-    });
-
     // Event delegation for table rows
     const tbody = document.querySelector("#inventory-view tbody");
     tbody?.addEventListener("click", (e) => {
@@ -231,11 +208,6 @@ class InventoryView extends BaseView {
     if (type === "replacement") return "badge badge-warning";
     if (type === "preventive") return "badge badge-success";
     return "badge";
-  }
-
-  resetNewItemForm() {
-    this.newItemForm.reset();
-    this.newItemType.focus();
   }
 
   handleSearch(query) {
