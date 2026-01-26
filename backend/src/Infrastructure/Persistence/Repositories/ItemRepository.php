@@ -97,7 +97,7 @@ class ItemRepository
         ]);
     }
 
-    public function updateLocation(int $id, string $newLocation): void
+    public function updateLocation(int $id, ?string $newLocation): void
     {
         $stmt = $this->connection->prepare("
             UPDATE object_ 
