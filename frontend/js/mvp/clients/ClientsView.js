@@ -1,4 +1,5 @@
 import { BaseView } from "../core/BaseView.js";
+import { FormValidator } from "../../utils/validators.js";
 
 class ClientsView extends BaseView {
   constructor(presenter, mediator) {
@@ -49,13 +50,15 @@ class ClientsView extends BaseView {
 
     // Delete client modal
     this.deleteClientConfirm = this.getElement("delete-client-confirm");
+
+    this.newClientValidator = new FormValidator(this.newClientForm);
   }
 
   setupModals() {
     this.registerModal("new-client-modal", {
       onOpen: () => {
         this.newClientForm?.reset();
-        this.clearFormErrors(this.newClientForm);
+        this.newClientValidator?.clearAll();
         if (this.firstInput) this.firstInput.focus();
       },
     });
@@ -91,7 +94,7 @@ class ClientsView extends BaseView {
 
     this.newClientForm?.addEventListener("submit", (e) => {
       e.preventDefault();
-      this.clearFormErrors(this.newClientForm);
+      this.newClientValidator.clearAll();
 
       const payload = {
         firstName: this.firstInput?.value?.trim() || "",
@@ -99,32 +102,37 @@ class ClientsView extends BaseView {
         email: this.emailInput?.value?.trim() || "",
       };
 
-      let hasError = false;
+      const firstNameOk = this.newClientValidator.required(
+        this.firstInput,
+        "First name is required",
+      );
+      const emailRequiredOk = this.newClientValidator.required(
+        this.emailInput,
+        "Email is required",
+      );
+      const emailFormatOk = emailRequiredOk
+        ? this.newClientValidator.email(
+            this.emailInput,
+            "Please enter a valid email",
+          )
+        : false;
 
-      if (!payload.firstName) {
-        this.showFieldError(this.firstInput, "First name is required");
-        hasError = true;
-      }
-
-      if (!payload.email) {
-        this.showFieldError(this.emailInput, "Email is required");
-        hasError = true;
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
-        this.showFieldError(this.emailInput, "Please enter a valid email");
-        hasError = true;
-      }
-
-      if (hasError) {
-        const firstError = this.newClientForm.querySelector(".input-error");
-        if (firstError) firstError.focus();
+      if (!firstNameOk || !emailRequiredOk || !emailFormatOk) {
+        this.newClientValidator.displayErrors();
+        this.mediator.toaster.error("Fix the highlighted errors");
+        this.newClientValidator.focusFirstError();
         return;
       }
 
-      this.presenter.addClient(payload);
-      this.mediator.toaster.success(
-        `Client "${payload.firstName} ${payload.lastName}" added successfully`,
-      );
-      this.closeModal("new-client-modal");
+      try {
+        this.presenter.addClient(payload);
+        this.mediator.toaster.success(
+          `Client "${payload.firstName} ${payload.lastName}" added successfully`,
+        );
+        this.closeModal("new-client-modal");
+      } catch (error) {
+        this.handleError("Unable to add client", error);
+      }
     });
 
     this.clientDeleteBtn?.addEventListener("click", () => {
@@ -140,20 +148,28 @@ class ClientsView extends BaseView {
     this.blockClientForm?.addEventListener("submit", (e) => {
       e.preventDefault();
       if (!this.currentClientId) return;
-      const days = Number(this.blockDaysInput?.value || 30);
-      const reason = this.blockReasonInput?.value?.trim() || "";
-      this.presenter.blockClient(this.currentClientId, days, reason);
-      this.mediator.toaster.warning(`Client blocked for ${days} days`);
-      this.closeModal("block-client-modal");
-      this.openClientDetail(this.currentClientId);
+      try {
+        const days = Number(this.blockDaysInput?.value || 30);
+        const reason = this.blockReasonInput?.value?.trim() || "";
+        this.presenter.blockClient(this.currentClientId, days, reason);
+        this.mediator.toaster.warning(`Client blocked for ${days} days`);
+        this.closeModal("block-client-modal");
+        this.openClientDetail(this.currentClientId);
+      } catch (error) {
+        this.handleError("Unable to block client", error);
+      }
     });
 
     this.deleteClientConfirm?.addEventListener("click", () => {
       if (!this.currentClientId) return;
-      this.presenter.deleteClient(this.currentClientId);
-      this.mediator.toaster.error("Client deleted");
-      this.closeModal("delete-client-modal");
-      this.closeModal("client-detail-modal");
+      try {
+        this.presenter.deleteClient(this.currentClientId);
+        this.mediator.toaster.error("Client deleted");
+        this.closeModal("delete-client-modal");
+        this.closeModal("client-detail-modal");
+      } catch (error) {
+        this.handleError("Unable to delete client", error);
+      }
     });
   }
 
@@ -163,7 +179,13 @@ class ClientsView extends BaseView {
   }
 
   getFilteredClients() {
-    const clients = this.presenter.getClients();
+    let clients = [];
+    try {
+      clients = this.presenter.getClients();
+    } catch (error) {
+      this.handleError("Unable to load clients", error);
+      return [];
+    }
     if (!this.searchQuery) return clients;
 
     return clients.filter((client) => {
@@ -320,8 +342,17 @@ class ClientsView extends BaseView {
   }
 
   openClientDetail(clientId) {
-    const client = this.presenter.getClientById(clientId);
-    if (!client) return;
+    let client = null;
+    try {
+      client = this.presenter.getClientById(clientId);
+    } catch (error) {
+      this.handleError("Unable to load client details", error);
+      return;
+    }
+    if (!client) {
+      this.mediator.toaster.error("Client not found");
+      return;
+    }
 
     this.currentClientId = clientId;
     this.clientDetailTitle.textContent = client.name;
@@ -342,6 +373,15 @@ class ClientsView extends BaseView {
     }
 
     this.openModal("client-detail-modal");
+  }
+
+  handleError(message, error) {
+    if (this.mediator?.logger?.error) {
+      this.mediator.logger.error(message, error);
+    } else {
+      console.error(message, error);
+    }
+    this.mediator?.toaster?.error(message);
   }
 }
 
