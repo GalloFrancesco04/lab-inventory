@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanRepository.php';
 require_once __DIR__ . '/../../../../config/Database.php';
 
-require_once __DIR__ . '/../../Commands/ViewLoansCommand.php';
+require_once __DIR__ . '/../../Commands/Loans/ViewLoansCommand.php';
 
 
 class ViewLoansHandler {
@@ -19,7 +19,7 @@ class ViewLoansHandler {
 
         try {
 
-            $loans = $this->loanRepository->getAllLoansOfUser($command->user_id);
+            $loans = $this->loanRepository->getAll();
             
             return $loans;
 
