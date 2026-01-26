@@ -270,10 +270,13 @@
             <form class="form" id="new-item-form">
                 <div class="form-group">
                     <label for="new-item-type">Object Type</label>
-                    <select id="new-item-type" required>
-                        <option value="">Select a type...</option>
+                    <div style="display: flex; gap: var(--space-2);">
+                        <select id="new-item-type" required style="flex: 1;">
+                            <option value="">Select a type...</option>
 
-                    </select>
+                        </select>
+                        <button type="button" id="new-type-btn" class="btn btn-ghost" style="padding: 8px 12px; white-space: nowrap;">+ New Type</button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="new-item-name">Name</label>
@@ -282,14 +285,6 @@
                 <div class="form-group">
                     <label for="new-item-location">Location</label>
                     <input type="text" id="new-item-location" required placeholder="e.g. Lab 1, Storage 2">
-                </div>
-                <div class="form-group">
-                    <label for="new-item-status">Status</label>
-                    <select id="new-item-status" required>
-                        <option value="available" selected>Available</option>
-                        <option value="maintenance">Maintenance</option>
-                        <option value="outofservice">OutOfService</option>
-                    </select>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-ghost" id="new-item-cancel">Cancel</button>
@@ -422,6 +417,26 @@
                 <div class="form-actions">
                     <button type="button" class="btn btn-ghost" id="new-client-cancel">Cancel</button>
                     <button type="submit" class="btn btn-primary">Create Client</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Object Type Modal -->
+    <div class="modal-overlay" id="new-type-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">New Object Type</h2>
+                <button class="modal-close" aria-label="Close modal" id="new-type-close">&times;</button>
+            </div>
+            <form class="form" id="new-type-form">
+                <div class="form-group">
+                    <label for="new-type-name">Type Name</label>
+                    <input type="text" id="new-type-name" required placeholder="e.g. Laptop, Monitor">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="new-type-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Type</button>
                 </div>
             </form>
         </div>

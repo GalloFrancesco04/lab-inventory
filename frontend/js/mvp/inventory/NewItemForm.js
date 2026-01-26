@@ -6,7 +6,6 @@ export class NewItemForm {
     typeSelect,
     nameInput,
     locationInput,
-    statusSelect,
     toaster,
     onCreate,
   }) {
@@ -14,7 +13,6 @@ export class NewItemForm {
     this.typeSelect = typeSelect;
     this.nameInput = nameInput;
     this.locationInput = locationInput;
-    this.statusSelect = statusSelect;
     this.toaster = toaster;
     this.onCreate = onCreate;
     this.validator = new FormValidator(form);
@@ -63,7 +61,6 @@ export class NewItemForm {
       typeCode: this.typeSelect?.value?.trim() || "",
       name: this.nameInput?.value?.trim() || "",
       location: this.locationInput?.value?.trim() || "",
-      status: this.statusSelect?.value || "available",
     };
 
     if (!this.onCreate) return;

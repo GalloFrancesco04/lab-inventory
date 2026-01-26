@@ -278,6 +278,31 @@ export class InventoryPresenter extends BasePresenter {
     return this.objectTypes;
   }
 
+  addObjectType(typeName) {
+    if (!typeName) return null;
+
+    // Generate code from name (first 4 letters uppercase)
+    const code = typeName.substring(0, 4).toUpperCase().padEnd(4, "X");
+
+    // Check if code already exists
+    if (this.objectTypes.find((t) => t.code === code)) {
+      return null;
+    }
+
+    const newType = {
+      code,
+      name: typeName,
+      description: typeName,
+      model: "Various",
+      brand: "Various",
+      quantity: 0,
+    };
+
+    this.objectTypes.push(newType);
+    this.notifyListeners();
+    return newType;
+  }
+
   addItem(itemData) {
     const objectType = this.objectTypes.find(
       (t) => t.code === itemData.typeCode,

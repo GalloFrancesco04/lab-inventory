@@ -29,8 +29,12 @@ class InventoryView extends BaseView {
     this.newItemType = this.getElement("new-item-type");
     this.newItemName = this.getElement("new-item-name");
     this.newItemLocation = this.getElement("new-item-location");
-    this.newItemStatus = this.getElement("new-item-status");
     this.newItemBtn = this.getElement("new-item-btn");
+    this.newTypeBtn = this.getElement("new-type-btn");
+
+    // New Type Modal
+    this.newTypeForm = this.getElement("new-type-form");
+    this.newTypeName = this.getElement("new-type-name");
 
     // Detail Modal
     this.itemTitle = this.getElement("item-modal-title");
@@ -65,7 +69,6 @@ class InventoryView extends BaseView {
       typeSelect: this.newItemType,
       nameInput: this.newItemName,
       locationInput: this.newItemLocation,
-      statusSelect: this.newItemStatus,
       toaster: this.mediator.toaster,
       onCreate: (itemData) => {
         try {
@@ -144,6 +147,15 @@ class InventoryView extends BaseView {
         },
         closeButtons: ["new-item-close", "new-item-cancel"],
       },
+      "new-type-modal": {
+        options: {
+          onOpen: () => {
+            this.newTypeForm?.reset();
+          },
+          onClose: () => this.newTypeForm?.reset(),
+        },
+        closeButtons: ["new-type-close", "new-type-cancel"],
+      },
       "item-detail-modal": {
         closeButtons: ["item-detail-close"],
       },
@@ -191,6 +203,38 @@ class InventoryView extends BaseView {
     // New Item Button
     this.newItemBtn?.addEventListener("click", () => {
       this.openModal("new-item-modal");
+    });
+
+    // New Type Button
+    this.newTypeBtn?.addEventListener("click", () => {
+      this.openModal("new-type-modal");
+    });
+
+    // New Type Form
+    this.newTypeForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const typeName = this.newTypeName?.value?.trim();
+
+      if (!typeName) {
+        this.mediator.toaster.error("Type name is required");
+        return;
+      }
+
+      try {
+        const newType = this.presenter.addObjectType(typeName);
+        if (newType) {
+          this.mediator.toaster.success(
+            `Type "${newType.name}" created successfully`,
+          );
+          this.closeModal("new-type-modal");
+          this.populateObjectTypes();
+          this.newItemType.value = newType.code;
+        } else {
+          this.mediator.toaster.error("Type already exists or invalid name");
+        }
+      } catch (error) {
+        this.handleError("Unable to create type", error);
+      }
     });
 
     // Event delegation for table rows
