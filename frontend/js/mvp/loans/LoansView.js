@@ -1,6 +1,8 @@
 import { BaseView } from "../core/BaseView.js";
 import { ItemPicker } from "../../utils/ItemPicker.js";
 import { NewClientForm } from "../../utils/NewClientForm.js";
+import { LoanDetailModal } from "./LoanDetailModal.js";
+import { CloseLoanForm } from "./CloseLoanForm.js";
 
 class LoansView extends BaseView {
   constructor(presenter, mediator) {
@@ -91,6 +93,31 @@ class LoansView extends BaseView {
     this.closeLoanForm = this.getElement("close-loan-form");
     this.closeLoanNotes = this.getElement("close-loan-notes");
     this.closeLoanDamaged = this.getElement("close-loan-damaged");
+
+    this.loanDetailModal = new LoanDetailModal({
+      modalId: "loan-detail-modal",
+      openModal: (id) => this.openModal(id),
+      fields: {
+        title: this.detailTitle,
+        status: this.detailStatus,
+        client: this.detailClient,
+        returnDate: this.detailReturn,
+        id: this.detailId,
+        items: this.detailItems,
+      },
+    });
+
+    this.closeLoanHandler = new CloseLoanForm({
+      form: this.closeLoanForm,
+      notesInput: this.closeLoanNotes,
+      damagedInput: this.closeLoanDamaged,
+      toaster: this.mediator.toaster,
+      logger: this.mediator.logger,
+      onSubmit: () => {
+        this.closeModal("close-loan-modal");
+        this.closeModal("loan-detail-modal");
+      },
+    });
   }
 
   setupModals() {
@@ -109,7 +136,7 @@ class LoansView extends BaseView {
     this.registerModal("loan-detail-modal");
     this.registerModal("close-loan-modal", {
       onClose: () => {
-        this.closeLoanForm?.reset();
+        this.closeLoanHandler?.reset();
       },
     });
 
@@ -187,17 +214,6 @@ class LoansView extends BaseView {
       this.openModal("close-loan-modal");
     });
 
-    this.closeLoanForm?.addEventListener("submit", (e) => {
-      e.preventDefault();
-      this.mediator.logger.mock("Close loan", {
-        notes: this.closeLoanNotes?.value || "",
-        damaged: this.closeLoanDamaged?.checked || false,
-      });
-      this.mediator.toaster.info("Loan closed successfully");
-      this.closeModal("close-loan-modal");
-      this.closeModal("loan-detail-modal");
-    });
-
     this.newClientBtn?.addEventListener("click", () => {
       this.openModal("new-client-modal");
     });
@@ -218,29 +234,7 @@ class LoansView extends BaseView {
     const loan = this.presenter.getLoanById(loanId);
     if (!loan) return;
 
-    this.detailTitle.textContent = `Loan #${loan.id}`;
-    this.detailId.textContent = loan.id;
-    this.detailClient.textContent = loan.client;
-    this.detailReturn.textContent = loan.returnDate || "-";
-    this.setStatusBadge(this.detailStatus, loan.status);
-    this.renderItems(this.detailItems, loan.items);
-    this.openModal("loan-detail-modal");
-  }
-
-  setStatusBadge(el, statusText) {
-    el.textContent = statusText;
-    el.className =
-      "badge " + (statusText === "active" ? "badge-success" : "badge-neutral");
-  }
-
-  renderItems(container, items) {
-    container.innerHTML = "";
-    items.forEach((item) => {
-      const span = document.createElement("span");
-      span.className = "chip";
-      span.textContent = item.name || item;
-      container.appendChild(span);
-    });
+    this.loanDetailModal?.show(loan);
   }
 
   getSelectedItems() {
