@@ -1,4 +1,5 @@
 import { BaseView } from "../core/BaseView.js";
+import { FormValidator } from "../../utils/validators.js";
 
 function statusBadgeClass(status) {
   if (status === "available") return "badge badge-success";
@@ -56,13 +57,16 @@ class InventoryView extends BaseView {
     this.sendToMaintCancelBtn = this.getElement("send-to-maintenance-cancel");
 
     this.currentItemId = null;
+
+    this.newItemValidator = new FormValidator(this.newItemForm);
+    this.maintenanceValidator = new FormValidator(this.sendToMaintForm);
   }
 
   setupModals() {
     this.registerModal("new-item-modal", {
       onOpen: () => {
         this.populateObjectTypes();
-        this.clearFormErrors(this.newItemForm);
+        this.newItemValidator?.clearAll();
       },
       onClose: () => this.resetNewItemForm(),
     });
@@ -76,7 +80,7 @@ class InventoryView extends BaseView {
 
     this.registerModal("send-to-maintenance-modal", {
       onOpen: () => {
-        this.clearFormErrors(this.sendToMaintForm);
+        this.maintenanceValidator?.clearAll();
       },
       onClose: () => this.resetSendToMaintenanceForm(),
     });
@@ -111,7 +115,7 @@ class InventoryView extends BaseView {
     // New Item Form Submit
     this.newItemForm?.addEventListener("submit", (e) => {
       e.preventDefault();
-      this.clearFormErrors(this.newItemForm);
+      this.newItemValidator.clearAll();
 
       const itemData = {
         typeCode: this.newItemType.value.trim(),
@@ -120,30 +124,23 @@ class InventoryView extends BaseView {
         status: this.newItemStatus.value,
       };
 
-      let hasError = false;
+      const typeOk = this.newItemValidator.required(
+        this.newItemType,
+        "Please select an object type",
+      );
+      const nameOk = this.newItemValidator.required(
+        this.newItemName,
+        "Name is required",
+      );
+      const locationOk = this.newItemValidator.required(
+        this.newItemLocation,
+        "Location is required (e.g., Lab 1)",
+      );
 
-      if (!itemData.typeCode) {
-        this.showFieldError(this.newItemType, "Please select an object type");
-        hasError = true;
-      }
-
-      if (!itemData.name) {
-        this.showFieldError(this.newItemName, "Name is required");
-        hasError = true;
-      }
-
-      if (!itemData.location) {
-        this.showFieldError(
-          this.newItemLocation,
-          "Location is required (e.g., Lab 1)",
-        );
-        hasError = true;
-      }
-
-      if (hasError) {
-        // Focus first error field
-        const firstError = this.newItemForm.querySelector(".input-error");
-        if (firstError) firstError.focus();
+      if (!typeOk || !nameOk || !locationOk) {
+        this.newItemValidator.displayErrors();
+        this.mediator.toaster.error("Fix the highlighted errors");
+        this.newItemValidator.focusFirstError();
         return;
       }
 
@@ -420,32 +417,24 @@ class InventoryView extends BaseView {
   }
 
   handleSendToMaintenance() {
-    this.clearFormErrors(this.sendToMaintForm);
+    this.maintenanceValidator.clearAll();
 
     const description = this.maintenanceDescInput.value.trim();
     const technician = this.maintenanceTechnicianSelect.value;
 
-    let hasError = false;
+    const descOk = this.maintenanceValidator.required(
+      this.maintenanceDescInput,
+      "Problem description is required",
+    );
+    const techOk = this.maintenanceValidator.required(
+      this.maintenanceTechnicianSelect,
+      "Please select a technician",
+    );
 
-    if (!description) {
-      this.showFieldError(
-        this.maintenanceDescInput,
-        "Problem description is required",
-      );
-      hasError = true;
-    }
-
-    if (!technician) {
-      this.showFieldError(
-        this.maintenanceTechnicianSelect,
-        "Please select a technician",
-      );
-      hasError = true;
-    }
-
-    if (hasError) {
-      const firstError = this.sendToMaintForm.querySelector(".input-error");
-      if (firstError) firstError.focus();
+    if (!descOk || !techOk) {
+      this.maintenanceValidator.displayErrors();
+      this.mediator.toaster.error("Fix the highlighted errors");
+      this.maintenanceValidator.focusFirstError();
       return;
     }
 
