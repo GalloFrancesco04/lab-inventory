@@ -1,5 +1,7 @@
 import { BaseView } from "../core/BaseView.js";
 import { FormValidator } from "../../utils/validators.js";
+import { ItemDetailModal } from "./ItemDetailModal.js";
+import { SendToMaintenanceForm } from "./SendToMaintenanceForm.js";
 
 function statusBadgeClass(status) {
   if (status === "available") return "badge badge-success";
@@ -59,7 +61,49 @@ class InventoryView extends BaseView {
     this.currentItemId = null;
 
     this.newItemValidator = new FormValidator(this.newItemForm);
-    this.maintenanceValidator = new FormValidator(this.sendToMaintForm);
+
+    this.itemDetailModal = new ItemDetailModal({
+      modalId: "item-detail-modal",
+      openModal: (id) => this.openModal(id),
+      fields: {
+        title: this.itemTitle,
+        name: this.itemName,
+        type: this.itemType,
+        status: this.itemStatus,
+        location: this.itemLocation,
+      },
+      renderMaintenance: (list) => this.renderMaintenance(list),
+    });
+
+    this.maintenanceForm = new SendToMaintenanceForm({
+      form: this.sendToMaintForm,
+      descInput: this.maintenanceDescInput,
+      technicianSelect: this.maintenanceTechnicianSelect,
+      toaster: this.mediator.toaster,
+      onSubmit: ({ description, technician }) => {
+        try {
+          const result = this.presenter.createMaintenance(
+            this.currentItemId,
+            description,
+            technician,
+          );
+
+          if (result) {
+            this.mediator.toaster.success(
+              "Item sent to maintenance successfully",
+            );
+            this.closeModal("send-to-maintenance-modal");
+            this.closeModal("item-detail-modal");
+            return true;
+          }
+          this.mediator.toaster.error("Unable to create maintenance record");
+          return false;
+        } catch (error) {
+          this.handleError("Unable to create maintenance record", error);
+          return false;
+        }
+      },
+    });
   }
 
   setupModals() {
@@ -80,9 +124,9 @@ class InventoryView extends BaseView {
 
     this.registerModal("send-to-maintenance-modal", {
       onOpen: () => {
-        this.maintenanceValidator?.clearAll();
+        this.maintenanceForm?.reset();
       },
-      onClose: () => this.resetSendToMaintenanceForm(),
+      onClose: () => this.maintenanceForm?.reset(),
     });
     this.setupModalCloseButtons("send-to-maintenance-modal", [
       "send-to-maintenance-close",
@@ -383,19 +427,8 @@ class InventoryView extends BaseView {
     }
 
     this.currentItemId = itemId;
-
-    this.itemTitle.textContent = `Item #${item.id}`;
-    this.itemName.textContent = item.name;
-    this.itemType.textContent = item.type;
-    this.itemLocation.textContent = item.location;
-    this.itemStatus.className = statusBadgeClass(item.status);
-    this.itemStatus.textContent = item.status;
-    this.renderMaintenance(item.maintenance);
-
-    // Populate technician dropdown
     this.populateTechnicians();
-
-    this.openModal("item-detail-modal");
+    this.itemDetailModal?.show(item);
   }
 
   populateTechnicians() {
@@ -414,51 +447,6 @@ class InventoryView extends BaseView {
       option.textContent = tech;
       this.maintenanceTechnicianSelect.appendChild(option);
     });
-  }
-
-  handleSendToMaintenance() {
-    this.maintenanceValidator.clearAll();
-
-    const description = this.maintenanceDescInput.value.trim();
-    const technician = this.maintenanceTechnicianSelect.value;
-
-    const descOk = this.maintenanceValidator.required(
-      this.maintenanceDescInput,
-      "Problem description is required",
-    );
-    const techOk = this.maintenanceValidator.required(
-      this.maintenanceTechnicianSelect,
-      "Please select a technician",
-    );
-
-    if (!descOk || !techOk) {
-      this.maintenanceValidator.displayErrors();
-      this.mediator.toaster.error("Fix the highlighted errors");
-      this.maintenanceValidator.focusFirstError();
-      return;
-    }
-
-    try {
-      const result = this.presenter.createMaintenance(
-        this.currentItemId,
-        description,
-        technician,
-      );
-
-      if (result) {
-        this.mediator.toaster.success("Item sent to maintenance successfully");
-        this.closeModal("send-to-maintenance-modal");
-        this.closeModal("item-detail-modal");
-      } else {
-        this.mediator.toaster.error("Unable to create maintenance record");
-      }
-    } catch (error) {
-      this.handleError("Unable to create maintenance record", error);
-    }
-  }
-
-  resetSendToMaintenanceForm() {
-    this.sendToMaintForm.reset();
   }
 
   handleError(message, error) {
