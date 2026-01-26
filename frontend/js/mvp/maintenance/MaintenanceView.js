@@ -109,13 +109,6 @@ class MaintenanceView extends BaseView {
     });
   }
 
-  typeBadgeClass(type) {
-    if (type === "repair") return "badge badge-danger";
-    if (type === "replacement") return "badge badge-warning";
-    if (type === "preventive") return "badge badge-success";
-    return "badge";
-  }
-
   handleSearch(query) {
     this.searchQuery = query.toLowerCase();
     this.render();

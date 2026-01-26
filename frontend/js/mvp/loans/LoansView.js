@@ -3,6 +3,7 @@ import { ItemPicker } from "../../utils/ItemPicker.js";
 import { NewClientForm } from "../../utils/NewClientForm.js";
 import { LoanDetailModal } from "./LoanDetailModal.js";
 import { CloseLoanForm } from "./CloseLoanForm.js";
+import { getLoanStatusBadgeClass } from "../../utils/badges.js";
 
 class LoansView extends BaseView {
   constructor(presenter, mediator) {
@@ -264,12 +265,6 @@ class LoansView extends BaseView {
     return this.itemPicker?.getSelectedItems() || [];
   }
 
-  getStatusBadgeClass(status) {
-    if (status === "active") return "badge badge-success";
-    if (status === "closed") return "badge badge-neutral";
-    return "badge";
-  }
-
   handleError(message, error) {
     if (this.mediator?.logger?.error) {
       this.mediator.logger.error(message, error);
@@ -428,7 +423,7 @@ class LoansView extends BaseView {
 
       const statusCell = document.createElement("td");
       const statusBadge = document.createElement("span");
-      statusBadge.className = this.getStatusBadgeClass(loan.status);
+      statusBadge.className = getLoanStatusBadgeClass(loan.status);
       statusBadge.textContent = loan.status;
       statusCell.appendChild(statusBadge);
 

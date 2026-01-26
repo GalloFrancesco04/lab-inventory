@@ -2,14 +2,10 @@ import { BaseView } from "../core/BaseView.js";
 import { ItemDetailModal } from "./ItemDetailModal.js";
 import { SendToMaintenanceForm } from "./SendToMaintenanceForm.js";
 import { NewItemForm } from "./NewItemForm.js";
-
-function statusBadgeClass(status) {
-  if (status === "available") return "badge badge-success";
-  if (status === "loaned") return "badge badge-warning";
-  if (status === "maintenance") return "badge badge-warning";
-  if (status === "outofservice") return "badge badge-danger";
-  return "badge";
-}
+import {
+  getItemStatusBadgeClass,
+  getMaintenanceTypeBadgeClass,
+} from "../../utils/badges.js";
 
 class InventoryView extends BaseView {
   constructor(presenter, mediator) {
@@ -203,13 +199,6 @@ class InventoryView extends BaseView {
     });
   }
 
-  typeBadgeClass(type) {
-    if (type === "repair") return "badge badge-danger";
-    if (type === "replacement") return "badge badge-warning";
-    if (type === "preventive") return "badge badge-success";
-    return "badge";
-  }
-
   handleSearch(query) {
     this.searchQuery = query.toLowerCase();
     this.render();
@@ -340,7 +329,7 @@ class InventoryView extends BaseView {
 
       const statusCell = document.createElement("td");
       const statusBadge = document.createElement("span");
-      statusBadge.className = statusBadgeClass(item.status);
+      statusBadge.className = getItemStatusBadgeClass(item.status);
       statusBadge.textContent = item.status;
       statusCell.appendChild(statusBadge);
 
