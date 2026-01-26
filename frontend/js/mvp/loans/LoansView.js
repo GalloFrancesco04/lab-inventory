@@ -90,6 +90,7 @@ class LoansView extends BaseView {
     this.detailTitle = this.getElement("detail-loan-title");
     this.detailStatus = this.getElement("detail-loan-status");
     this.detailClient = this.getElement("detail-loan-client");
+    this.detailStart = this.getElement("detail-loan-start");
     this.detailReturn = this.getElement("detail-loan-return");
     this.detailId = this.getElement("detail-loan-id");
     this.detailItems = this.getElement("detail-loan-items");
@@ -107,6 +108,7 @@ class LoansView extends BaseView {
         title: this.detailTitle,
         status: this.detailStatus,
         client: this.detailClient,
+        startDate: this.detailStart,
         returnDate: this.detailReturn,
         id: this.detailId,
         items: this.detailItems,
@@ -134,6 +136,11 @@ class LoansView extends BaseView {
             this.newLoanForm?.reset();
             this.populateClients();
             this.itemPicker?.reset();
+            // Set min date to today
+            if (this.loanDate) {
+              const today = new Date().toISOString().split("T")[0];
+              this.loanDate.setAttribute("min", today);
+            }
           },
           onClose: () => {
             this.newLoanForm?.reset();
@@ -194,9 +201,25 @@ class LoansView extends BaseView {
         return;
       }
 
+      // Validate return date is not in the past
+      if (returnDate) {
+        const selectedDate = new Date(returnDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (selectedDate < today) {
+          this.mediator.toaster.error("Return date cannot be in the past");
+          return;
+        }
+      }
+
+      // Generate today's date as startDate
+      const today = new Date();
+      const startDate = today.toISOString().split("T")[0];
+
       try {
         const newLoan = this.presenter.addLoan({
           client,
+          startDate,
           returnDate,
           items,
         });

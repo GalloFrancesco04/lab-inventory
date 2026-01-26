@@ -51,7 +51,7 @@ export class LoansPresenter extends BasePresenter {
     ];
   }
 
-  addLoan({ client, returnDate, items }) {
+  addLoan({ client, startDate, returnDate, items }) {
     if (!client || !items || items.length === 0 || items.length > 5) {
       return null;
     }
@@ -59,6 +59,7 @@ export class LoansPresenter extends BasePresenter {
     const newLoan = {
       id: String(Date.now()),
       client,
+      startDate: startDate || "",
       status: "active",
       returnDate: returnDate || "",
       items: items.map((item) => ({
