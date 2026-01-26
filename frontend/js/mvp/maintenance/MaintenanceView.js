@@ -3,19 +3,11 @@ import { BaseView } from "../core/BaseView.js";
 class MaintenanceView extends BaseView {
   constructor(presenter, mediator) {
     super(presenter, mediator);
-    this.searchQuery = ""; // initialized in BaseView
-    this.sortColumn = null;
-    this.sortDirection = null;
-    this.setupElements();
-    this.setupModals();
-    this.setupEventListeners();
-    this.setupSorting("#maintenance-view");
-    // Register search callback
-    this.mediator.searchManager.registerView("maintenance", (query) =>
-      this.handleSearch(query),
-    );
-    this.setupAutoRender(() => this.render());
-    this.render();
+    this.initializeView({
+      viewSelector: "#maintenance-view",
+      searchViewName: "maintenance",
+      renderMethod: "render",
+    });
   }
 
   setupElements() {

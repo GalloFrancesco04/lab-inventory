@@ -5,20 +5,11 @@ class ClientsView extends BaseView {
   constructor(presenter, mediator) {
     super(presenter, mediator);
     this.currentClientId = null;
-    this.searchQuery = "";
-    this.sortColumn = null;
-    this.sortDirection = null;
-    this.setupElements();
-    this.setupModals();
-    this.setupEventListeners();
-    this.setupSorting("#clients-view");
-    // Register search callback
-    this.mediator.searchManager.registerView("clients", (query) =>
-      this.handleSearch(query),
-    );
-    // Auto re-render on presenter data changes
-    this.setupAutoRender(() => this.render());
-    this.render();
+    this.initializeView({
+      viewSelector: "#clients-view",
+      searchViewName: "clients",
+      renderMethod: "render",
+    });
   }
 
   setupElements() {

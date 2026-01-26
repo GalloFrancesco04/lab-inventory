@@ -8,20 +8,11 @@ import { getLoanStatusBadgeClass } from "../../utils/badges.js";
 class LoansView extends BaseView {
   constructor(presenter, mediator) {
     super(presenter, mediator);
-    this.sortColumn = null;
-    this.sortDirection = null; // 'asc' | 'desc' | null
-    this.searchQuery = ""; // inherited init from BaseView
-    this.setupElements();
-    this.setupModals();
-    this.setupEventListeners();
-    this.setupSorting("#loans-view");
-    // Register search callback
-    this.mediator.searchManager.registerView("loans", (query) =>
-      this.handleSearch(query),
-    );
-    // Auto re-render on presenter data changes
-    this.setupAutoRender(() => this.renderLoansTable());
-    this.renderLoansTable();
+    this.initializeView({
+      viewSelector: "#loans-view",
+      searchViewName: "loans",
+      renderMethod: "renderLoansTable",
+    });
   }
 
   setupElements() {

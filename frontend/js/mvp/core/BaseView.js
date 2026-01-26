@@ -3,6 +3,41 @@ export class BaseView {
     this.presenter = presenter;
     this.mediator = mediator;
     this.modalIds = [];
+    this.searchQuery = "";
+    this.sortColumn = null;
+    this.sortDirection = null;
+  }
+
+  // Template method for view initialization
+  initializeView(config = {}) {
+    const {
+      viewSelector = null,
+      searchViewName = null,
+      renderMethod = "render",
+    } = config;
+
+    // Standard initialization sequence
+    if (this.setupElements) this.setupElements();
+    if (this.setupModals) this.setupModals();
+    if (this.setupEventListeners) this.setupEventListeners();
+
+    // Setup sorting if viewSelector provided
+    if (viewSelector) {
+      this.setupSorting(viewSelector);
+    }
+
+    // Register search callback if searchViewName provided
+    if (searchViewName && this.mediator?.searchManager) {
+      this.mediator.searchManager.registerView(searchViewName, (query) =>
+        this.handleSearch(query),
+      );
+    }
+
+    // Setup auto-render
+    if (this[renderMethod]) {
+      this.setupAutoRender(() => this[renderMethod]());
+      this[renderMethod]();
+    }
   }
 
   // Get a DOM element by id

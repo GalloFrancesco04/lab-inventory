@@ -10,20 +10,11 @@ import {
 class InventoryView extends BaseView {
   constructor(presenter, mediator) {
     super(presenter, mediator);
-    this.searchQuery = ""; // initialized in BaseView
-    this.sortColumn = null;
-    this.sortDirection = null;
-    this.setupElements();
-    this.setupModals();
-    this.setupEventListeners();
-    this.setupSorting("#inventory-view");
-    // Register search callback
-    this.mediator.searchManager.registerView("inventory", (query) =>
-      this.handleSearch(query),
-    );
-    // Auto re-render on presenter data changes
-    this.setupAutoRender(() => this.render());
-    this.render();
+    this.initializeView({
+      viewSelector: "#inventory-view",
+      searchViewName: "inventory",
+      renderMethod: "render",
+    });
   }
 
   setupElements() {
