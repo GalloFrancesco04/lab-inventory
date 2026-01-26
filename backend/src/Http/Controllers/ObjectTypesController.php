@@ -17,6 +17,12 @@ require_once __DIR__ . '/../../Application/Handlers/ObjectTypes/UpdateObjectType
 require_once __DIR__ . '/../../Application/Commands/ObjectTypes/DeleteObjectTypeCommand.php'; 
 require_once __DIR__ . '/../../Application/Handlers/ObjectTypes/DeleteObjectTypeHandler.php';
 
+// Import View Components
+require_once __DIR__ . '/../../Application/Commands/ObjectTypes/ViewObjectTypesCommand.php'; 
+require_once __DIR__ . '/../../Application/Handlers/ObjectTypes/ViewObjectTypesHandler.php';
+require_once __DIR__ . '/../../Application/Commands/ObjectTypes/ViewSingleObjectTypeCommand.php'; 
+require_once __DIR__ . '/../../Application/Handlers/ObjectTypes/ViewSingleObjectTypeHandler.php';
+
 //***CONTROLLER DEFINITION */
 class ObjectTypesController {
 
@@ -33,6 +39,8 @@ class ObjectTypesController {
         $this->mediator->register(CreateObjectTypeCommand::class, CreateObjectTypeHandler::class);
         $this->mediator->register(UpdateObjectTypeCommand::class, UpdateObjectTypeHandler::class); 
         $this->mediator->register(DeleteObjectTypeCommand::class, DeleteObjectTypeHandler::class);
+        $this->mediator->register(ViewObjectTypesCommand::class, ViewObjectTypesHandler::class);
+        $this->mediator->register(ViewSingleObjectTypeCommand::class, ViewSingleObjectTypeHandler::class);
     }
 
     /**
@@ -42,9 +50,8 @@ class ObjectTypesController {
     public function getAll(Request $request) {
         // Direct query to fetch all object types
         try {
-            $stmt = $this->conn->prepare("SELECT * FROM objecttype");
-            $stmt->execute();  
-            $types = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $command = new ViewObjectTypesCommand();
+            $types = $this->mediator->send($command);
             Response::success($types);
         } catch (Exception $e) {
             Response::error("Error retrieving object types: " . $e->getMessage(), "DB_ERROR", 500);
@@ -57,14 +64,8 @@ class ObjectTypesController {
      */
     public function getByCode(Request $request, $code) {
         try {
-            $stmt = $this->conn->prepare("SELECT * FROM objecttype WHERE code = :code");
-            $stmt->execute([':code' => $code]);
-            $type = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$type) {
-                Response::error("Object Type not found", "NOT_FOUND", 404);
-                return;
-            }
+            $command = new ViewSingleObjectTypeCommand($code);
+            $type = $this->mediator->send($command);
             Response::success($type);
         } catch (Exception $e) {
             Response::error($e->getMessage(), "DB_ERROR", 500);

@@ -15,6 +15,11 @@ require_once __DIR__ . '/../../Application/Handlers/Inventory/UpdateObjectHandle
 require_once __DIR__ . '/../../Application/Commands/Inventory/DeleteObjectCommand.php';
 require_once __DIR__ . '/../../Application/Handlers/Inventory/DeleteObjectHandler.php';
 
+require_once __DIR__ . '/../../Application/Commands/Inventory/ViewObjectsCommand.php';
+require_once __DIR__ . '/../../Application/Handlers/Inventory/ViewObjectsHandler.php';
+require_once __DIR__ . '/../../Application/Commands/Inventory/ViewSingleObjectCommand.php';
+require_once __DIR__ . '/../../Application/Handlers/Inventory/ViewSingleObjectHandler.php';
+
 // Database connection
 class ObjectsController {
     private $mediator;
@@ -31,6 +36,8 @@ class ObjectsController {
         $this->mediator->register(UpdateObjectCommand::class, UpdateObjectHandler::class);
         $this->mediator->register(DeleteObjectCommand::class, DeleteObjectHandler::class);
         $this->mediator->register(SendToMaintenanceCommand::class, SendToMaintenanceHandler::class);
+        $this->mediator->register(ViewObjectsCommand::class, ViewObjectsHandler::class);
+        $this->mediator->register(ViewSingleObjectCommand::class, ViewSingleObjectHandler::class);
     }
 
     // POST /api/objects
@@ -83,13 +90,10 @@ class ObjectsController {
     // GET /api/objects
     public function getAll(Request $request) {
         try {
-            
-            $sql = "SELECT o.*, t.name as model_name, t.brand 
-                    FROM object_ o 
-                    JOIN objecttype t ON o.object_type_code = t.code";
-            
-            $stmt = $this->conn->query($sql);
-            Response::success($stmt->fetchAll(PDO::FETCH_ASSOC));
+            $command = new ViewObjectsCommand();
+            $objects = $this->mediator->send($command);
+
+            Response::success($objects);
         } catch (Exception $e) {
             Response::error($e->getMessage(), "DB_ERROR", 500);
         }
@@ -99,19 +103,8 @@ class ObjectsController {
     // GET /api/objects/{id}
     public function getById(Request $request, $id) {
         try {
-            $sql = "SELECT o.*, t.name as model_name, t.brand 
-                    FROM object_ o 
-                    JOIN objecttype t ON o.object_type_code = t.code
-                    WHERE o.id = :id";
-
-            $stmt = $this->conn->prepare($sql);
-            $stmt->execute([':id' => $id]);
-            $obj = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$obj) {
-                Response::error("Oggetto non trovato", "NOT_FOUND", 404);
-                return;
-            }
+            $command = new ViewSingleObjectCommand((int)$id);
+            $obj = $this->mediator->send($command);
             Response::success($obj);
         } catch (Exception $e) {
             Response::error($e->getMessage(), "DB_ERROR", 500);

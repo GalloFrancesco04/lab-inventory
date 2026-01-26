@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../Application/Mediator/Mediator.php';
 require_once __DIR__ . '/../../../config/Database.php';
 require_once __DIR__ . '/../../Http/Request.php';
 
-// COMMANDS & HANDLERS (Integration with Morris)
+// COMMANDS & HANDLERS
 require_once __DIR__ . '/../../Application/Commands/Loans/CreateLoanCommand.php';
 require_once __DIR__ . '/../../Application/Handlers/Loans/CreateLoanHandler.php';
 require_once __DIR__ . '/../../Application/Commands/Loans/UpdateLoanCommand.php';
@@ -115,3 +115,4 @@ class LoansController {
             Response::error($e->getMessage(), "DELETE_ERROR", 400);
         }
     }
+}

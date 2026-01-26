@@ -29,7 +29,11 @@ require_once __DIR__ . '/../../Application/Handlers/Clients/BlockClientHandler.p
 require_once __DIR__ . '/../../Application/Commands/Clients/UnblockClientCommand.php';
 require_once __DIR__ . '/../../Application/Handlers/Clients/UnblockClientHandler.php';
 
-
+// Import Commands and Handlers for Viewing Clients
+require_once __DIR__ . '/../../Application/Commands/Clients/ViewClientsCommand.php';
+require_once __DIR__ . '/../../Application/Handlers/Clients/ViewClientsHandler.php';
+require_once __DIR__ . '/../../Application/Commands/Clients/ViewSingleClientCommand.php';
+require_once __DIR__ . '/../../Application/Handlers/Clients/ViewSingleClientHandler.php';
 //******** CONTROLLER DEFINITION */
 class ClientsController {
 
@@ -51,6 +55,8 @@ class ClientsController {
         $this->mediator->register(DeleteClientCommand::class, DeleteClientHandler::class);
         $this->mediator->register(BlockClientCommand::class, BlockClientHandler::class);
         $this->mediator->register(UnblockClientCommand::class, UnblockClientHandler::class);
+        $this->mediator->register(ViewClientsCommand::class, ViewClientsHandler::class);
+        $this->mediator->register(ViewSingleClientCommand::class, ViewSingleClientHandler::class);
     }
     /**
      * GET /api/clients
@@ -58,11 +64,9 @@ class ClientsController {
      */
     public function getAll(Request $request) {
         try {
-            // Execute direct query (To be refactored to separate Query class later)
-            $stmt = $this->conn->prepare("SELECT id, email, name, surname, state FROM client");
-            $stmt->execute();  
-            $clients = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch as associative array
-            
+            // Use ViewClientsCommand to get all clients
+            $command = new ViewClientsCommand();
+            $clients = $this->mediator->send($command);
             // Return successful JSON response
             Response::success($clients);
 
@@ -75,17 +79,12 @@ class ClientsController {
  // GET /api/clients/{id }
     public function getById(Request $request, $id) {
         try {
-            $stmt = $this->conn->prepare("SELECT id, email, name, surname, state FROM client WHERE id = :id");
-            $stmt->execute([':id' => $id]);
-            $client = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$client) {
-                Response::error("Client not found", "NOT_FOUND", 404);
-                return;
-            }
+            // Use ViewSingleClientCommand to get client by ID
+            $command = new ViewSingleClientCommand((int)$id);
+            $client = $this->mediator->send($command);
             Response::success($client);
         } catch (Exception $e) {
-            Response::error($e->getMessage(), "DB_ERROR", 500);
+            Response::error($e->getMessage(), "NOT_FOUND", 404);
         }
     }
 
