@@ -1,47 +1,38 @@
 <?php
-
-// Handler class to process UpdateObjectTypeCommand
 require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../Commands/ObjectTypes/UpdateObjectTypeCommand.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ObjectTypeRepository.php';
 
-// Import Database connection and Command class
+require_once __DIR__ . '/../../../Domain/Entities/ObjectType.php';
+
+
 class UpdateObjectTypeHandler {
-    private $conn;
+    private $objectTypeRepository;
 
     public function __construct() {
         $db = new Database();
-        $this->conn = $db->getConnection();
-    }
+        $connection = $db->getConnection();
+        $this->objectTypeRepository = new ObjectTypeRepository($connection);
 
-    // Handle the UpdateObjectTypeCommand
+    }
     public function handle(UpdateObjectTypeCommand $command) {
-        // Validation of required fields
-        if (empty($command->code)) {
-            throw new Exception("Codice oggetto mancante");
+     try{
+
+        if(empty($command->code) || empty($command->name)) {
+            throw new Exception("L'il Codice dell'ObjectType e il Nome sono campi obbligatori");
         }
 
-        // Update query
-        $sql = "UPDATE objecttype 
-                SET name = :name, 
-                    description = :description, 
-                    model = :model, 
-                    brand = :brand, 
-                    quantity = :quantity 
-                WHERE code = :code";
-        
-        $stmt = $this->conn->prepare($sql);
-        
-        // Bind parameters and execute
-        $stmt->execute([
-            ':code' => $command->code,
-            ':name' => $command->name,
-            ':description' => $command->description,
-            ':model' => $command->model,
-            ':brand' => $command->brand,
-            ':quantity' => $command->quantity
-        ]);
+        $objectType = $this->objectTypeRepository->findByCode($command->code);
 
-        
-        return true;
+        if(empty($objectType)) {
+            throw new Exception("Non esiste alcun Object Type con quel codice");
+        }
+
+        $objectTypeToUpdate = new ObjectType($command->code, $command->name, 0, $command->description, $command->brand, $command->model);
+        $this->objectTypeRepository->update($objectTypeToUpdate);
+
+        }catch(Exception $ex) {
+            throw new Exception("Si e' verificato un errore durante l'aggiornamento dell'Objecttype: " . $ex->getMessage(), 0, $ex);
+        }
     }
 }

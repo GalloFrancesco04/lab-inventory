@@ -32,7 +32,7 @@ class CreateObjectTypeHandler {
         $this->objectTypeRepository->create($objectTypeToCreate);
 
         }catch(Exception $ex) {
-            throw new Exception("Si e' verificato un errore durante la creazione dell'objecttype: " . $ex->getMessage(), 0, $ex);
+            throw new Exception("Si e' verificato un errore durante la creazione dell'Objecttype: " . $ex->getMessage(), 0, $ex);
         }
     }
 }
