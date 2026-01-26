@@ -28,6 +28,9 @@ class InventoryView extends BaseView {
     this.newItemForm = this.getElement("new-item-form");
     this.newItemType = this.getElement("new-item-type");
     this.newItemName = this.getElement("new-item-name");
+    this.newItemBrand = this.getElement("new-item-brand");
+    this.newItemModel = this.getElement("new-item-model");
+    this.newItemNote = this.getElement("new-item-note");
     this.newItemLocation = this.getElement("new-item-location");
     this.newItemBtn = this.getElement("new-item-btn");
     this.newTypeBtn = this.getElement("new-type-btn");
@@ -68,6 +71,9 @@ class InventoryView extends BaseView {
       form: this.newItemForm,
       typeSelect: this.newItemType,
       nameInput: this.newItemName,
+      brandInput: this.newItemBrand,
+      modelInput: this.newItemModel,
+      noteInput: this.newItemNote,
       locationInput: this.newItemLocation,
       toaster: this.mediator.toaster,
       onCreate: (itemData) => {

@@ -5,6 +5,9 @@ export class NewItemForm {
     form,
     typeSelect,
     nameInput,
+    brandInput,
+    modelInput,
+    noteInput,
     locationInput,
     toaster,
     onCreate,
@@ -12,6 +15,9 @@ export class NewItemForm {
     this.form = form;
     this.typeSelect = typeSelect;
     this.nameInput = nameInput;
+    this.brandInput = brandInput;
+    this.modelInput = modelInput;
+    this.noteInput = noteInput;
     this.locationInput = locationInput;
     this.toaster = toaster;
     this.onCreate = onCreate;
@@ -43,7 +49,19 @@ export class NewItemForm {
       "Location is required (e.g., Lab 1)",
     );
 
-    if (!typeOk || !nameOk || !locationOk) {
+    let priceOk = true;
+    if (this.priceInput && this.priceInput.value) {
+      const priceVal = Number(this.priceInput.value);
+      if (Number.isNaN(priceVal) || priceVal < 0) {
+        priceOk = false;
+        this.validator.addError(
+          this.priceInput,
+          "Price must be a positive number",
+        );
+      }
+    }
+
+    if (!typeOk || !nameOk || !locationOk || !priceOk) {
       this.validator.displayErrors();
       if (this.toaster) this.toaster.error("Fix the highlighted errors");
       this.validator.focusFirstError();
@@ -60,6 +78,9 @@ export class NewItemForm {
     const itemData = {
       typeCode: this.typeSelect?.value?.trim() || "",
       name: this.nameInput?.value?.trim() || "",
+      brand: this.brandInput?.value?.trim() || "",
+      model: this.modelInput?.value?.trim() || "",
+      note: this.noteInput?.value?.trim() || "",
       location: this.locationInput?.value?.trim() || "",
     };
 
