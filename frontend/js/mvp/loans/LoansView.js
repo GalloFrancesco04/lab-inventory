@@ -20,6 +20,10 @@ class LoansView extends BaseView {
     });
   }
 
+  render() {
+    this.renderLoansTable();
+  }
+
   setupElements() {
     // Table
     this.loansTbody = this.getElement("loans-tbody");

@@ -270,9 +270,7 @@ export class InventoryPresenter extends BasePresenter {
   }
 
   getLocations() {
-    const locations = this.data
-      .map((item) => item.location)
-      .filter(Boolean);
+    const locations = this.data.map((item) => item.location).filter(Boolean);
     return [...new Set(locations)];
   }
 

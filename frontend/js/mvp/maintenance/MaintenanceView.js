@@ -326,6 +326,13 @@ class MaintenanceView extends BaseView {
       headerRow.style.alignItems = "center";
       headerRow.style.marginBottom = "var(--space-2)";
 
+      // Labels row with DESCRIPTION and COST
+      const labelsRow = document.createElement("div");
+      labelsRow.style.display = "grid";
+      labelsRow.style.gridTemplateColumns = "1fr 1fr";
+      labelsRow.style.gap = "var(--space-3)";
+      labelsRow.style.marginBottom = "var(--space-1)";
+
       const descLabel = document.createElement("div");
       descLabel.textContent = "DESCRIPTION";
       descLabel.style.fontSize = "0.75rem";
@@ -333,33 +340,36 @@ class MaintenanceView extends BaseView {
       descLabel.style.color = "var(--text-muted)";
       descLabel.style.letterSpacing = "0.05em";
 
-      headerRow.appendChild(descLabel);
+      const costLabel = document.createElement("div");
+      costLabel.textContent = "COST";
+      costLabel.style.fontSize = "0.75rem";
+      costLabel.style.fontWeight = "600";
+      costLabel.style.color = "var(--text-muted)";
+      costLabel.style.letterSpacing = "0.05em";
+
+      labelsRow.appendChild(descLabel);
+      labelsRow.appendChild(costLabel);
+
+      const editContainer = document.createElement("div");
+      editContainer.style.display = "flex";
+      editContainer.style.justifyContent = "flex-end";
+      editContainer.style.marginBottom = "var(--space-2)";
 
       if (this.canEditOperations) {
         const editBtn = document.createElement("button");
         editBtn.textContent = "Edit";
         editBtn.className = "btn btn-secondary btn-sm";
-        editBtn.style.marginLeft = "auto";
         editBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           this.openEditOperation(index);
         });
-        headerRow.appendChild(editBtn);
+        editContainer.appendChild(editBtn);
       }
 
       const descValue = document.createElement("div");
       descValue.textContent = op.desc;
       descValue.style.fontSize = "0.875rem";
       descValue.style.color = "var(--text-primary)";
-      descValue.style.marginBottom = "var(--space-2)";
-
-      const costLabel = document.createElement("div");
-      costLabel.textContent = "COST";
-      costLabel.style.fontSize = "0.75rem";
-      costLabel.style.fontWeight = "600";
-      costLabel.style.color = "var(--text-muted)";
-      costLabel.style.marginBottom = "var(--space-1)";
-      costLabel.style.letterSpacing = "0.05em";
 
       const costValue = document.createElement("div");
       costValue.textContent = `€${op.cost.toFixed(2)}`;
@@ -367,22 +377,20 @@ class MaintenanceView extends BaseView {
       costValue.style.fontWeight = "600";
       costValue.style.color = "var(--primary)";
 
-      // Create a container for description and cost side by side
-      const descCostContainer = document.createElement("div");
-      descCostContainer.style.display = "grid";
-      descCostContainer.style.gridTemplateColumns = "1fr 1fr";
-      descCostContainer.style.gap = "var(--space-3)";
-      descCostContainer.style.marginBottom = "var(--space-3)";
+      const descCostRow = document.createElement("div");
+      descCostRow.style.display = "grid";
+      descCostRow.style.gridTemplateColumns = "1fr 1fr";
+      descCostRow.style.gap = "var(--space-3)";
+      descCostRow.style.marginBottom = "var(--space-3)";
 
       const descDiv = document.createElement("div");
       descDiv.appendChild(descValue);
 
       const costDiv = document.createElement("div");
-      costDiv.appendChild(costLabel);
       costDiv.appendChild(costValue);
 
-      descCostContainer.appendChild(descDiv);
-      descCostContainer.appendChild(costDiv);
+      descCostRow.appendChild(descDiv);
+      descCostRow.appendChild(costDiv);
 
       // Create a container for dates side by side
       const datesContainer = document.createElement("div");
@@ -427,8 +435,11 @@ class MaintenanceView extends BaseView {
       datesContainer.appendChild(startDateDiv);
       datesContainer.appendChild(endDateDiv);
 
-      card.appendChild(headerRow);
-      card.appendChild(descCostContainer);
+      card.appendChild(labelsRow);
+      if (this.canEditOperations) {
+        card.appendChild(editContainer);
+      }
+      card.appendChild(descCostRow);
       card.appendChild(datesContainer);
 
       this.operationsList.appendChild(card);
