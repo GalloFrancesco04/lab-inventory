@@ -65,18 +65,23 @@ class LoansView extends BaseView {
       emailInput: this.clientEmailInput,
       toaster: this.mediator.toaster,
       onCreate: ({ displayName, email }) => {
-        const result = this.presenter.addClient(displayName, email);
-        if (result) {
-          this.mediator.toaster.success(
-            `Client "${displayName}" added successfully`,
-          );
-          this.closeModal("new-client-modal");
-          this.populateClients();
-          this.loanClient.value = displayName;
-          return true;
+        try {
+          const result = this.presenter.addClient(displayName, email);
+          if (result) {
+            this.mediator.toaster.success(
+              `Client "${displayName}" added successfully`,
+            );
+            this.closeModal("new-client-modal");
+            this.populateClients();
+            this.loanClient.value = displayName;
+            return true;
+          }
+          this.mediator.toaster.error("Unable to add client");
+          return false;
+        } catch (error) {
+          this.handleError("Unable to add client", error);
+          return false;
         }
-        this.mediator.toaster.error("Unable to add client");
-        return false;
       },
     });
 
@@ -194,19 +199,23 @@ class LoansView extends BaseView {
         return;
       }
 
-      const newLoan = this.presenter.addLoan({
-        client,
-        returnDate,
-        items,
-      });
+      try {
+        const newLoan = this.presenter.addLoan({
+          client,
+          returnDate,
+          items,
+        });
 
-      if (newLoan) {
-        this.mediator.logger.mock("New loan created", newLoan);
-        this.mediator.toaster.success("New loan created successfully");
-        this.closeModal("new-loan-modal");
-        this.itemPicker?.reset();
-      } else {
-        this.mediator.toaster.error("Unable to create loan");
+        if (newLoan) {
+          this.mediator.logger.mock("New loan created", newLoan);
+          this.mediator.toaster.success("New loan created successfully");
+          this.closeModal("new-loan-modal");
+          this.itemPicker?.reset();
+        } else {
+          this.mediator.toaster.error("Unable to create loan");
+        }
+      } catch (error) {
+        this.handleError("Unable to create loan", error);
       }
     });
 
@@ -220,7 +229,12 @@ class LoansView extends BaseView {
   }
 
   populateClients() {
-    const clients = this.presenter.getClients();
+    let clients = [];
+    try {
+      clients = this.presenter.getClients();
+    } catch (error) {
+      this.handleError("Unable to load clients", error);
+    }
     this.loanClient.innerHTML = '<option value="">Select a client</option>';
     clients.forEach((client) => {
       const option = document.createElement("option");
@@ -231,8 +245,17 @@ class LoansView extends BaseView {
   }
 
   showLoanDetails(loanId) {
-    const loan = this.presenter.getLoanById(loanId);
-    if (!loan) return;
+    let loan = null;
+    try {
+      loan = this.presenter.getLoanById(loanId);
+    } catch (error) {
+      this.handleError("Unable to load loan details", error);
+      return;
+    }
+    if (!loan) {
+      this.mediator.toaster.error("Loan not found");
+      return;
+    }
 
     this.loanDetailModal?.show(loan);
   }
@@ -247,13 +270,28 @@ class LoansView extends BaseView {
     return "badge";
   }
 
+  handleError(message, error) {
+    if (this.mediator?.logger?.error) {
+      this.mediator.logger.error(message, error);
+    } else {
+      console.error(message, error); // fallback for environments without logger.error
+    }
+    this.mediator?.toaster?.error(message);
+  }
+
   handleSearch(query) {
     this.searchQuery = query.toLowerCase();
     this.renderLoansTable();
   }
 
   getFilteredLoans() {
-    const loans = this.presenter.getLoans();
+    let loans = [];
+    try {
+      loans = this.presenter.getLoans();
+    } catch (error) {
+      this.handleError("Unable to load loans", error);
+      return [];
+    }
     if (!this.searchQuery) return loans;
 
     return loans.filter((loan) => {
