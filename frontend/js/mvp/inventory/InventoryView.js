@@ -365,7 +365,15 @@ class InventoryView extends BaseView {
     // Apply search filter
     const searchFiltered = this.applyFilter(
       items,
-      (item) => [item.id, item.name, item.type, item.status, item.location],
+      (item) => [
+        item.id,
+        item.name,
+        item.type,
+        item.brand,
+        item.model,
+        item.status,
+        item.location,
+      ],
       this.searchQuery,
     );
 
@@ -379,6 +387,8 @@ class InventoryView extends BaseView {
       id: (item) => item.id,
       name: (item) => item.name.toLowerCase(),
       type: (item) => item.type.toLowerCase(),
+      brand: (item) => (item.brand || "").toLowerCase(),
+      model: (item) => (item.model || "").toLowerCase(),
       status: (item) => item.status.toLowerCase(),
       location: (item) => item.location.toLowerCase(),
     });
@@ -402,6 +412,12 @@ class InventoryView extends BaseView {
       const typeCell = document.createElement("td");
       typeCell.textContent = item.type;
 
+      const brandCell = document.createElement("td");
+      brandCell.textContent = item.brand || "-";
+
+      const modelCell = document.createElement("td");
+      modelCell.textContent = item.model || "-";
+
       const statusCell = document.createElement("td");
       const statusBadge = document.createElement("span");
       statusBadge.className = getItemStatusBadgeClass(item.status);
@@ -411,7 +427,15 @@ class InventoryView extends BaseView {
       const locationCell = document.createElement("td");
       locationCell.textContent = item.location;
 
-      tr.append(idCell, nameCell, typeCell, statusCell, locationCell);
+      tr.append(
+        idCell,
+        nameCell,
+        typeCell,
+        brandCell,
+        modelCell,
+        statusCell,
+        locationCell,
+      );
       tr.addEventListener("click", () => this.openItemModal(item.id));
       tbody.appendChild(tr);
     });
