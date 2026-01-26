@@ -1,4 +1,5 @@
 import { BasePresenter } from "../core/BasePresenter.js";
+import { MockDatabase } from "../../utils/MockDatabase.js";
 
 export class InventoryPresenter extends BasePresenter {
   constructor() {
@@ -292,8 +293,9 @@ export class InventoryPresenter extends BasePresenter {
   }
 
   getTechnicians() {
-    // Return list of available technicians
-    return ["M. Rossi", "S. Bianchi", "R. Verdi", "A. Neri"];
+    // Return list of available technicians from MockDatabase
+    const mockDb = MockDatabase.getInstance();
+    return mockDb.getTechnicians();
   }
 
   createMaintenance(itemId, description, technicianName) {

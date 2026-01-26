@@ -1,7 +1,9 @@
 import { BasePresenter } from "../core/BasePresenter.js";
+import { MockDatabase } from "../../utils/MockDatabase.js";
 
 export class LoansPresenter extends BasePresenter {
   constructor(clientsPresenter = null) {
+    const mockDb = MockDatabase.getInstance();
     const initialLoans = [
       {
         id: "10001",
@@ -34,7 +36,7 @@ export class LoansPresenter extends BasePresenter {
 
     super(initialLoans);
     this.clientsPresenter = clientsPresenter;
-    this.clients = ["Mario Sale", "Sale Mario", "Marius Salis"];
+    this.clients = mockDb.getClients();
     this.availableItems = [
       { id: "20001", name: "Laptop", type: "Computer" },
       { id: "20002", name: "Tablet", type: "Tablet" },
@@ -90,12 +92,15 @@ export class LoansPresenter extends BasePresenter {
   addClient(name, email) {
     if (!name) return null;
 
+    const mockDb = MockDatabase.getInstance();
+
     // Check if client already exists
-    if (this.clients.includes(name)) {
+    if (!mockDb.addClient(name)) {
       return null;
     }
 
-    this.clients.push(name);
+    // Update local clients list
+    this.clients = mockDb.getClients();
 
     // Also add to clients presenter if provided
     if (this.clientsPresenter?.addClient) {
