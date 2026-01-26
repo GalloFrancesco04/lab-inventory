@@ -45,52 +45,6 @@ export class BaseView {
     this.presenter.subscribe(() => renderFn());
   }
 
-  // Show inline validation error for a field
-  showFieldError(inputElement, message) {
-    if (!inputElement) return;
-
-    // Add error class to input
-    inputElement.classList.add("input-error");
-
-    // Find or create error message element
-    let errorEl = inputElement.parentElement.querySelector(".field-error");
-    if (!errorEl) {
-      errorEl = document.createElement("div");
-      errorEl.className = "field-error";
-      inputElement.parentElement.appendChild(errorEl);
-    }
-
-    errorEl.textContent = message;
-    errorEl.style.display = "block";
-  }
-
-  // Clear inline validation error for a field
-  clearFieldError(inputElement) {
-    if (!inputElement) return;
-
-    inputElement.classList.remove("input-error");
-
-    const errorEl = inputElement.parentElement.querySelector(".field-error");
-    if (errorEl) {
-      errorEl.style.display = "none";
-      errorEl.textContent = "";
-    }
-  }
-
-  // Clear all errors in a form
-  clearFormErrors(formElement) {
-    if (!formElement) return;
-
-    formElement.querySelectorAll(".input-error").forEach((input) => {
-      input.classList.remove("input-error");
-    });
-
-    formElement.querySelectorAll(".field-error").forEach((error) => {
-      error.style.display = "none";
-      error.textContent = "";
-    });
-  }
-
   // Cleanup - override in subclasses if needed
   destroy() {
     // Close all registered modals
