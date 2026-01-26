@@ -8,9 +8,9 @@ import { getLoanStatusBadgeClass } from "../../utils/badges.js";
 class LoansView extends BaseView {
   constructor(presenter, mediator) {
     super(presenter, mediator);
-    this.searchQuery = "";
     this.sortColumn = null;
     this.sortDirection = null; // 'asc' | 'desc' | null
+    this.searchQuery = ""; // inherited init from BaseView
     this.setupElements();
     this.setupModals();
     this.setupEventListeners();
@@ -282,11 +282,6 @@ class LoansView extends BaseView {
     this.closeLoanHandler?.destroy();
   }
 
-  handleSearch(query) {
-    this.searchQuery = query.toLowerCase();
-    this.renderLoansTable();
-  }
-
   getFilteredLoans() {
     let loans = [];
     try {
@@ -295,21 +290,17 @@ class LoansView extends BaseView {
       this.handleError("Unable to load loans", error);
       return [];
     }
-    if (!this.searchQuery) return loans;
-
-    return loans.filter((loan) => {
-      const searchableText = [
+    return this.applyFilter(
+      loans,
+      (loan) => [
         loan.id,
         loan.client,
         loan.status,
         loan.returnDate || "",
         ...(loan.items?.map((item) => item.name) || []),
-      ]
-        .join(" ")
-        .toLowerCase();
-
-      return searchableText.includes(this.searchQuery);
-    });
+      ],
+      this.searchQuery,
+    );
   }
 
   getSortedLoans() {

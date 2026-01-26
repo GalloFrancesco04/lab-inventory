@@ -10,7 +10,7 @@ import {
 class InventoryView extends BaseView {
   constructor(presenter, mediator) {
     super(presenter, mediator);
-    this.searchQuery = "";
+    this.searchQuery = ""; // initialized in BaseView
     this.sortColumn = null;
     this.sortDirection = null;
     this.setupElements();
@@ -199,11 +199,6 @@ class InventoryView extends BaseView {
     });
   }
 
-  handleSearch(query) {
-    this.searchQuery = query.toLowerCase();
-    this.render();
-  }
-
   getFilteredItems() {
     let items = [];
     try {
@@ -212,21 +207,11 @@ class InventoryView extends BaseView {
       this.handleError("Unable to load items", error);
       return [];
     }
-    if (!this.searchQuery) return items;
-
-    return items.filter((item) => {
-      const searchableText = [
-        item.id,
-        item.name,
-        item.type,
-        item.status,
-        item.location,
-      ]
-        .join(" ")
-        .toLowerCase();
-
-      return searchableText.includes(this.searchQuery);
-    });
+    return this.applyFilter(
+      items,
+      (item) => [item.id, item.name, item.type, item.status, item.location],
+      this.searchQuery,
+    );
   }
 
   getSortedItems() {

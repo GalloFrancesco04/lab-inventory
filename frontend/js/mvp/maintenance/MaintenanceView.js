@@ -3,7 +3,7 @@ import { BaseView } from "../core/BaseView.js";
 class MaintenanceView extends BaseView {
   constructor(presenter, mediator) {
     super(presenter, mediator);
-    this.searchQuery = "";
+    this.searchQuery = ""; // initialized in BaseView
     this.sortColumn = null;
     this.sortDirection = null;
     this.setupElements();
@@ -109,28 +109,19 @@ class MaintenanceView extends BaseView {
     });
   }
 
-  handleSearch(query) {
-    this.searchQuery = query.toLowerCase();
-    this.render();
-  }
-
   getFilteredHistory() {
     const history = this.presenter.getMaintenanceHistory();
-    if (!this.searchQuery) return history;
-
-    return history.filter((entry) => {
-      const searchableText = [
+    return this.applyFilter(
+      history,
+      (entry) => [
         entry.date,
         entry.itemName,
         entry.type,
         entry.tech || "",
         entry.desc || "",
-      ]
-        .join(" ")
-        .toLowerCase();
-
-      return searchableText.includes(this.searchQuery);
-    });
+      ],
+      this.searchQuery,
+    );
   }
 
   getSortedHistory() {

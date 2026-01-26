@@ -111,6 +111,23 @@ export class BaseView {
     });
   }
 
+  // Generic filtering helper - filters data by search query
+  applyFilter(data, searchableFields, searchQuery) {
+    if (!searchQuery) return data;
+
+    const query = searchQuery.toLowerCase();
+    return data.filter((item) => {
+      const searchableText = searchableFields(item).join(" ").toLowerCase();
+      return searchableText.includes(query);
+    });
+  }
+
+  // Generic search handler
+  handleSearch(query) {
+    this.searchQuery = query.toLowerCase();
+    this.render();
+  }
+
   // Cleanup - override in subclasses if needed
   destroy() {
     // Close all registered modals

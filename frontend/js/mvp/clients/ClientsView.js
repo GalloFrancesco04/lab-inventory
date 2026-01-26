@@ -173,11 +173,6 @@ class ClientsView extends BaseView {
     });
   }
 
-  handleSearch(query) {
-    this.searchQuery = query.toLowerCase();
-    this.render();
-  }
-
   getFilteredClients() {
     let clients = [];
     try {
@@ -186,20 +181,16 @@ class ClientsView extends BaseView {
       this.handleError("Unable to load clients", error);
       return [];
     }
-    if (!this.searchQuery) return clients;
-
-    return clients.filter((client) => {
-      const searchableText = [
+    return this.applyFilter(
+      clients,
+      (client) => [
         client.id,
         client.name,
         client.email,
         client.blocked ? "blocked" : "",
-      ]
-        .join(" ")
-        .toLowerCase();
-
-      return searchableText.includes(this.searchQuery);
-    });
+      ],
+      this.searchQuery,
+    );
   }
 
   getSortedClients() {
