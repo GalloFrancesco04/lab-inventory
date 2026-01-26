@@ -19,39 +19,61 @@ require_once __DIR__ . '/../src/Http/Router.php';
 require_once __DIR__ . '/../src/Http/Controllers/ClientsController.php';
 require_once __DIR__ . '/../src/Application/Mediator/Mediator.php';
 
+// decomment when Loans feature is implemented
+// require_once __DIR__ . '/../src/Http/Controllers/LoansController.php';
+// require_once __DIR__ . '/../src/Http/Controllers/AuthController.php';
+
 // Load Controllers
 require_once __DIR__ . '/../src/Http/Controllers/ObjectTypesController.php';
 require_once __DIR__ . '/../src/Http/Controllers/ObjectsController.php';
 
+require_once __DIR__ . '/../src/Http/Request.php';
+
 // Initialize Components
 $router = new Router();
 $mediator = new Mediator();
+$request = new Request();
+
 
 // --- ROUTES REGISTRATION 
 // Client Routes
 $router->add('GET',    '/api/clients',              ['ClientsController', 'getAll']);
+$router->add('GET', '/api/clients/{id}',            ['ClientsController', 'getById']);
 $router->add('POST',   '/api/clients',              ['ClientsController', 'create']);
 $router->add('PUT',    '/api/clients/{id}',         ['ClientsController', 'update']);
 $router->add('DELETE', '/api/clients/{id}',         ['ClientsController', 'delete']);
 $router->add('POST',   '/api/clients/toggle-block', ['ClientsController', 'toggleBlock']);
 
 // Object Types Routes
-$router->add('GET',    '/api/objecttypes',        ['ObjectTypesController', 'getAll']);
-$router->add('POST',   '/api/objecttypes',        ['ObjectTypesController', 'create']);
-$router->add('PUT',    '/api/objecttypes/{code}', ['ObjectTypesController', 'update']);
-$router->add('DELETE', '/api/objecttypes/{code}', ['ObjectTypesController', 'delete']);
+$router->add('GET',    '/api/objecttypes',          ['ObjectTypesController', 'getAll']);
+$router->add('GET', '/api/objecttypes/{code}',      ['ObjectTypesController', 'getByCode']);
+$router->add('POST',   '/api/objecttypes',          ['ObjectTypesController', 'create']);
+$router->add('PUT',    '/api/objecttypes/{code}',   ['ObjectTypesController', 'update']);
+$router->add('DELETE', '/api/objecttypes/{code}',   ['ObjectTypesController', 'delete']);
 
 // Physical Objects Routes
-$router->add('GET',  '/api/objects', ['ObjectsController', 'getAll']);
-$router->add('POST', '/api/objects', ['ObjectsController', 'create']);
+$router->add('GET',  '/api/objects',                ['ObjectsController', 'getAll']);
+$router->add('POST', '/api/objects',                ['ObjectsController', 'create']);
+$router->add('GET',    '/api/objects/{id}',         ['ObjectsController', 'getById']);
+$router->add('POST',   '/api/objects/maintenance',  ['ObjectsController', 'sendMaintenance']);
+$router->add('PUT',    '/api/objects/{id}',         ['ObjectsController', 'update']);
+$router->add('DELETE', '/api/objects/{id}',         ['ObjectsController', 'delete']);
+
+// Loans Routes
+$router->add('GET',    '/api/loans',                ['LoansController', 'getAll']);
+$router->add('GET',    '/api/loans/{id}',           ['LoansController', 'getById']);
+$router->add('POST',   '/api/loans',                ['LoansController', 'create']);
+$router->add('PUT',    '/api/loans/{id}',           ['LoansController', 'update']);
+
+// Authentication Routes
+$router->add('POST',   '/api/login',                ['AuthController', 'login']);
+$router->add('POST',   '/api/logout',               ['AuthController', 'logout']);
 
 
-// Dispatch Request
-$method = $_SERVER['REQUEST_METHOD'];
-$uri = $_SERVER['REQUEST_URI'];
 
-// Test without mod_rewrite
-//$uri = str_replace('/public', '', $uri);
-//$uri = str_replace('/index.php', '', $uri);
+// Create Request Object
+$method = $request->getMethod();
+$uri = $request->getPath();
 
-$router->dispatch($method, $uri);
+// Dispatch Request with Request Object
+$router->dispatch($method, $uri, $request);
