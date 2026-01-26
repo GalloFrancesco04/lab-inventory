@@ -189,7 +189,7 @@ class InventoryView extends BaseView {
     });
 
     // Event delegation for table rows
-    const tbody = document.querySelector("#inventory-view tbody");
+    const tbody = this.getElement("inventory-tbody")?.parentElement;
     tbody?.addEventListener("click", (e) => {
       const row = e.target.closest("[data-item-id]");
       if (row) {

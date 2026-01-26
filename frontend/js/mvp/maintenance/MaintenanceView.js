@@ -12,11 +12,11 @@ class MaintenanceView extends BaseView {
 
   setupElements() {
     this.tbody = this.getElement("maintenance-tbody");
-    this.endDateHeader = document.querySelector(
-      '#maintenance-view th[data-sort-key="endDate"]',
+    this.endDateHeader = this.getElement("maintenance-view")?.querySelector(
+      'th[data-sort-key="endDate"]',
     );
-    this.statusHeader = document.querySelector(
-      '#maintenance-view th[data-sort-key="status"]',
+    this.statusHeader = this.getElement("maintenance-view")?.querySelector(
+      'th[data-sort-key="status"]',
     );
 
     // Detail modal elements

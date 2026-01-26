@@ -14,18 +14,18 @@ export class LoginView extends BaseView {
   }
 
   setupElements() {
-    this.loginView = document.getElementById("login-view");
-    this.loginForm = document.getElementById("login-form");
-    this.usernameInput = document.getElementById("login-username");
-    this.passwordInput = document.getElementById("login-password");
-    this.togglePasswordBtn = document.getElementById("toggle-password");
-    this.errorDiv = document.getElementById("login-error");
+    this.loginView = this.getElement("login-view");
+    this.loginForm = this.getElement("login-form");
+    this.usernameInput = this.getElement("login-username");
+    this.passwordInput = this.getElement("login-password");
+    this.togglePasswordBtn = this.getElement("toggle-password");
+    this.errorDiv = this.getElement("login-error");
 
-    this.mainNavbar = document.getElementById("main-navbar");
-    this.mainToolbar = document.getElementById("main-toolbar");
-    this.mainContent = document.getElementById("main-content");
-    this.userNameSpan = document.getElementById("user-name");
-    this.logoutBtn = document.getElementById("logout-btn");
+    this.mainNavbar = this.getElement("main-navbar");
+    this.mainToolbar = this.getElement("main-toolbar");
+    this.mainContent = this.getElement("main-content");
+    this.userNameSpan = this.getElement("user-name");
+    this.logoutBtn = this.getElement("logout-btn");
   }
 
   setupEventListeners() {
@@ -65,11 +65,6 @@ export class LoginView extends BaseView {
       window.location.hash = targetHash;
 
       // Reload to ensure layout renders correctly with persisted session
-      console.log(
-        "Login successful, navigating to",
-        targetHash,
-        "and reloading page...",
-      );
       setTimeout(() => {
         window.location.reload();
       }, 200);
