@@ -1,34 +1,38 @@
 <?php
-// Include necessary files and namespaces
 require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../Commands/ObjectTypes/CreateObjectTypeCommand.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ObjectTypeRepository.php';
 
-// Handler class to process CreateObjectTypeCommand
+require_once __DIR__ . '/../../../Domain/Entities/ObjectType.php';
+
+
 class CreateObjectTypeHandler {
-    private $conn;
+    private $objectTypeRepository;
 
     public function __construct() {
         $db = new Database();
-        $this->conn = $db->getConnection();
-    }
-    // Handle the CreateObjectTypeCommand 
-    public function handle(CreateObjectTypeCommand $command) {
-        // Query SQL basata esattamente sul tuo DB
-        $sql = "INSERT INTO objecttype (code, name, description, model, brand, quantity) 
-                VALUES (:code, :name, :description, :model, :brand, :quantity)";
-        
-        $stmt = $this->conn->prepare($sql);
-        
-        // Bind parameters and execute
-        $stmt->execute([
-            ':code'        => $command->code,
-            ':name'        => $command->name,
-            ':description' => $command->description,
-            ':model'       => $command->model,
-            ':brand'       => $command->brand,
-            ':quantity'    => $command->quantity
-        ]);
+        $connection = $db->getConnection();
+        $this->objectTypeRepository = new ObjectTypeRepository($connection);
 
-        return $command->code;
+    }
+    public function handle(CreateObjectTypeCommand $command) {
+     try{
+
+        if(empty($command->code) || empty($command->name)) {
+            throw new Exception("L'il Codice dell'ObjectType e il Nome sono campi obbligatori");
+        }
+
+        $objectType = $this->objectTypeRepository->findByCode($command->code);
+
+        if(!empty($objectType)) {
+            throw new Exception("Esiste gia' un Object Type con quel Codice");
+        }
+
+        $objectTypeToCreate = new ObjectType($command->code, $command->name, $command->quantity, $command->description, $command->brand, $command->model);
+        $this->objectTypeRepository->create($objectTypeToCreate);
+
+        }catch(Exception $ex) {
+            throw new Exception("Si e' verificato un errore durante la creazione dell'objecttype: " . $ex->getMessage(), 0, $ex);
+        }
     }
 }
