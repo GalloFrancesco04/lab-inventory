@@ -289,15 +289,6 @@ class ClientsView extends BaseView {
 
     this.openModal("client-detail-modal");
   }
-
-  handleError(message, error) {
-    if (this.mediator?.logger?.error) {
-      this.mediator.logger.error(message, error);
-    } else {
-      console.error(message, error);
-    }
-    this.mediator?.toaster?.error(message);
-  }
 }
 
 export function initClientsView(presenter, mediator) {

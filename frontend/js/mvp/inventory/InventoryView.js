@@ -326,15 +326,6 @@ class InventoryView extends BaseView {
     });
   }
 
-  handleError(message, error) {
-    if (this.mediator?.logger?.error) {
-      this.mediator.logger.error(message, error);
-    } else {
-      console.error(message, error);
-    }
-    this.mediator?.toaster?.error(message);
-  }
-
   destroy() {
     super.destroy();
     this.newItemFormHandler?.destroy();

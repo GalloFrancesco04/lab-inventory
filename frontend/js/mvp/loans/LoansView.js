@@ -259,15 +259,6 @@ class LoansView extends BaseView {
     return this.itemPicker?.getSelectedItems() || [];
   }
 
-  handleError(message, error) {
-    if (this.mediator?.logger?.error) {
-      this.mediator.logger.error(message, error);
-    } else {
-      console.error(message, error); // fallback for environments without logger.error
-    }
-    this.mediator?.toaster?.error(message);
-  }
-
   destroy() {
     super.destroy();
     this.itemPicker?.destroy();

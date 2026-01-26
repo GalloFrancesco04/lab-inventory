@@ -144,6 +144,16 @@ export class BaseView {
     this.render();
   }
 
+  // Generic error handler - logs and toasts errors
+  handleError(message, error) {
+    if (this.mediator?.logger?.error) {
+      this.mediator.logger.error(message, error);
+    } else {
+      console.error(message, error);
+    }
+    this.mediator?.toaster?.error(message);
+  }
+
   // Cleanup - override in subclasses if needed
   destroy() {
     // Close all registered modals
