@@ -266,6 +266,7 @@
   flex: 1;
   max-width: 500px;
   transition: all 0.15s ease;
+  height: 38px;
 }
 
 .search-bar:focus-within {
@@ -287,6 +288,7 @@
   font-size: 0.9375rem;
   color: var(--text);
   outline: none;
+  height: 100%;
 }
 
 .search-bar .btn {
@@ -297,9 +299,12 @@
   border-bottom-right-radius: var(--radius-sm);
   margin: 0;
   box-shadow: none;
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
 }
 
 .search-bar .btn:hover {
-  background: var(--surface-muted);
+  background: var(--primary-strong);
   border-color: var(--border);
 }

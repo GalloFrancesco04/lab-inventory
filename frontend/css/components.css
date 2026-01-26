@@ -11,6 +11,7 @@
   background: var(--surface);
   color: var(--text);
   transition: all 0.15s ease;
+  height: 38px;
 }
 
 .btn:hover {
