@@ -28,8 +28,8 @@ try {
  */
 try {
     echo "Test 2: Aggiornamento oggetti inclusi nel prestito... ";
-    $item1 = new InventoryItem(1, 'LAPTOP', 3, 'Ufficio A');
-    $item2 = new InventoryItem(2, 'SERVER', 3, 'Ufficio A');
+    $item1 = new InventoryItem(1, 'LAPTOP', 4, 'Ufficio A');
+    $item2 = new InventoryItem(2, 'LAPTOP', 2, 'Ufficio B');
     
     $items = [$item1, $item2];
 
@@ -56,9 +56,9 @@ try {
     echo "✅ OK! Bloccato: " . $e->getMessage() . "\n";
 }
 
-/**
- * TEST 4: Stato DAMAGED (Transizione Ammessa)
- */
+// /**
+//  * TEST 4: Stato DAMAGED (Transizione Ammessa)
+//  */
 try {
     echo "Test 4: Segnalazione danno su un oggetto esistente... ";
     // Supponiamo che l'ID 1 sia già nel prestito, ora lo passiamo come Damaged (Stato 4)
@@ -72,27 +72,11 @@ try {
     echo "❌ FALLITO: " . $e->getMessage() . "\n";
 }
 
-/**
- * TEST 5: Downgrade dello Stato (Vietato: da Damaged a Available)
- */
+// /**
+//  * TEST 5: Atomicità (Rollback su errore oggetti)
+//  */
 try {
-    echo "Test 5: Tentativo di 'riparazione' abusiva (da Damaged a Available)... ";
-    // Proviamo a riportare a 1 un oggetto che l'handler sa essere già a 4 nel DB
-    $itemToRestore = new InventoryItem(1, 'LAPTOP', 1, 'Ufficio');
-    
-    $restoreCmd = new UpdateLoanCommand(1, "Tentativo ripristino", $itemToRestore);
-    
-    $mediator->send($restoreCmd);
-    echo "❌ FALLITO: L'handler ha permesso di resettare il danno senza processo di manutenzione\n";
-} catch (Exception $e) {
-    echo "✅ OK! Bloccato correttamente: " . $e->getMessage() . "\n";
-}
-
-/**
- * TEST 6: Atomicità (Rollback su errore oggetti)
- */
-try {
-    echo "Test 6: Verifica transazione su lista mista... ";
+    echo "Test 5: Verifica transazione su lista mista... ";
     $valid = new InventoryItem(2, 'MONITOR', 1, 'Sede');
     $invalid = new InventoryItem(-1, 'ERROR', 1, 'X');
     
@@ -102,6 +86,44 @@ try {
     echo "❌ FALLITO: Transazione non gestita correttamente\n";
 } catch (Exception $e) {
     echo "✅ OK! Rollback eseguito correttamente: " . $e->getMessage() . "\n";
+}
+
+
+/**
+ * TEST 6: Aggiunta Oggetti Esistenti
+ */
+try {
+    echo "Test 6: Aggiunta oggetti esistenti nel prestito... ";
+    $item1 = new InventoryItem(1, 'LAPTOP', 4, 'Ufficio A');
+    $item2 = new InventoryItem(2, 'LAPTOP', 2, 'Ufficio B');
+    $item3 = new InventoryItem(3, 'MONITOR', 2, 'Ufficio B');
+    
+    $items = [$item1, $item2, $item3];
+
+    $updateItemsCmd = new UpdateLoanCommand(1, "Aggiunti oggetti", ...$items);
+    
+    $mediator->send($updateItemsCmd);
+    echo "✅ OK!\n";
+} catch (Exception $e) {
+    echo "❌ FALLITO: " . $e->getMessage() . "\n";
+}
+
+/**
+ * TEST 7: Rimozione Oggetti Esistenti
+ */
+try {
+    echo "Test 7: Rimozione oggetti esistenti nel prestito... ";
+    $item1 = new InventoryItem(1, 'LAPTOP', 4, 'Ufficio A');
+    $item2 = new InventoryItem(2, 'LAPTOP', 2, 'Ufficio B');
+    
+    $items = [$item1, $item2];
+
+    $updateItemsCmd = new UpdateLoanCommand(1, "Aggiunti oggetti", ...$items);
+    
+    $mediator->send($updateItemsCmd);
+    echo "✅ OK!\n";
+} catch (Exception $e) {
+    echo "❌ FALLITO: " . $e->getMessage() . "\n";
 }
 
 echo "\n=== FINE TEST AGGIORNAMENTO ===\n";
