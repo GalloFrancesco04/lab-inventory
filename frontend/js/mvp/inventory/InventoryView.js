@@ -86,7 +86,13 @@ class InventoryView extends BaseView {
   }
 
   populateObjectTypes() {
-    const types = this.presenter.getItemTypes();
+    let types = [];
+    try {
+      types = this.presenter.getItemTypes();
+    } catch (error) {
+      this.handleError("Unable to load item types", error);
+      return;
+    }
     this.newItemType.innerHTML = '<option value="">Select a type...</option>';
     types.forEach((type) => {
       const option = document.createElement("option");
@@ -141,13 +147,19 @@ class InventoryView extends BaseView {
         return;
       }
 
-      const newItem = this.presenter.addItem(itemData);
-      if (newItem) {
-        this.mediator.toaster.success(
-          `Item "${newItem.name}" added successfully`,
-        );
+      try {
+        const newItem = this.presenter.addItem(itemData);
+        if (newItem) {
+          this.mediator.toaster.success(
+            `Item "${newItem.name}" added successfully`,
+          );
+          this.closeModal("new-item-modal");
+        } else {
+          this.mediator.toaster.error("Unable to add item");
+        }
+      } catch (error) {
+        this.handleError("Unable to add item", error);
       }
-      this.closeModal("new-item-modal");
     });
 
     // Event delegation for table rows
@@ -191,7 +203,13 @@ class InventoryView extends BaseView {
   }
 
   getFilteredItems() {
-    const items = this.presenter.getItems();
+    let items = [];
+    try {
+      items = this.presenter.getItems();
+    } catch (error) {
+      this.handleError("Unable to load items", error);
+      return [];
+    }
     if (!this.searchQuery) return items;
 
     return items.filter((item) => {
@@ -291,6 +309,7 @@ class InventoryView extends BaseView {
 
   render() {
     const tbody = document.querySelector("#inventory-view tbody");
+    if (!tbody) return;
     tbody.innerHTML = "";
     this.getSortedItems().forEach((item) => {
       const tr = document.createElement("tr");
@@ -322,6 +341,7 @@ class InventoryView extends BaseView {
   }
 
   renderMaintenance(list) {
+    if (!this.maintTbody) return;
     this.maintTbody.innerHTML = "";
     if (!list || list.length === 0) {
       const div = document.createElement("div");
@@ -353,8 +373,17 @@ class InventoryView extends BaseView {
   }
 
   openItemModal(itemId) {
-    const item = this.presenter.getItemById(itemId);
-    if (!item) return;
+    let item = null;
+    try {
+      item = this.presenter.getItemById(itemId);
+    } catch (error) {
+      this.handleError("Unable to load item details", error);
+      return;
+    }
+    if (!item) {
+      this.mediator.toaster.error("Item not found");
+      return;
+    }
 
     this.currentItemId = itemId;
 
@@ -373,7 +402,13 @@ class InventoryView extends BaseView {
   }
 
   populateTechnicians() {
-    const technicians = this.presenter.getTechnicians();
+    let technicians = [];
+    try {
+      technicians = this.presenter.getTechnicians();
+    } catch (error) {
+      this.handleError("Unable to load technicians", error);
+      return;
+    }
     this.maintenanceTechnicianSelect.innerHTML =
       '<option value="">Select a technician...</option>';
     technicians.forEach((tech) => {
@@ -414,21 +449,36 @@ class InventoryView extends BaseView {
       return;
     }
 
-    const result = this.presenter.createMaintenance(
-      this.currentItemId,
-      description,
-      technician,
-    );
+    try {
+      const result = this.presenter.createMaintenance(
+        this.currentItemId,
+        description,
+        technician,
+      );
 
-    if (result) {
-      this.mediator.toaster.success("Item sent to maintenance successfully");
-      this.closeModal("send-to-maintenance-modal");
-      this.closeModal("item-detail-modal");
+      if (result) {
+        this.mediator.toaster.success("Item sent to maintenance successfully");
+        this.closeModal("send-to-maintenance-modal");
+        this.closeModal("item-detail-modal");
+      } else {
+        this.mediator.toaster.error("Unable to create maintenance record");
+      }
+    } catch (error) {
+      this.handleError("Unable to create maintenance record", error);
     }
   }
 
   resetSendToMaintenanceForm() {
     this.sendToMaintForm.reset();
+  }
+
+  handleError(message, error) {
+    if (this.mediator?.logger?.error) {
+      this.mediator.logger.error(message, error);
+    } else {
+      console.error(message, error);
+    }
+    this.mediator?.toaster?.error(message);
   }
 }
 
