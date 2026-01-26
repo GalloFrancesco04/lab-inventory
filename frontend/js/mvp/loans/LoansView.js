@@ -4,6 +4,11 @@ import { NewClientForm } from "../../utils/NewClientForm.js";
 import { LoanDetailModal } from "./LoanDetailModal.js";
 import { CloseLoanForm } from "./CloseLoanForm.js";
 import { getLoanStatusBadgeClass } from "../../utils/badges.js";
+import {
+  VALIDATION_ERRORS,
+  SUCCESS_MESSAGES,
+  ERROR_MESSAGES,
+} from "../../utils/messages.js";
 
 class LoansView extends BaseView {
   constructor(presenter, mediator) {
@@ -171,17 +176,17 @@ class LoansView extends BaseView {
       const returnDate = this.loanDate?.value || "";
 
       if (!client) {
-        this.mediator.toaster.error("Select a client");
+        this.mediator.toaster.error(ERROR_MESSAGES.SELECT_CLIENT);
         return;
       }
 
       if (items.length === 0) {
-        this.mediator.toaster.error("Select at least one item (max 5)");
+        this.mediator.toaster.error(ERROR_MESSAGES.SELECT_ITEMS);
         return;
       }
 
       if (items.length > 5) {
-        this.mediator.toaster.error("You can select at most 5 items");
+        this.mediator.toaster.error(ERROR_MESSAGES.MAX_ITEMS);
         return;
       }
 
@@ -194,14 +199,14 @@ class LoansView extends BaseView {
 
         if (newLoan) {
           this.mediator.logger.mock("New loan created", newLoan);
-          this.mediator.toaster.success("New loan created successfully");
+          this.mediator.toaster.success(SUCCESS_MESSAGES.LOAN_CREATED);
           this.closeModal("new-loan-modal");
           this.itemPicker?.reset();
         } else {
-          this.mediator.toaster.error("Unable to create loan");
+          this.mediator.toaster.error(ERROR_MESSAGES.LOAN_FAILED);
         }
       } catch (error) {
-        this.handleError("Unable to create loan", error);
+        this.handleError(ERROR_MESSAGES.LOAN_FAILED, error);
       }
     });
 

@@ -7,6 +7,11 @@ import {
   getItemStatusBadgeClass,
   getMaintenanceTypeBadgeClass,
 } from "../../utils/badges.js";
+import {
+  VALIDATION_ERRORS,
+  SUCCESS_MESSAGES,
+  ERROR_MESSAGES,
+} from "../../utils/messages.js";
 
 class InventoryView extends BaseView {
   constructor(presenter, mediator) {
@@ -227,31 +232,31 @@ class InventoryView extends BaseView {
 
       const nameOk = this.editItemValidator.required(
         this.editItemName,
-        "Name is required",
+        VALIDATION_ERRORS.REQUIRED,
       );
       const locationOk = this.editItemValidator.required(
         this.editItemLocation,
-        "Location is required",
+        VALIDATION_ERRORS.REQUIRED,
       );
       const statusOk = this.editItemValidator.required(
         this.editItemStatus,
-        "Status is required",
+        VALIDATION_ERRORS.REQUIRED,
       );
 
       if (!nameOk || !locationOk || !statusOk) {
         this.editItemValidator.displayErrors();
-        this.mediator.toaster.error("Fix the highlighted errors");
+        this.mediator.toaster.error(VALIDATION_ERRORS.FIX_ERRORS);
         this.editItemValidator.focusFirstError();
         return;
       }
 
       try {
         this.presenter.updateItem(this.currentItemId, payload);
-        this.mediator.toaster.success("Item updated successfully");
+        this.mediator.toaster.success(SUCCESS_MESSAGES.ITEM_UPDATED);
         this.closeModal("edit-item-modal");
         this.openItemModal(this.currentItemId);
       } catch (error) {
-        this.handleError("Failed to update item", error);
+        this.handleError(ERROR_MESSAGES.FAILED_UPDATE_ITEM, error);
       }
     });
   }
@@ -359,7 +364,7 @@ class InventoryView extends BaseView {
     }
 
     if (!item) {
-      this.mediator.toaster.error("Item not found");
+      this.mediator.toaster.error(ERROR_MESSAGES.ITEM_NOT_FOUND);
       return;
     }
 
@@ -378,7 +383,7 @@ class InventoryView extends BaseView {
       return;
     }
     if (!item) {
-      this.mediator.toaster.error("Item not found");
+      this.mediator.toaster.error(ERROR_MESSAGES.ITEM_NOT_FOUND);
       return;
     }
 

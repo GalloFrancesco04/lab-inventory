@@ -1,5 +1,10 @@
 import { BaseView } from "../core/BaseView.js";
 import { FormValidator } from "../../utils/validators.js";
+import {
+  VALIDATION_ERRORS,
+  SUCCESS_MESSAGES,
+  ERROR_MESSAGES,
+} from "../../utils/messages.js";
 
 class ClientsView extends BaseView {
   constructor(presenter, mediator) {
@@ -109,34 +114,32 @@ class ClientsView extends BaseView {
 
       const firstNameOk = this.newClientValidator.required(
         this.firstInput,
-        "First name is required",
+        VALIDATION_ERRORS.REQUIRED,
       );
       const emailRequiredOk = this.newClientValidator.required(
         this.emailInput,
-        "Email is required",
+        VALIDATION_ERRORS.REQUIRED,
       );
       const emailFormatOk = emailRequiredOk
         ? this.newClientValidator.email(
             this.emailInput,
-            "Please enter a valid email",
+            VALIDATION_ERRORS.EMAIL,
           )
         : false;
 
       if (!firstNameOk || !emailRequiredOk || !emailFormatOk) {
         this.newClientValidator.displayErrors();
-        this.mediator.toaster.error("Fix the highlighted errors");
+        this.mediator.toaster.error(VALIDATION_ERRORS.FIX_ERRORS);
         this.newClientValidator.focusFirstError();
         return;
       }
 
       try {
         this.presenter.addClient(payload);
-        this.mediator.toaster.success(
-          `Client "${payload.firstName} ${payload.lastName}" added successfully`,
-        );
+        this.mediator.toaster.success(SUCCESS_MESSAGES.CLIENT_ADDED);
         this.closeModal("new-client-modal");
       } catch (error) {
-        this.handleError("Unable to add client", error);
+        this.handleError(ERROR_MESSAGES.UNABLE_ADD_CLIENT, error);
       }
     });
 
@@ -152,33 +155,33 @@ class ClientsView extends BaseView {
 
       const firstNameOk = this.editClientValidator.required(
         this.editFirstInput,
-        "First name is required",
+        VALIDATION_ERRORS.REQUIRED,
       );
       const emailRequiredOk = this.editClientValidator.required(
         this.editEmailInput,
-        "Email is required",
+        VALIDATION_ERRORS.REQUIRED,
       );
       const emailFormatOk = emailRequiredOk
         ? this.editClientValidator.email(
             this.editEmailInput,
-            "Please enter a valid email",
+            VALIDATION_ERRORS.EMAIL,
           )
         : false;
 
       if (!firstNameOk || !emailRequiredOk || !emailFormatOk) {
         this.editClientValidator.displayErrors();
-        this.mediator.toaster.error("Fix the highlighted errors");
+        this.mediator.toaster.error(VALIDATION_ERRORS.FIX_ERRORS);
         this.editClientValidator.focusFirstError();
         return;
       }
 
       try {
         this.presenter.updateClient(this.currentClientId, payload);
-        this.mediator.toaster.success("Client updated successfully");
+        this.mediator.toaster.success(SUCCESS_MESSAGES.CLIENT_UPDATED);
         this.closeModal("edit-client-modal");
         this.openClientDetail(this.currentClientId);
       } catch (error) {
-        this.handleError("Failed to update client", error);
+        this.handleError(ERROR_MESSAGES.FAILED_UPDATE_CLIENT, error);
       }
     });
 
@@ -204,7 +207,7 @@ class ClientsView extends BaseView {
         const days = Number(this.blockDaysInput?.value || 30);
         const reason = this.blockReasonInput?.value?.trim() || "";
         this.presenter.blockClient(this.currentClientId, days, reason);
-        this.mediator.toaster.warning(`Client blocked for ${days} days`);
+        this.mediator.toaster.warning(SUCCESS_MESSAGES.CLIENT_BLOCKED(days));
         this.closeModal("block-client-modal");
         this.openClientDetail(this.currentClientId);
       } catch (error) {
@@ -216,7 +219,7 @@ class ClientsView extends BaseView {
       if (!this.currentClientId) return;
       try {
         this.presenter.deleteClient(this.currentClientId);
-        this.mediator.toaster.error("Client deleted");
+        this.mediator.toaster.success(SUCCESS_MESSAGES.CLIENT_DELETED);
         this.closeModal("delete-client-modal");
         this.closeModal("client-detail-modal");
       } catch (error) {
@@ -321,7 +324,7 @@ class ClientsView extends BaseView {
       return;
     }
     if (!client) {
-      this.mediator.toaster.error("Client not found");
+      this.mediator.toaster.error(ERROR_MESSAGES.CLIENT_NOT_FOUND);
       return;
     }
 
@@ -358,7 +361,7 @@ class ClientsView extends BaseView {
     }
 
     if (!client) {
-      this.mediator.toaster.error("Client not found");
+      this.mediator.toaster.error(ERROR_MESSAGES.CLIENT_NOT_FOUND);
       return;
     }
 

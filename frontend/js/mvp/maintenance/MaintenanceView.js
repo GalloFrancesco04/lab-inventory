@@ -1,4 +1,9 @@
 import { BaseView } from "../core/BaseView.js";
+import {
+  VALIDATION_ERRORS,
+  SUCCESS_MESSAGES,
+  ERROR_MESSAGES,
+} from "../../utils/messages.js";
 
 class MaintenanceView extends BaseView {
   constructor(presenter, mediator) {
@@ -259,7 +264,7 @@ class MaintenanceView extends BaseView {
     };
 
     if (!closeOptions.notes) {
-      this.mediator?.toaster?.error("Please provide a work summary");
+      this.mediator?.toaster?.error(VALIDATION_ERRORS.REQUIRED);
       this.closeNotesInput?.focus();
       return;
     }
@@ -281,10 +286,10 @@ class MaintenanceView extends BaseView {
       this.closeModal("maintenance-close-confirm-modal");
       this.closeModal("maintenance-detail-modal");
       this.render();
-      this.mediator?.toaster?.success("Maintenance closed");
+      this.mediator?.toaster?.success(SUCCESS_MESSAGES.MAINTENANCE_CLOSED);
     } else {
       this.closeModal("maintenance-close-confirm-modal");
-      this.mediator?.toaster?.error("Unable to close maintenance");
+      this.mediator?.toaster?.error(ERROR_MESSAGES.MAINTENANCE_FAILED);
     }
   }
 
@@ -427,7 +432,7 @@ class MaintenanceView extends BaseView {
 
   addOperation() {
     if (!this.currentMaintenanceId) {
-      this.mediator.toaster.error("No maintenance selected");
+      this.mediator.toaster.error(ERROR_MESSAGES.NO_MAINTENANCE_SELECTED);
       return;
     }
 
@@ -498,7 +503,7 @@ class MaintenanceView extends BaseView {
     const endDate = this.operationEndInput.value;
 
     if (!desc || Number.isNaN(cost) || !startDate || !endDate) {
-      this.mediator.toaster.error("Please fill all fields correctly");
+      this.mediator.toaster.error(VALIDATION_ERRORS.FIX_ERRORS);
       return;
     }
 
@@ -532,8 +537,8 @@ class MaintenanceView extends BaseView {
       this.closeModal("add-operation-modal");
       this.mediator.toaster.success(
         this.isEditingOperation
-          ? "Operation updated successfully"
-          : "Operation added successfully",
+          ? SUCCESS_MESSAGES.OPERATION_UPDATED
+          : SUCCESS_MESSAGES.OPERATION_ADDED,
       );
 
       const maintenance = this.presenter.getMaintenanceById(
