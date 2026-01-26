@@ -269,11 +269,16 @@ class InventoryView extends BaseView {
       this.handleError("Unable to load items", error);
       return [];
     }
-    return this.applyFilter(
+
+    // Apply search filter
+    const searchFiltered = this.applyFilter(
       items,
       (item) => [item.id, item.name, item.type, item.status, item.location],
       this.searchQuery,
     );
+
+    // Apply advanced filters
+    return this.applyAdvancedFilters(searchFiltered);
   }
 
   getSortedItems() {

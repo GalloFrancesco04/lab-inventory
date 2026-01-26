@@ -6,6 +6,7 @@ export class BaseView {
     this.searchQuery = "";
     this.sortColumn = null;
     this.sortDirection = null;
+    this.activeFilters = {};
   }
 
   // Template method for view initialization
@@ -30,6 +31,13 @@ export class BaseView {
     if (searchViewName && this.mediator?.searchManager) {
       this.mediator.searchManager.registerView(searchViewName, (query) =>
         this.handleSearch(query),
+      );
+    }
+
+    // Setup filter callback if filterManager provided
+    if (this.mediator?.filterManager) {
+      this.mediator.filterManager.onApply((filters) =>
+        this.handleFilters(filters),
       );
     }
 
@@ -177,6 +185,70 @@ export class BaseView {
   handleSearch(query) {
     this.searchQuery = query.toLowerCase();
     this.render();
+  }
+
+  // Generic filter handler
+  handleFilters(filters) {
+    this.activeFilters = filters;
+    this.render();
+  }
+
+  // Apply advanced filters to data
+  applyAdvancedFilters(data) {
+    if (!this.activeFilters || Object.keys(this.activeFilters).length === 0) {
+      return data;
+    }
+
+    return data.filter((item) => {
+      return Object.entries(this.activeFilters).every(([key, value]) => {
+        if (!value) return true;
+
+        // Handle different filter types
+        if (key === "status") {
+          return item.status?.toLowerCase() === value.toLowerCase();
+        }
+
+        if (key === "type") {
+          return item.type?.toLowerCase() === value.toLowerCase();
+        }
+
+        if (key === "location") {
+          return item.location?.toLowerCase().includes(value.toLowerCase());
+        }
+
+        if (key === "client") {
+          return item.client?.toLowerCase().includes(value.toLowerCase());
+        }
+
+        if (key === "dateFrom") {
+          const itemDate = this.parseDate(item.returnDate || item.startDate);
+          const filterDate = new Date(value);
+          return itemDate >= filterDate;
+        }
+
+        if (key === "dateTo") {
+          const itemDate = this.parseDate(item.returnDate || item.endDate);
+          const filterDate = new Date(value);
+          return itemDate <= filterDate;
+        }
+
+        return true;
+      });
+    });
+  }
+
+  // Helper to parse dates in different formats
+  parseDate(dateStr) {
+    if (!dateStr) return new Date(0);
+
+    // Try DD/MM/YYYY format
+    if (dateStr.includes("/")) {
+      const [day, month, year] = dateStr.split("/");
+      return new Date(year, month - 1, day);
+    }
+
+    // Try ISO format
+    return new Date(dateStr);
   }
 
   // Generic error handler - logs and toasts errors

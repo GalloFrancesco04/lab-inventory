@@ -10,10 +10,23 @@ import { MaintenancePresenter } from "./mvp/maintenance/MaintenancePresenter.js"
 import { initLoginView } from "./mvp/auth/LoginView.js";
 import { AuthPresenter } from "./mvp/auth/LoginPresenter.js";
 import { Mediator } from "./utils/Mediator.js";
+import { FilterManager } from "./utils/FilterManager.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   // Create mediator instance
   const mediator = new Mediator();
+
+  // Initialize filter manager
+  const filterManager = new FilterManager({
+    panel: document.getElementById("filters-panel"),
+    content: document.getElementById("filters-content"),
+    filtersBtn: document.getElementById("filters-btn"),
+    applyBtn: document.getElementById("apply-filters-btn"),
+    clearBtn: document.getElementById("clear-filters-btn"),
+  });
+
+  // Store filter manager in mediator for access from views
+  mediator.filterManager = filterManager;
 
   // Initialize auth
   const authPresenter = new AuthPresenter();
@@ -50,6 +63,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Update search manager via mediator
     mediator.searchManager.setActiveView(viewName);
     mediator.searchManager.clearSearch();
+
+    // Update filter manager
+    filterManager.setView(viewName);
   }
 
   document.querySelectorAll("[data-route]").forEach((btn) => {

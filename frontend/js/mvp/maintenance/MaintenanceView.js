@@ -114,7 +114,9 @@ class MaintenanceView extends BaseView {
 
   getFilteredHistory() {
     const history = this.presenter.getMaintenanceHistory();
-    return this.applyFilter(
+
+    // Apply search filter
+    const searchFiltered = this.applyFilter(
       history,
       (entry) => [
         entry.date,
@@ -125,6 +127,9 @@ class MaintenanceView extends BaseView {
       ],
       this.searchQuery,
     );
+
+    // Apply advanced filters
+    return this.applyAdvancedFilters(searchFiltered);
   }
 
   getSortedHistory() {

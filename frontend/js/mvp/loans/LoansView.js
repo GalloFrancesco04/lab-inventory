@@ -271,7 +271,9 @@ class LoansView extends BaseView {
       this.handleError("Unable to load loans", error);
       return [];
     }
-    return this.applyFilter(
+
+    // Apply search filter
+    const searchFiltered = this.applyFilter(
       loans,
       (loan) => [
         loan.id,
@@ -282,6 +284,9 @@ class LoansView extends BaseView {
       ],
       this.searchQuery,
     );
+
+    // Apply advanced filters
+    return this.applyAdvancedFilters(searchFiltered);
   }
 
   getSortedLoans() {

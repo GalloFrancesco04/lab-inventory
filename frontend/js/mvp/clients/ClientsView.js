@@ -236,7 +236,9 @@ class ClientsView extends BaseView {
       this.handleError("Unable to load clients", error);
       return [];
     }
-    return this.applyFilter(
+
+    // Apply search filter
+    const searchFiltered = this.applyFilter(
       clients,
       (client) => [
         client.id,
@@ -246,6 +248,18 @@ class ClientsView extends BaseView {
       ],
       this.searchQuery,
     );
+
+    // Apply advanced filters
+    let filtered = searchFiltered;
+    if (this.activeFilters.status) {
+      if (this.activeFilters.status === "blocked") {
+        filtered = filtered.filter((client) => client.blocked);
+      } else if (this.activeFilters.status === "active") {
+        filtered = filtered.filter((client) => !client.blocked);
+      }
+    }
+
+    return filtered;
   }
 
   getSortedClients() {
