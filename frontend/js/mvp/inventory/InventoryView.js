@@ -54,8 +54,11 @@ class InventoryView extends BaseView {
     // Edit Item Modal
     this.editItemForm = this.getElement("edit-item-form");
     this.editItemName = this.getElement("edit-item-name");
+    this.editItemBrand = this.getElement("edit-item-brand");
+    this.editItemModel = this.getElement("edit-item-model");
     this.editItemLocation = this.getElement("edit-item-location");
     this.editItemStatus = this.getElement("edit-item-status");
+    this.editItemNote = this.getElement("edit-item-note");
     this.editItemBtn = this.getElement("edit-item-btn");
 
     // Buttons
@@ -284,10 +287,39 @@ class InventoryView extends BaseView {
       e.preventDefault();
       this.editItemValidator?.clearAll();
 
+      const newStatus = this.editItemStatus?.value || "";
+
+      // Get current item to check original status
+      let currentItem = null;
+      try {
+        currentItem = this.presenter.getItemById(this.currentItemId);
+      } catch (error) {
+        this.handleError("Unable to load item", error);
+        return;
+      }
+
+      // Business rules: only allow status change between available and outofservice
+      if (currentItem && currentItem.status !== newStatus) {
+        const allowedStatuses = ["available", "outofservice"];
+
+        if (
+          !allowedStatuses.includes(currentItem.status) ||
+          !allowedStatuses.includes(newStatus)
+        ) {
+          this.mediator.toaster.error(
+            "Status can only be changed between Available and Out of Service. Other status changes require specific workflows (loan, maintenance).",
+          );
+          return;
+        }
+      }
+
       const payload = {
         name: this.editItemName?.value?.trim() || "",
+        brand: this.editItemBrand?.value?.trim() || "",
+        model: this.editItemModel?.value?.trim() || "",
         location: this.editItemLocation?.value?.trim() || "",
-        status: this.editItemStatus?.value || "",
+        status: newStatus,
+        note: this.editItemNote?.value?.trim() || "",
       };
 
       const nameOk = this.editItemValidator.required(
@@ -434,9 +466,12 @@ class InventoryView extends BaseView {
     }
 
     if (this.editItemName) this.editItemName.value = item.name || "";
+    if (this.editItemBrand) this.editItemBrand.value = item.brand || "";
+    if (this.editItemModel) this.editItemModel.value = item.model || "";
     if (this.editItemLocation)
       this.editItemLocation.value = item.location || "";
     if (this.editItemStatus) this.editItemStatus.value = item.status || "";
+    if (this.editItemNote) this.editItemNote.value = item.note || "";
   }
 
   openItemModal(itemId) {

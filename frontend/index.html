@@ -357,6 +357,16 @@
                     <span class="form-error"></span>
                 </div>
                 <div class="form-group">
+                    <label for="edit-item-brand">Brand</label>
+                    <input type="text" id="edit-item-brand" placeholder="e.g. HP, Dell">
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="edit-item-model">Model</label>
+                    <input type="text" id="edit-item-model" placeholder="e.g. Pavilion 15, Latitude 5400">
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-group">
                     <label for="edit-item-location">Location <span style="color: var(--danger);">*</span></label>
                     <input type="text" id="edit-item-location" placeholder="Enter location" required>
                     <span class="form-error"></span>
@@ -366,10 +376,13 @@
                     <select id="edit-item-status" required>
                         <option value="">Select status</option>
                         <option value="available">Available</option>
-                        <option value="loaned">Loaned</option>
-                        <option value="maintenance">Maintenance</option>
                         <option value="outofservice">Out of Service</option>
                     </select>
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="edit-item-note">Notes</label>
+                    <textarea id="edit-item-note" rows="3" placeholder="Optional notes about this item"></textarea>
                     <span class="form-error"></span>
                 </div>
                 <div class="form-actions">
