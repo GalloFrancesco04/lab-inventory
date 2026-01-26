@@ -1,4 +1,5 @@
 import { BaseView } from "../core/BaseView.js";
+import { FormValidator } from "../../utils/validators.js";
 import { ItemDetailModal } from "./ItemDetailModal.js";
 import { SendToMaintenanceForm } from "./SendToMaintenanceForm.js";
 import { NewItemForm } from "./NewItemForm.js";
@@ -33,6 +34,13 @@ class InventoryView extends BaseView {
     this.itemStatus = this.getElement("item-status");
     this.itemLocation = this.getElement("item-location");
     this.maintTbody = this.getElement("item-maintenance-tbody");
+
+    // Edit Item Modal
+    this.editItemForm = this.getElement("edit-item-form");
+    this.editItemName = this.getElement("edit-item-name");
+    this.editItemLocation = this.getElement("edit-item-location");
+    this.editItemStatus = this.getElement("edit-item-status");
+    this.editItemBtn = this.getElement("edit-item-btn");
 
     // Buttons
     this.sendToMaintBtn = this.getElement("send-to-maintenance-btn");
@@ -115,6 +123,8 @@ class InventoryView extends BaseView {
         }
       },
     });
+
+    this.editItemValidator = new FormValidator(this.editItemForm);
   }
 
   setupModals() {
@@ -131,6 +141,17 @@ class InventoryView extends BaseView {
       },
       "item-detail-modal": {
         closeButtons: ["item-detail-close"],
+      },
+      "edit-item-modal": {
+        options: {
+          onOpen: () => {
+            this.editItemForm?.reset();
+            this.editItemValidator?.clearAll();
+            this.populateEditItemForm();
+          },
+          onClose: () => this.editItemValidator?.clearAll(),
+        },
+        closeButtons: ["edit-item-close", "edit-item-cancel"],
       },
       "send-to-maintenance-modal": {
         options: {
@@ -180,6 +201,11 @@ class InventoryView extends BaseView {
       this.openModal("send-to-maintenance-modal");
     });
 
+    this.editItemBtn?.addEventListener("click", () => {
+      if (!this.currentItemId) return;
+      this.openModal("edit-item-modal");
+    });
+
     this.sendToMaintCancelBtn?.addEventListener("click", () => {
       this.closeModal("send-to-maintenance-modal");
     });
@@ -187,6 +213,46 @@ class InventoryView extends BaseView {
     this.sendToMaintForm?.addEventListener("submit", (e) => {
       e.preventDefault();
       this.handleSendToMaintenance();
+    });
+
+    this.editItemForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      this.editItemValidator?.clearAll();
+
+      const payload = {
+        name: this.editItemName?.value?.trim() || "",
+        location: this.editItemLocation?.value?.trim() || "",
+        status: this.editItemStatus?.value || "",
+      };
+
+      const nameOk = this.editItemValidator.required(
+        this.editItemName,
+        "Name is required",
+      );
+      const locationOk = this.editItemValidator.required(
+        this.editItemLocation,
+        "Location is required",
+      );
+      const statusOk = this.editItemValidator.required(
+        this.editItemStatus,
+        "Status is required",
+      );
+
+      if (!nameOk || !locationOk || !statusOk) {
+        this.editItemValidator.displayErrors();
+        this.mediator.toaster.error("Fix the highlighted errors");
+        this.editItemValidator.focusFirstError();
+        return;
+      }
+
+      try {
+        this.presenter.updateItem(this.currentItemId, payload);
+        this.mediator.toaster.success("Item updated successfully");
+        this.closeModal("edit-item-modal");
+        this.openItemModal(this.currentItemId);
+      } catch (error) {
+        this.handleError("Failed to update item", error);
+      }
     });
   }
 
@@ -279,6 +345,28 @@ class InventoryView extends BaseView {
       `;
       this.maintTbody.appendChild(div);
     });
+  }
+
+  populateEditItemForm() {
+    if (!this.currentItemId) return;
+
+    let item = null;
+    try {
+      item = this.presenter.getItemById(this.currentItemId);
+    } catch (error) {
+      this.handleError("Unable to load item data", error);
+      return;
+    }
+
+    if (!item) {
+      this.mediator.toaster.error("Item not found");
+      return;
+    }
+
+    if (this.editItemName) this.editItemName.value = item.name || "";
+    if (this.editItemLocation)
+      this.editItemLocation.value = item.location || "";
+    if (this.editItemStatus) this.editItemStatus.value = item.status || "";
   }
 
   openItemModal(itemId) {

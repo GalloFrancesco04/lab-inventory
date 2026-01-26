@@ -340,4 +340,28 @@ export class InventoryPresenter extends BasePresenter {
 
     return newMaintenance;
   }
+
+  updateItem(id, payload) {
+    const item = this.getItemById(id);
+    if (!item) throw new Error("Item not found");
+
+    const allowedStatuses = [
+      "available",
+      "loaned",
+      "maintenance",
+      "outofservice",
+    ];
+
+    const status = allowedStatuses.includes(payload.status)
+      ? payload.status
+      : item.status;
+
+    const updates = {
+      name: payload.name?.trim() || item.name,
+      location: payload.location?.trim() || item.location,
+      status,
+    };
+
+    return this.update(id, updates);
+  }
 }
