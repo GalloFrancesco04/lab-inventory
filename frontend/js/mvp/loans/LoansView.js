@@ -279,6 +279,14 @@ class LoansView extends BaseView {
     this.mediator?.toaster?.error(message);
   }
 
+  destroy() {
+    super.destroy();
+    this.itemPicker?.destroy();
+    this.clientForm?.destroy();
+    this.loanDetailModal?.destroy();
+    this.closeLoanHandler?.destroy();
+  }
+
   handleSearch(query) {
     this.searchQuery = query.toLowerCase();
     this.renderLoansTable();

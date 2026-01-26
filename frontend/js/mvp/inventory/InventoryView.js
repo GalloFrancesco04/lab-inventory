@@ -429,6 +429,13 @@ class InventoryView extends BaseView {
     }
     this.mediator?.toaster?.error(message);
   }
+
+  destroy() {
+    super.destroy();
+    this.newItemFormHandler?.destroy();
+    this.itemDetailModal?.destroy();
+    this.maintenanceForm?.destroy();
+  }
 }
 
 export function initInventoryView(presenter, mediator) {
