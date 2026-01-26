@@ -4,6 +4,7 @@
 require_once __DIR__ . '/../Response.php'; 
 require_once __DIR__ . '/../../../config/Database.php';
 require_once __DIR__ . '/../../Application/Mediator/Mediator.php';
+require_once __DIR__ . '/../../Http/Request.php';
 
 // Import Create Components
 require_once __DIR__ . '/../../Application/Commands/ObjectTypes/CreateObjectTypeCommand.php';
@@ -29,16 +30,16 @@ class ObjectTypesController {
         $this->mediator = new Mediator();
 
         // register commands and their handlers
-        $this->mediator->register('CreateObjectTypeCommand', 'CreateObjectTypeHandler');
-        $this->mediator->register('UpdateObjectTypeCommand', 'UpdateObjectTypeHandler'); 
-        $this->mediator->register('DeleteObjectTypeCommand', 'DeleteObjectTypeHandler');
+        $this->mediator->register(CreateObjectTypeCommand::class, CreateObjectTypeHandler::class);
+        $this->mediator->register(UpdateObjectTypeCommand::class, UpdateObjectTypeHandler::class); 
+        $this->mediator->register(DeleteObjectTypeCommand::class, DeleteObjectTypeHandler::class);
     }
 
     /**
      * GET /api/objecttypes
      * Retrieves all object types.
      */
-    public function getAll() {
+    public function getAll(Request $request) {
         // Direct query to fetch all object types
         try {
             $stmt = $this->conn->prepare("SELECT * FROM objecttype");
@@ -51,22 +52,35 @@ class ObjectTypesController {
     }
 
     /**
+     * GET /api/objecttypes/{code}
+     * Retrieves a specific object type by its code.
+     */
+    public function getByCode(Request $request, $code) {
+        try {
+            $stmt = $this->conn->prepare("SELECT * FROM objecttype WHERE code = :code");
+            $stmt->execute([':code' => $code]);
+            $type = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$type) {
+                Response::error("Object Type not found", "NOT_FOUND", 404);
+                return;
+            }
+            Response::success($type);
+        } catch (Exception $e) {
+            Response::error($e->getMessage(), "DB_ERROR", 500);
+        }
+    }
+
+    /**
      * POST /api/objecttypes
      * Creates a new object type.
      */
-    public function create() {
-        $data = json_decode(file_get_contents("php://input"), true);
+    public function create(Request $request) {
+        $data = $request->getBody();
 
         try {
             // Create the command with data from request
-            $command = new CreateObjectTypeCommand(
-                $data['code'] ?? null,
-                $data['name'] ?? null,
-                $data['description'] ?? null,
-                $data['model'] ?? null,
-                $data['brand'] ?? null,
-                $data['quantity'] ?? 0
-            );
+            $command = new CreateObjectTypeCommand($data);
 
             // Send the command via the mediator
             $newCode = $this->mediator->send($command);
@@ -81,18 +95,14 @@ class ObjectTypesController {
      * PUT /api/objecttypes/{code}
      * Updates an existing object type.
      */
-    public function update($code) {
-        $data = json_decode(file_get_contents("php://input"), true);
+    public function update(Request $request, $code) {
+        $data = $request->getBody();
 
         try {
             // Il $code arriva dall'URL, il resto dal body JSON
             $command = new UpdateObjectTypeCommand(
                 $code,
-                $data['name'] ?? null,
-                $data['description'] ?? null,
-                $data['model'] ?? null,
-                $data['brand'] ?? null,
-                $data['quantity'] ?? 0
+                $data
             );
 
             $this->mediator->send($command);
@@ -107,7 +117,7 @@ class ObjectTypesController {
      * DELETE /api/objecttypes/{code}
      * Deletes an existing object type.
      */
-    public function delete($code) {
+    public function delete(Request $request, $code) {
     try {
         $command = new DeleteObjectTypeCommand($code);
         $this->mediator->send($command);
