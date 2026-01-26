@@ -5,6 +5,10 @@ export class LoanDetailModal {
     this.fields = fields;
   }
 
+  destroy() {
+    // No event listeners to clean up
+  }
+
   setStatusBadge(statusText) {
     const el = this.fields.status;
     if (!el) return;

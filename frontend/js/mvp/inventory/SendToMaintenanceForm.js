@@ -13,6 +13,10 @@ export class SendToMaintenanceForm {
     this.form?.addEventListener("submit", this.handleSubmit);
   }
 
+  destroy() {
+    this.form?.removeEventListener("submit", this.handleSubmit);
+  }
+
   reset() {
     this.validator.clearAll();
     this.form?.reset();

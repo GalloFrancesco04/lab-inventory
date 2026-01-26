@@ -13,6 +13,10 @@ export class ItemDetailModal {
     this.onSendToMaintenance = onSendToMaintenance;
   }
 
+  destroy() {
+    // No event listeners to clean up
+  }
+
   setStatusBadge(statusText) {
     const el = this.fields.status;
     if (!el) return;

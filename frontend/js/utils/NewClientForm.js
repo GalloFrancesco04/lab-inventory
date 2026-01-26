@@ -18,6 +18,10 @@ export class NewClientForm {
     this.onCreate = callback;
   }
 
+  destroy() {
+    this.form?.removeEventListener("submit", this.handleSubmit);
+  }
+
   reset() {
     this.validator.clearAll();
     this.form?.reset();

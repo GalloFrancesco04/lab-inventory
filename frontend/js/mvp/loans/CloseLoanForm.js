@@ -11,6 +11,10 @@ export class CloseLoanForm {
     this.form?.addEventListener("submit", this.handleSubmit);
   }
 
+  destroy() {
+    this.form?.removeEventListener("submit", this.handleSubmit);
+  }
+
   reset() {
     this.form?.reset();
   }
