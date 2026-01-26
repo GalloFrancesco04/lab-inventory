@@ -28,7 +28,7 @@ class CreateObjectTypeHandler {
             throw new Exception("Esiste gia' un Object Type con quel Codice");
         }
 
-        $objectTypeToCreate = new ObjectType($command->code, $command->name, $command->quantity, $command->description, $command->brand, $command->model);
+        $objectTypeToCreate = new ObjectType($command->code, $command->name, 0, $command->description, $command->brand, $command->model);
         $this->objectTypeRepository->create($objectTypeToCreate);
 
         }catch(Exception $ex) {

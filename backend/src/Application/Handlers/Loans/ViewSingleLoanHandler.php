@@ -25,7 +25,7 @@ class ViewSingleLoanHandler {
         $loan = $this->loanRepository->getLoanById($command->id);
             
         if (empty($loan)){
-            throw new Exception("Si e' verificato un problema durante il recupero del Prestito");
+            return [];
         }
                 
         return $loan;

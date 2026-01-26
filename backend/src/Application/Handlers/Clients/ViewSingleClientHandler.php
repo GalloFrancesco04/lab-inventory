@@ -26,7 +26,7 @@ class ViewSingleClientHandler {
             $client = $this->clientRepository->findById($command->client_id);    
                 
             if(empty($client)) {
-                throw new Exception("Non esiste nessun Cliente con l'id specificato");
+                return null;
             }
 
             return $client;

@@ -28,7 +28,7 @@ class UpdateObjectTypeHandler {
             throw new Exception("Non esiste alcun Object Type con quel codice");
         }
 
-        $objectTypeToUpdate = new ObjectType($command->code, $command->name, 0, $command->description, $command->brand, $command->model);
+        $objectTypeToUpdate = new ObjectType($command->code, $command->name, $objectType->getQuantity(), $command->description, $command->brand, $command->model);
         $this->objectTypeRepository->update($objectTypeToUpdate);
 
         }catch(Exception $ex) {

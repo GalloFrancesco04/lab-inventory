@@ -21,6 +21,10 @@ class ViewLoansHandler {
 
             $loans = $this->loanRepository->getAll();
             
+            if(empty($loans)) {
+                return [];
+            }
+
             return $loans;
 
         }catch(Exception $ex) {
