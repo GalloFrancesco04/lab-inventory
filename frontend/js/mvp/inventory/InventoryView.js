@@ -1,12 +1,12 @@
 import { BaseView } from "../core/BaseView.js";
 import { FormValidator } from "../../utils/validators.js";
-import { ItemDetailModal } from "./ItemDetailModal.js";
-import { SendToMaintenanceForm } from "./SendToMaintenanceForm.js";
+import { ItemDetailModal } from "./modals/ItemDetailModal.js";
+import { SendToMaintenanceForm } from "./modals/SendToMaintenanceForm.js";
 import { NewItemForm } from "./NewItemForm.js";
 import {
   getItemStatusBadgeClass,
   getMaintenanceTypeBadgeClass,
-} from "../../utils/badges.js";
+} from "../../utils/ui/badges.js";
 import {
   VALIDATION_ERRORS,
   SUCCESS_MESSAGES,

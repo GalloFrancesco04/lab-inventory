@@ -1,4 +1,4 @@
-import { ClientFilter } from "./ClientFilter.js";
+import { ClientFilter } from "../ClientFilter.js";
 
 export class FilterManager {
   constructor({

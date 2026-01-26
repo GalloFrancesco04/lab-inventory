@@ -9,8 +9,8 @@ import { initMaintenanceView } from "./mvp/maintenance/MaintenanceView.js";
 import { MaintenancePresenter } from "./mvp/maintenance/MaintenancePresenter.js";
 import { initLoginView } from "./mvp/auth/LoginView.js";
 import { AuthPresenter } from "./mvp/auth/LoginPresenter.js";
-import { Mediator } from "./utils/Mediator.js";
-import { FilterManager } from "./utils/FilterManager.js";
+import { Mediator } from "./utils/managers/Mediator.js";
+import { FilterManager } from "./utils/managers/FilterManager.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   // Create mediator instance

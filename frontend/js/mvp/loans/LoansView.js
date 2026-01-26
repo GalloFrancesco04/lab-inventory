@@ -1,9 +1,9 @@
 import { BaseView } from "../core/BaseView.js";
-import { ItemPicker } from "../../utils/ItemPicker.js";
-import { NewClientForm } from "../../utils/NewClientForm.js";
-import { LoanDetailModal } from "./LoanDetailModal.js";
-import { CloseLoanForm } from "./CloseLoanForm.js";
-import { getLoanStatusBadgeClass } from "../../utils/badges.js";
+import { ItemPicker } from "../../utils/forms/ItemPicker.js";
+import { NewClientForm } from "../../utils/forms/NewClientForm.js";
+import { LoanDetailModal } from "./modals/LoanDetailModal.js";
+import { CloseLoanForm } from "./modals/CloseLoanForm.js";
+import { getLoanStatusBadgeClass } from "../../utils/ui/badges.js";
 import {
   VALIDATION_ERRORS,
   SUCCESS_MESSAGES,
