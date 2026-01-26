@@ -1,9 +1,8 @@
-export class LoansPresenter {
+import { BasePresenter } from "../core/BasePresenter.js";
+
+export class LoansPresenter extends BasePresenter {
   constructor(clientsPresenter = null) {
-    this.listeners = [];
-    this.clientsPresenter = clientsPresenter;
-    this.clients = ["Mario Sale", "Sale Mario", "Marius Salis"];
-    this.loans = [
+    const initialLoans = [
       {
         id: "10001",
         client: "Mario Sale",
@@ -33,6 +32,9 @@ export class LoansPresenter {
       },
     ];
 
+    super(initialLoans);
+    this.clientsPresenter = clientsPresenter;
+    this.clients = ["Mario Sale", "Sale Mario", "Marius Salis"];
     this.availableItems = [
       { id: "20001", name: "Laptop", type: "Computer" },
       { id: "20002", name: "Tablet", type: "Tablet" },
@@ -45,14 +47,6 @@ export class LoansPresenter {
       { id: "30006", name: "USB-C Hub", type: "Peripherals" },
       { id: "30007", name: "Charger 65W", type: "Peripherals" },
     ];
-  }
-
-  subscribe(callback) {
-    this.listeners.push(callback);
-  }
-
-  notifyListeners() {
-    this.listeners.forEach((cb) => cb());
   }
 
   addLoan({ client, returnDate, items }) {
@@ -72,17 +66,17 @@ export class LoansPresenter {
       })),
     };
 
-    this.loans = [newLoan, ...this.loans];
+    this.data.unshift(newLoan);
     this.notifyListeners();
     return newLoan;
   }
 
   getLoans() {
-    return this.loans;
+    return this.data;
   }
 
   getLoanById(id) {
-    return this.loans.find((l) => l.id === id);
+    return this.data.find((l) => l.id === id);
   }
 
   getAvailableItems() {

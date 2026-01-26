@@ -1,7 +1,8 @@
-export class InventoryPresenter {
+import { BasePresenter } from "../core/BasePresenter.js";
+
+export class InventoryPresenter extends BasePresenter {
   constructor() {
-    this.listeners = [];
-    this.objectTypes = [
+    const objectTypes = [
       {
         code: "COMP",
         name: "Computer",
@@ -27,7 +28,8 @@ export class InventoryPresenter {
         quantity: 8,
       },
     ];
-    this.items = [
+
+    const initialItems = [
       {
         id: "20001",
         name: "Notebook",
@@ -245,6 +247,9 @@ export class InventoryPresenter {
         ],
       },
     ];
+
+    super(initialItems);
+    this.objectTypes = objectTypes;
   }
 
   subscribe(callback) {
@@ -256,11 +261,11 @@ export class InventoryPresenter {
   }
 
   getItemById(id) {
-    return this.items.find((i) => i.id === id);
+    return this.data.find((i) => i.id === id);
   }
 
   getItems() {
-    return this.items;
+    return this.data;
   }
 
   getItemTypes() {
@@ -273,7 +278,7 @@ export class InventoryPresenter {
     );
     if (!objectType) return null;
     const newItem = {
-      id: String(20000 + this.items.length + 1),
+      id: String(20000 + this.data.length + 1),
       name: itemData.name || objectType.name,
       type: objectType.name,
       status: itemData.status || "available",
@@ -281,7 +286,7 @@ export class InventoryPresenter {
       imageUrl: null,
       maintenance: [],
     };
-    this.items.push(newItem);
+    this.data.push(newItem);
     this.notifyListeners();
     return newItem;
   }
@@ -300,7 +305,7 @@ export class InventoryPresenter {
       1000 +
         Math.max(
           0,
-          ...this.items.flatMap((i) =>
+          ...this.data.flatMap((i) =>
             i.maintenance.map((m) => parseInt(m.id) || 0),
           ),
         ) +
