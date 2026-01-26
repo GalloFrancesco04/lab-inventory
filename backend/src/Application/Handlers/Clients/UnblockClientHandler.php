@@ -1,19 +1,42 @@
 <?php
-// Handler class to process UnblockClientCommand
+
 require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../Commands/Clients/UnblockClientCommand.php';
-// Import Database connection and Command class
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ClientRepository.php';
+
+
 class UnblockClientHandler {
-    private $conn;
+    
+    private $clientRepository;
+
     public function __construct() {
         $db = new Database();
-        $this->conn = $db->getConnection();
+
+        $this->clientRepository = new ClientRepository($db->getConnection());
+
     }
-    // Handle the UnblockClientCommand
+    
+
     public function handle(UnblockClientCommand $command) {
-        $sql = "UPDATE client SET state = 1 WHERE id = :id";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([':id' => $command->id]);
-        return true;
+  
+        try{
+            
+        if(empty($command->id)) {
+            throw new Exception("L'id non puo' essere vuoto");
+        }
+
+        $client = $this->clientRepository->findById($command->id);
+        
+        if(empty($client)) {
+            throw new Exception("Non esiste un Client con l'id specificato");
+        }
+
+
+            $this->clientRepository->unblockClient($command->id);
+        }catch(Exception $ex) {
+            throw new Exception("Si e' verificato un errore durante lo sblocco del Cliente: " . $ex->getMessage(), 0, $ex);
+
+        }
+
     }
 }

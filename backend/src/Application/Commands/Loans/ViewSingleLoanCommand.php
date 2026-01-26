@@ -1,6 +1,6 @@
 <?php
-// Command class to encapsulate data for deleting a client
-class DeleteClientCommand {
+
+class ViewSingleLoanCommand {
     public $id;
 
     public function __construct($id) {
