@@ -25,7 +25,7 @@ class ViewSingleLoanHandler {
         $loan = $this->loanRepository->getLoanById($command->id);
             
         if (empty($loan)){
-            return [];
+            return null;
         }
                 
         return $loan;
