@@ -63,20 +63,21 @@ class MaintenanceView extends BaseView {
   }
 
   setupModals() {
-    this.registerModal("maintenance-detail-modal");
-    this.setupModalCloseButtons("maintenance-detail-modal", [
-      "maintenance-detail-close",
-    ]);
-
-    this.registerModal("add-operation-modal");
-    this.setupModalCloseButtons("add-operation-modal", ["add-operation-close"]);
-
-    // Register confirmation modal used before closing a maintenance
-    this.registerModal("maintenance-close-confirm-modal", {
-      onOpen: () => {
-        if (this.closeNotesInput) this.closeNotesInput.value = "";
-        if (this.closeStillBrokenCheckbox)
-          this.closeStillBrokenCheckbox.checked = false;
+    this.registerModals({
+      "maintenance-detail-modal": {
+        closeButtons: ["maintenance-detail-close"],
+      },
+      "add-operation-modal": {
+        closeButtons: ["add-operation-close"],
+      },
+      "maintenance-close-confirm-modal": {
+        options: {
+          onOpen: () => {
+            if (this.closeNotesInput) this.closeNotesInput.value = "";
+            if (this.closeStillBrokenCheckbox)
+              this.closeStillBrokenCheckbox.checked = false;
+          },
+        },
       },
     });
   }

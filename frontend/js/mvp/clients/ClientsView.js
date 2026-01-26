@@ -55,36 +55,32 @@ class ClientsView extends BaseView {
   }
 
   setupModals() {
-    this.registerModal("new-client-modal", {
-      onOpen: () => {
-        this.newClientForm?.reset();
-        this.newClientValidator?.clearAll();
-        if (this.firstInput) this.firstInput.focus();
+    this.registerModals({
+      "new-client-modal": {
+        options: {
+          onOpen: () => {
+            this.newClientForm?.reset();
+            this.newClientValidator?.clearAll();
+            if (this.firstInput) this.firstInput.focus();
+          },
+        },
+        closeButtons: ["new-client-close", "new-client-cancel"],
+      },
+      "client-detail-modal": {
+        options: {
+          onClose: () => {
+            this.currentClientId = null;
+          },
+        },
+        closeButtons: ["client-detail-close"],
+      },
+      "block-client-modal": {
+        closeButtons: ["block-client-close", "block-client-cancel"],
+      },
+      "delete-client-modal": {
+        closeButtons: ["delete-client-close", "delete-client-cancel"],
       },
     });
-
-    this.registerModal("client-detail-modal", {
-      onClose: () => {
-        this.currentClientId = null;
-      },
-    });
-
-    this.registerModal("block-client-modal");
-    this.registerModal("delete-client-modal");
-
-    this.setupModalCloseButtons("new-client-modal", [
-      "new-client-close",
-      "new-client-cancel",
-    ]);
-    this.setupModalCloseButtons("client-detail-modal", ["client-detail-close"]);
-    this.setupModalCloseButtons("block-client-modal", [
-      "block-client-close",
-      "block-client-cancel",
-    ]);
-    this.setupModalCloseButtons("delete-client-modal", [
-      "delete-client-close",
-      "delete-client-cancel",
-    ]);
   }
 
   setupEventListeners() {

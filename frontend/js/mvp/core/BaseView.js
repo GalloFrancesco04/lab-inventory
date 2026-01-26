@@ -30,6 +30,22 @@ export class BaseView {
     this.mediator.modalManager.setupCloseButtons(modalId, buttonIds);
   }
 
+  // Register multiple modals with their close buttons in one call
+  registerModals(modalsConfig) {
+    Object.entries(modalsConfig).forEach(([modalId, config]) => {
+      if (
+        config.checkIfRegistered &&
+        this.mediator?.modalManager?.modals?.has(modalId)
+      ) {
+        return; // Skip if already registered
+      }
+      this.registerModal(modalId, config.options || {});
+      if (config.closeButtons?.length > 0) {
+        this.setupModalCloseButtons(modalId, config.closeButtons);
+      }
+    });
+  }
+
   // Open a modal
   openModal(modalId) {
     this.mediator.modalManager.open(modalId);

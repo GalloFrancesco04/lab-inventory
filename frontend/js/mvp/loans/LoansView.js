@@ -127,51 +127,45 @@ class LoansView extends BaseView {
   }
 
   setupModals() {
-    this.registerModal("new-loan-modal", {
-      onOpen: () => {
-        this.newLoanForm?.reset();
-        this.populateClients();
-        this.itemPicker?.reset();
+    this.registerModals({
+      "new-loan-modal": {
+        options: {
+          onOpen: () => {
+            this.newLoanForm?.reset();
+            this.populateClients();
+            this.itemPicker?.reset();
+          },
+          onClose: () => {
+            this.newLoanForm?.reset();
+            this.itemPicker?.reset();
+          },
+        },
+        closeButtons: ["cancel-loan-btn", "new-loan-close"],
       },
-      onClose: () => {
-        this.newLoanForm?.reset();
-        this.itemPicker?.reset();
+      "loan-detail-modal": {
+        closeButtons: ["loan-detail-close"],
+      },
+      "close-loan-modal": {
+        options: {
+          onClose: () => {
+            this.closeLoanHandler?.reset();
+          },
+        },
+        closeButtons: ["close-loan-notes-close", "close-loan-cancel"],
+      },
+      "new-client-modal": {
+        options: {
+          onOpen: () => {
+            this.clientForm?.reset();
+          },
+          onClose: () => {
+            this.clientForm?.reset();
+          },
+        },
+        closeButtons: ["new-client-close", "new-client-cancel"],
+        checkIfRegistered: true,
       },
     });
-
-    this.registerModal("loan-detail-modal");
-    this.registerModal("close-loan-modal", {
-      onClose: () => {
-        this.closeLoanHandler?.reset();
-      },
-    });
-
-    const isNewClientModalRegistered =
-      this.mediator?.modalManager?.modals?.has("new-client-modal");
-    if (!isNewClientModalRegistered) {
-      this.registerModal("new-client-modal", {
-        onOpen: () => {
-          this.clientForm?.reset();
-        },
-        onClose: () => {
-          this.clientForm?.reset();
-        },
-      });
-    }
-
-    this.setupModalCloseButtons("new-loan-modal", [
-      "cancel-loan-btn",
-      "new-loan-close",
-    ]);
-    this.setupModalCloseButtons("loan-detail-modal", ["loan-detail-close"]);
-    this.setupModalCloseButtons("close-loan-modal", [
-      "close-loan-notes-close",
-      "close-loan-cancel",
-    ]);
-    this.setupModalCloseButtons("new-client-modal", [
-      "new-client-close",
-      "new-client-cancel",
-    ]);
   }
 
   setupEventListeners() {

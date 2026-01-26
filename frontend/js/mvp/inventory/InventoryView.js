@@ -127,30 +127,30 @@ class InventoryView extends BaseView {
   }
 
   setupModals() {
-    this.registerModal("new-item-modal", {
-      onOpen: () => {
-        this.populateObjectTypes();
-        this.newItemFormHandler?.reset();
+    this.registerModals({
+      "new-item-modal": {
+        options: {
+          onOpen: () => {
+            this.populateObjectTypes();
+            this.newItemFormHandler?.reset();
+          },
+          onClose: () => this.newItemFormHandler?.reset(),
+        },
+        closeButtons: ["new-item-close", "new-item-cancel"],
       },
-      onClose: () => this.newItemFormHandler?.reset(),
-    });
-    this.setupModalCloseButtons("new-item-modal", [
-      "new-item-close",
-      "new-item-cancel",
-    ]);
-
-    this.registerModal("item-detail-modal");
-    this.setupModalCloseButtons("item-detail-modal", ["item-detail-close"]);
-
-    this.registerModal("send-to-maintenance-modal", {
-      onOpen: () => {
-        this.maintenanceForm?.reset();
+      "item-detail-modal": {
+        closeButtons: ["item-detail-close"],
       },
-      onClose: () => this.maintenanceForm?.reset(),
+      "send-to-maintenance-modal": {
+        options: {
+          onOpen: () => {
+            this.maintenanceForm?.reset();
+          },
+          onClose: () => this.maintenanceForm?.reset(),
+        },
+        closeButtons: ["send-to-maintenance-close"],
+      },
     });
-    this.setupModalCloseButtons("send-to-maintenance-modal", [
-      "send-to-maintenance-close",
-    ]);
   }
 
   populateObjectTypes() {
