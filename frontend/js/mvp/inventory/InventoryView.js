@@ -44,7 +44,11 @@ class InventoryView extends BaseView {
     this.itemName = this.getElement("item-name");
     this.itemType = this.getElement("item-type");
     this.itemStatus = this.getElement("item-status");
+    this.itemId = this.getElement("item-id");
     this.itemLocation = this.getElement("item-location");
+    this.itemBrand = this.getElement("item-brand");
+    this.itemModel = this.getElement("item-model");
+    this.itemNote = this.getElement("item-note");
     this.maintTbody = this.getElement("item-maintenance-tbody");
 
     // Edit Item Modal
@@ -103,9 +107,15 @@ class InventoryView extends BaseView {
         name: this.itemName,
         type: this.itemType,
         status: this.itemStatus,
+        id: this.itemId,
         location: this.itemLocation,
+        brand: this.itemBrand,
+        model: this.itemModel,
+        note: this.itemNote,
       },
       renderMaintenance: (list) => this.renderMaintenance(list),
+      sendToMaintenanceBtn: this.sendToMaintBtn,
+      toaster: this.mediator.toaster,
     });
 
     this.maintenanceForm = new SendToMaintenanceForm({
@@ -370,7 +380,7 @@ class InventoryView extends BaseView {
       locationCell.textContent = item.location;
 
       tr.append(idCell, nameCell, typeCell, statusCell, locationCell);
-      tr.addEventListener("click", () => this.showItemDetails(item.id));
+      tr.addEventListener("click", () => this.openItemModal(item.id));
       tbody.appendChild(tr);
     });
   }
