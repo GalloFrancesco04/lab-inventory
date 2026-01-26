@@ -1,8 +1,10 @@
-export class MaintenancePresenter {
+import { BasePresenter } from "../core/BasePresenter.js";
+
+export class MaintenancePresenter extends BasePresenter {
   constructor(inventoryPresenter, authPresenter = null) {
+    super();
     this.inventoryPresenter = inventoryPresenter;
     this.authPresenter = authPresenter;
-    this.listeners = [];
   }
 
   getCurrentUser() {
