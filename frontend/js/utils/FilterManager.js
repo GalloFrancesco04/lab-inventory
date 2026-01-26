@@ -1,5 +1,15 @@
+import { ClientFilter } from "./ClientFilter.js";
+
 export class FilterManager {
-  constructor({ panel, content, filtersBtn, applyBtn, clearBtn, cancelBtn }) {
+  constructor({
+    panel,
+    content,
+    filtersBtn,
+    applyBtn,
+    clearBtn,
+    cancelBtn,
+    presenter = null,
+  }) {
     this.panel = panel;
     this.content = content;
     this.filtersBtn = filtersBtn;
@@ -7,12 +17,45 @@ export class FilterManager {
     this.clearBtn = clearBtn;
     this.cancelBtn = cancelBtn;
     this.filterBadge = document.getElementById("filter-badge");
+    this.presenter = presenter;
+    this.presenters = {};
+
+    if (presenter) {
+      this.presenters.loans = presenter;
+    }
 
     this.activeFilters = {};
     this.currentView = null;
     this.onApplyCallback = null;
+    this.clientFilter = null;
+    this.locationFilter = null;
 
     this.setupEventListeners();
+  }
+
+  setPresenter(presenter) {
+    this.presenter = presenter;
+    this.presenters.loans = presenter;
+
+    // If current view already rendered, wire dropdowns
+    if (this.currentView === "loans") {
+      this.setupClientFilter();
+    }
+  }
+
+  setPresenterForView(viewName, presenter) {
+    if (!viewName) return;
+    this.presenters[viewName] = presenter;
+
+    if (this.currentView === viewName) {
+      this.presenter = presenter;
+      if (viewName === "loans") {
+        this.setupClientFilter();
+      }
+      if (viewName === "inventory") {
+        this.setupLocationFilter();
+      }
+    }
   }
 
   setupEventListeners() {
@@ -46,6 +89,7 @@ export class FilterManager {
 
   setView(viewName) {
     this.currentView = viewName;
+    this.presenter = this.presenters[viewName] || this.presenter;
     this.renderFilters();
   }
 
@@ -82,7 +126,7 @@ export class FilterManager {
         {
           id: "location",
           label: "Location",
-          type: "text",
+          type: "location",
           placeholder: "Filter by location",
         },
       ],
@@ -100,7 +144,7 @@ export class FilterManager {
         {
           id: "client",
           label: "Client",
-          type: "text",
+          type: "client",
           placeholder: "Filter by client name",
         },
         {
@@ -155,8 +199,68 @@ export class FilterManager {
       .map((filter) => this.renderFilterGroup(filter))
       .join("");
 
+    // Setup client filter if present in current view
+    if (this.currentView === "loans" && this.presenter) {
+      this.setupClientFilter();
+    }
+
+    // Setup location filter if present in current view
+    if (this.currentView === "inventory" && this.presenter) {
+      this.setupLocationFilter();
+    }
+
     // Restore saved filters
     this.restoreFilterValues();
+  }
+
+  setupClientFilter() {
+    const filterGroup = this.content?.querySelector("#filter-group-client");
+    const clientInput = this.content?.querySelector("#filter-client");
+
+    if (!filterGroup || !clientInput || !this.presenter) {
+      return;
+    }
+
+    // Get clients from presenter
+    const clients = this.presenter.getClients?.() || [];
+
+    this.clientFilter = new ClientFilter({
+      container: filterGroup,
+      searchInput: clientInput,
+      selectedContainer: null,
+      toaster: null,
+      onSelect: (client) => {
+        clientInput.value = client.name;
+        this.activeFilters.client = client.name;
+      },
+    });
+
+    this.clientFilter.setClients(clients);
+  }
+
+  setupLocationFilter() {
+    const filterGroup = this.content?.querySelector("#filter-group-location");
+    const locationInput = this.content?.querySelector("#filter-location");
+
+    if (!filterGroup || !locationInput || !this.presenter) {
+      return;
+    }
+
+    const locations = this.presenter.getLocations?.() || [];
+
+    this.locationFilter = new ClientFilter({
+      container: filterGroup,
+      searchInput: locationInput,
+      selectedContainer: null,
+      toaster: null,
+      onSelect: (location) => {
+        const value = location.name || location;
+        locationInput.value = value;
+        this.activeFilters.location = value;
+      },
+    });
+
+    this.locationFilter.setClients(locations);
   }
 
   renderFilterGroup(filter) {
@@ -167,6 +271,26 @@ export class FilterManager {
         <select id="filter-${filter.id}" data-filter="${filter.id}">
           ${filter.options.map((opt) => `<option value="${opt.value}">${opt.label}</option>`).join("")}
         </select>
+      `;
+    } else if (filter.type === "client") {
+      inputHTML = `
+        <input 
+          type="text" 
+          id="filter-${filter.id}" 
+          data-filter="${filter.id}"
+          placeholder="${filter.placeholder || ""}"
+          autocomplete="off"
+        />
+      `;
+    } else if (filter.type === "location") {
+      inputHTML = `
+        <input 
+          type="text" 
+          id="filter-${filter.id}" 
+          data-filter="${filter.id}"
+          placeholder="${filter.placeholder || ""}"
+          autocomplete="off"
+        />
       `;
     } else if (filter.type === "text") {
       inputHTML = `
@@ -188,7 +312,7 @@ export class FilterManager {
     }
 
     return `
-      <div class="filter-group">
+      <div class="filter-group" id="filter-group-${filter.id}">
         <label for="filter-${filter.id}">${filter.label}</label>
         ${inputHTML}
       </div>

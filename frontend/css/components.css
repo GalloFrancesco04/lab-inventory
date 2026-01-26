@@ -622,3 +622,44 @@ select.input-error {
   padding: var(--space-1) var(--space-3);
   font-size: 0.875rem;
 }
+
+/* Client Filter Dropdown */
+.client-filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--primary);
+  border-top: none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 101;
+  margin-top: -1px;
+}
+
+.dropdown-item {
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  color: var(--text);
+  font-size: 0.9375rem;
+  transition: background 0.1s ease;
+}
+
+.dropdown-item:hover {
+  background: var(--surface-muted);
+}
+
+.dropdown-empty {
+  padding: var(--space-3);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+}
+
+/* Filter group with dropdown container */
+.filter-group {
+  position: relative;
+}

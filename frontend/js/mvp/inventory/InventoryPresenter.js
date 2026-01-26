@@ -269,6 +269,13 @@ export class InventoryPresenter extends BasePresenter {
     return this.data;
   }
 
+  getLocations() {
+    const locations = this.data
+      .map((item) => item.location)
+      .filter(Boolean);
+    return [...new Set(locations)];
+  }
+
   getItemTypes() {
     return this.objectTypes;
   }

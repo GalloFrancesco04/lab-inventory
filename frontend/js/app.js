@@ -92,6 +92,11 @@ document.addEventListener("DOMContentLoaded", () => {
     authPresenter,
   );
 
+  // Set presenter on filter manager for client filter
+  filterManager.setPresenter(loansPresenter);
+  // Map inventory presenter for location dropdown
+  filterManager.setPresenterForView("inventory", inventoryPresenter);
+
   // Set maintenance presenter on login view for refresh on login
   loginView.setMaintenancePresenter(maintenancePresenter);
 
