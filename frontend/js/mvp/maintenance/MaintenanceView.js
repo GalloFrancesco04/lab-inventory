@@ -51,7 +51,12 @@ class MaintenanceView extends BaseView {
     this.operationEndInput = this.getElement("operation-end");
     this.addOperationCancelBtn = this.getElement("add-operation-cancel");
 
+    this.isEditingOperation = false;
+    this.currentOperationIndex = null;
+    this.currentMaintenance = null;
+
     this.currentMaintenanceId = null;
+    this.canEditOperations = false;
   }
 
   setupModals() {
@@ -98,7 +103,7 @@ class MaintenanceView extends BaseView {
 
     this.operationForm?.addEventListener("submit", (e) => {
       e.preventDefault();
-      this.handleAddOperation();
+      this.handleSubmitOperation();
     });
   }
 
@@ -216,21 +221,23 @@ class MaintenanceView extends BaseView {
     this.detailTotal.textContent = `€${maintenance.totalCost.toFixed(2)}`;
 
     const currentUser = this.presenter.getCurrentUser?.();
-    const canTechnicianClose =
+    const canTechnicianEdit =
       currentUser &&
       currentUser.role === "technician" &&
       currentUser.techName === maintenance.tech &&
       maintenance.status !== "closed";
 
+    this.canEditOperations = canTechnicianEdit;
+
     if (this.closeMaintenanceBtn) {
-      this.closeMaintenanceBtn.style.display = canTechnicianClose
+      this.closeMaintenanceBtn.style.display = canTechnicianEdit
         ? "inline-flex"
         : "none";
     }
 
     if (this.addOperationBtn) {
       // Only the assigned technician on an open maintenance can add operations
-      this.addOperationBtn.style.display = canTechnicianClose
+      this.addOperationBtn.style.display = canTechnicianEdit
         ? "inline-flex"
         : "none";
     }
@@ -303,18 +310,38 @@ class MaintenanceView extends BaseView {
       card.style.borderRadius = "var(--radius-sm)";
       card.style.boxShadow = "0 1px 3px rgba(0, 0, 0, 0.05)";
 
+      const headerRow = document.createElement("div");
+      headerRow.style.display = "flex";
+      headerRow.style.justifyContent = "space-between";
+      headerRow.style.alignItems = "center";
+      headerRow.style.marginBottom = "var(--space-2)";
+
       const descLabel = document.createElement("div");
       descLabel.textContent = "DESCRIPTION";
       descLabel.style.fontSize = "0.75rem";
       descLabel.style.fontWeight = "600";
       descLabel.style.color = "var(--text-muted)";
-      descLabel.style.marginBottom = "var(--space-1)";
       descLabel.style.letterSpacing = "0.05em";
+
+      headerRow.appendChild(descLabel);
+
+      if (this.canEditOperations) {
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.className = "btn btn-secondary btn-sm";
+        editBtn.style.marginLeft = "auto";
+        editBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.openEditOperation(index);
+        });
+        headerRow.appendChild(editBtn);
+      }
 
       const descValue = document.createElement("div");
       descValue.textContent = op.desc;
       descValue.style.fontSize = "0.875rem";
       descValue.style.color = "var(--text-primary)";
+      descValue.style.marginBottom = "var(--space-2)";
 
       const costLabel = document.createElement("div");
       costLabel.textContent = "COST";
@@ -338,7 +365,6 @@ class MaintenanceView extends BaseView {
       descCostContainer.style.marginBottom = "var(--space-3)";
 
       const descDiv = document.createElement("div");
-      descDiv.appendChild(descLabel);
       descDiv.appendChild(descValue);
 
       const costDiv = document.createElement("div");
@@ -391,6 +417,7 @@ class MaintenanceView extends BaseView {
       datesContainer.appendChild(startDateDiv);
       datesContainer.appendChild(endDateDiv);
 
+      card.appendChild(headerRow);
       card.appendChild(descCostContainer);
       card.appendChild(datesContainer);
 
@@ -406,6 +433,8 @@ class MaintenanceView extends BaseView {
 
     // Reset form
     this.operationForm.reset();
+    this.isEditingOperation = false;
+    this.currentOperationIndex = null;
 
     // Set default dates to maintenance dates
     const maintenance = this.presenter.getMaintenanceById(
@@ -428,41 +457,85 @@ class MaintenanceView extends BaseView {
     this.openModal("add-operation-modal");
   }
 
-  handleAddOperation() {
+  openEditOperation(index) {
+    if (!this.canEditOperations || !this.currentMaintenanceId) return;
+
+    const maintenance = this.presenter.getMaintenanceById(
+      this.currentMaintenanceId,
+    );
+    if (
+      !maintenance ||
+      !maintenance.operations ||
+      !maintenance.operations[index]
+    )
+      return;
+
+    const op = maintenance.operations[index];
+    this.isEditingOperation = true;
+    this.currentOperationIndex = index;
+
+    this.operationDescInput.value = op.desc || "";
+    this.operationCostInput.value = typeof op.cost === "number" ? op.cost : "";
+
+    const formatDateForInput = (dateStr) => {
+      if (!dateStr) return "";
+      const [day, month, year] = dateStr.split("/");
+      return `${year}-${month}-${day}`;
+    };
+
+    this.operationStartInput.value = formatDateForInput(op.startDate);
+    this.operationEndInput.value = formatDateForInput(
+      op.endDate || op.startDate,
+    );
+
+    this.openModal("add-operation-modal");
+  }
+
+  handleSubmitOperation() {
     const desc = this.operationDescInput.value.trim();
     const cost = parseFloat(this.operationCostInput.value);
     const startDate = this.operationStartInput.value;
     const endDate = this.operationEndInput.value;
 
-    if (!desc || isNaN(cost) || !startDate || !endDate) {
+    if (!desc || Number.isNaN(cost) || !startDate || !endDate) {
       this.mediator.toaster.error("Please fill all fields correctly");
       return;
     }
 
-    // Convert YYYY-MM-DD to DD/MM/YYYY
     const formatDateForDisplay = (dateStr) => {
       const [year, month, day] = dateStr.split("-");
       return `${day}/${month}/${year}`;
     };
 
-    const newOperation = {
+    const operationPayload = {
       desc,
       cost,
       startDate: formatDateForDisplay(startDate),
       endDate: formatDateForDisplay(endDate),
     };
 
-    // Add operation via presenter
-    const success = this.presenter.addOperation(
-      this.currentMaintenanceId,
-      newOperation,
-    );
+    let success = false;
+    if (this.isEditingOperation && this.currentOperationIndex !== null) {
+      success = this.presenter.updateOperation(
+        this.currentMaintenanceId,
+        this.currentOperationIndex,
+        operationPayload,
+      );
+    } else {
+      success = this.presenter.addOperation(
+        this.currentMaintenanceId,
+        operationPayload,
+      );
+    }
 
     if (success) {
       this.closeModal("add-operation-modal");
-      this.mediator.toaster.success("Operation added successfully");
+      this.mediator.toaster.success(
+        this.isEditingOperation
+          ? "Operation updated successfully"
+          : "Operation added successfully",
+      );
 
-      // Refresh the maintenance detail view
       const maintenance = this.presenter.getMaintenanceById(
         this.currentMaintenanceId,
       );
@@ -471,10 +544,13 @@ class MaintenanceView extends BaseView {
         this.renderOperations(maintenance.operations || []);
       }
 
-      // Re-render table to show updated total cost
       this.render();
     } else {
-      this.mediator.toaster.error("Failed to add operation");
+      this.mediator.toaster.error(
+        this.isEditingOperation
+          ? "Failed to update operation"
+          : "Failed to add operation",
+      );
     }
   }
 }

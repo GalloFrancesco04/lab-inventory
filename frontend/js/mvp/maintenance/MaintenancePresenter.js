@@ -125,6 +125,46 @@ export class MaintenancePresenter extends BasePresenter {
     return false;
   }
 
+  updateOperation(maintenanceId, operationIndex, updates) {
+    const items = this.inventoryPresenter.getItems();
+
+    for (const item of items) {
+      if (item.maintenance && item.maintenance.length > 0) {
+        const maintenanceRecord = item.maintenance.find(
+          (m) => (m.id || `${item.id}-${m.startDate}`) === maintenanceId,
+        );
+
+        if (maintenanceRecord) {
+          if (
+            !maintenanceRecord.operations ||
+            operationIndex < 0 ||
+            operationIndex >= maintenanceRecord.operations.length
+          ) {
+            return false;
+          }
+
+          const op = maintenanceRecord.operations[operationIndex];
+
+          maintenanceRecord.operations[operationIndex] = {
+            ...op,
+            desc: updates.desc ?? op.desc,
+            cost:
+              typeof updates.cost === "number" && !Number.isNaN(updates.cost)
+                ? updates.cost
+                : op.cost,
+            startDate: updates.startDate || op.startDate,
+            endDate: updates.endDate || op.endDate,
+          };
+
+          this.notifyListeners();
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   closeMaintenance(maintenanceId, options = {}) {
     const items = this.inventoryPresenter.getItems();
     const today = new Date();
