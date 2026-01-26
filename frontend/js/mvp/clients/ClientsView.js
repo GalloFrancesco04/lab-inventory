@@ -31,8 +31,15 @@ class ClientsView extends BaseView {
     this.clientDetailActive = this.getElement("client-detail-active");
     this.clientDetailTotal = this.getElement("client-detail-total");
     this.clientDetailLast = this.getElement("client-detail-last");
+    this.clientEditBtn = this.getElement("client-edit-btn");
     this.clientBlockBtn = this.getElement("client-block-btn");
     this.clientDeleteBtn = this.getElement("client-delete-btn");
+
+    // Edit client modal
+    this.editClientForm = this.getElement("edit-client-form");
+    this.editFirstInput = this.getElement("edit-client-first");
+    this.editLastInput = this.getElement("edit-client-last");
+    this.editEmailInput = this.getElement("edit-client-email");
 
     // Block client modal
     this.blockClientForm = this.getElement("block-client-form");
@@ -43,6 +50,7 @@ class ClientsView extends BaseView {
     this.deleteClientConfirm = this.getElement("delete-client-confirm");
 
     this.newClientValidator = new FormValidator(this.newClientForm);
+    this.editClientValidator = new FormValidator(this.editClientForm);
   }
 
   setupModals() {
@@ -64,6 +72,16 @@ class ClientsView extends BaseView {
           },
         },
         closeButtons: ["client-detail-close"],
+      },
+      "edit-client-modal": {
+        options: {
+          onOpen: () => {
+            this.editClientForm?.reset();
+            this.editClientValidator?.clearAll();
+            this.populateEditForm();
+          },
+        },
+        closeButtons: ["edit-client-close", "edit-client-cancel"],
       },
       "block-client-modal": {
         closeButtons: ["block-client-close", "block-client-cancel"],
@@ -120,6 +138,53 @@ class ClientsView extends BaseView {
       } catch (error) {
         this.handleError("Unable to add client", error);
       }
+    });
+
+    this.editClientForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      this.editClientValidator.clearAll();
+
+      const payload = {
+        firstName: this.editFirstInput?.value?.trim() || "",
+        lastName: this.editLastInput?.value?.trim() || "",
+        email: this.editEmailInput?.value?.trim() || "",
+      };
+
+      const firstNameOk = this.editClientValidator.required(
+        this.editFirstInput,
+        "First name is required",
+      );
+      const emailRequiredOk = this.editClientValidator.required(
+        this.editEmailInput,
+        "Email is required",
+      );
+      const emailFormatOk = emailRequiredOk
+        ? this.editClientValidator.email(
+            this.editEmailInput,
+            "Please enter a valid email",
+          )
+        : false;
+
+      if (!firstNameOk || !emailRequiredOk || !emailFormatOk) {
+        this.editClientValidator.displayErrors();
+        this.mediator.toaster.error("Fix the highlighted errors");
+        this.editClientValidator.focusFirstError();
+        return;
+      }
+
+      try {
+        this.presenter.updateClient(this.currentClientId, payload);
+        this.mediator.toaster.success("Client updated successfully");
+        this.closeModal("edit-client-modal");
+        this.openClientDetail(this.currentClientId);
+      } catch (error) {
+        this.handleError("Failed to update client", error);
+      }
+    });
+
+    this.clientEditBtn?.addEventListener("click", () => {
+      if (!this.currentClientId) return;
+      this.openModal("edit-client-modal");
     });
 
     this.clientDeleteBtn?.addEventListener("click", () => {
@@ -279,6 +344,31 @@ class ClientsView extends BaseView {
     }
 
     this.openModal("client-detail-modal");
+  }
+
+  populateEditForm() {
+    if (!this.currentClientId) return;
+
+    let client = null;
+    try {
+      client = this.presenter.getClientById(this.currentClientId);
+    } catch (error) {
+      this.handleError("Unable to load client data", error);
+      return;
+    }
+
+    if (!client) {
+      this.mediator.toaster.error("Client not found");
+      return;
+    }
+
+    const nameParts = client.name.split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
+
+    if (this.editFirstInput) this.editFirstInput.value = firstName;
+    if (this.editLastInput) this.editLastInput.value = lastName;
+    if (this.editEmailInput) this.editEmailInput.value = client.email || "";
   }
 }
 

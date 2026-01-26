@@ -72,4 +72,15 @@ export class ClientsPresenter extends BasePresenter {
       blockReason: reason || "",
     });
   }
+
+  updateClient(id, payload) {
+    const fullName = [payload.firstName, payload.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+    return this.update(id, {
+      name: fullName || payload.email || "Unnamed",
+      email: payload.email,
+    });
+  }
 }
