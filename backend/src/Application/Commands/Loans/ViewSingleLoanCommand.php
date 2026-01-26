@@ -1,6 +1,6 @@
 <?php
 
-class ViewLoansCommand {
+class ViewSingleLoanCommand {
     public $id;
 
     public function __construct($id) {
