@@ -45,6 +45,72 @@ export class BaseView {
     this.presenter.subscribe(() => renderFn());
   }
 
+  // Generic sorting setup for table headers
+  setupSorting(viewSelector) {
+    this.sortColumn = null;
+    this.sortDirection = null;
+    const headers = document.querySelectorAll(
+      `${viewSelector} th[data-sortable]`,
+    );
+    headers.forEach((header) => {
+      header.addEventListener("click", () => {
+        const sortKey = header.dataset.sortKey;
+        this.handleSort(sortKey, header, viewSelector);
+      });
+    });
+  }
+
+  // Generic sort handler
+  handleSort(column, headerElement, viewSelector) {
+    // Toggle sort direction
+    if (this.sortColumn === column) {
+      if (this.sortDirection === "asc") {
+        this.sortDirection = "desc";
+      } else if (this.sortDirection === "desc") {
+        this.sortColumn = null;
+        this.sortDirection = null;
+      } else {
+        this.sortDirection = "asc";
+      }
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = "asc";
+    }
+
+    // Update header classes
+    const allHeaders = document.querySelectorAll(
+      `${viewSelector} th[data-sortable]`,
+    );
+    allHeaders.forEach((h) => {
+      h.classList.remove("sorted-asc", "sorted-desc");
+    });
+
+    if (this.sortDirection) {
+      headerElement.classList.add(`sorted-${this.sortDirection}`);
+    }
+
+    // Trigger render - subclass should implement
+    this.render();
+  }
+
+  // Generic sorting helper - sorts array by column and direction
+  applySorting(data, sortConfig) {
+    if (!this.sortColumn || !sortConfig[this.sortColumn]) return data;
+
+    const getValue = sortConfig[this.sortColumn];
+
+    return [...data].sort((a, b) => {
+      const aVal = getValue(a);
+      const bVal = getValue(b);
+
+      let result = 0;
+      if (aVal < bVal) result = -1;
+      else if (aVal > bVal) result = 1;
+
+      return this.sortDirection === "desc" ? -result : result;
+    });
+  }
+
   // Cleanup - override in subclasses if needed
   destroy() {
     // Close all registered modals

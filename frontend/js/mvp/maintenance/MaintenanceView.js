@@ -9,7 +9,7 @@ class MaintenanceView extends BaseView {
     this.setupElements();
     this.setupModals();
     this.setupEventListeners();
-    this.setupSorting();
+    this.setupSorting("#maintenance-view");
     // Register search callback
     this.mediator.searchManager.registerView("maintenance", (query) =>
       this.handleSearch(query),
@@ -134,87 +134,15 @@ class MaintenanceView extends BaseView {
   }
 
   getSortedHistory() {
-    let history = this.getFilteredHistory();
-
-    if (!this.sortColumn) return history;
-
-    return [...history].sort((a, b) => {
-      let aVal, bVal;
-
-      switch (this.sortColumn) {
-        case "date":
-          aVal = a.date;
-          bVal = b.date;
-          break;
-        case "objectName":
-          aVal = a.itemName.toLowerCase();
-          bVal = b.itemName.toLowerCase();
-          break;
-        case "type":
-          aVal = a.type.toLowerCase();
-          bVal = b.type.toLowerCase();
-          break;
-        case "tech":
-          aVal = (a.tech || "").toLowerCase();
-          bVal = (b.tech || "").toLowerCase();
-          break;
-        case "desc":
-          aVal = (a.desc || "").toLowerCase();
-          bVal = (b.desc || "").toLowerCase();
-          break;
-        case "status":
-          aVal = (a.status || "").toLowerCase();
-          bVal = (b.status || "").toLowerCase();
-          break;
-        default:
-          return 0;
-      }
-
-      if (aVal < bVal) return this.sortDirection === "asc" ? -1 : 1;
-      if (aVal > bVal) return this.sortDirection === "asc" ? 1 : -1;
-      return 0;
+    const history = this.getFilteredHistory();
+    return this.applySorting(history, {
+      date: (entry) => entry.date,
+      objectName: (entry) => entry.itemName.toLowerCase(),
+      type: (entry) => entry.type.toLowerCase(),
+      tech: (entry) => (entry.tech || "").toLowerCase(),
+      desc: (entry) => (entry.desc || "").toLowerCase(),
+      status: (entry) => (entry.status || "").toLowerCase(),
     });
-  }
-
-  setupSorting() {
-    const headers = document.querySelectorAll(
-      "#maintenance-view th[data-sortable]",
-    );
-    headers.forEach((header) => {
-      header.addEventListener("click", () => {
-        const sortKey = header.dataset.sortKey;
-        this.handleSort(sortKey, header);
-      });
-    });
-  }
-
-  handleSort(column, headerElement) {
-    if (this.sortColumn === column) {
-      if (this.sortDirection === "asc") {
-        this.sortDirection = "desc";
-      } else if (this.sortDirection === "desc") {
-        this.sortColumn = null;
-        this.sortDirection = null;
-      } else {
-        this.sortDirection = "asc";
-      }
-    } else {
-      this.sortColumn = column;
-      this.sortDirection = "asc";
-    }
-
-    const allHeaders = document.querySelectorAll(
-      "#maintenance-view th[data-sortable]",
-    );
-    allHeaders.forEach((h) => {
-      h.classList.remove("sorted-asc", "sorted-desc");
-    });
-
-    if (this.sortDirection) {
-      headerElement.classList.add(`sorted-${this.sortDirection}`);
-    }
-
-    this.render();
   }
 
   render() {

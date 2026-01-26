@@ -14,7 +14,7 @@ class LoansView extends BaseView {
     this.setupElements();
     this.setupModals();
     this.setupEventListeners();
-    this.setupSorting();
+    this.setupSorting("#loans-view");
     // Register search callback
     this.mediator.searchManager.registerView("loans", (query) =>
       this.handleSearch(query),
@@ -313,49 +313,17 @@ class LoansView extends BaseView {
   }
 
   getSortedLoans() {
-    let loans = this.getFilteredLoans();
-
-    if (!this.sortColumn) return loans;
-
-    return [...loans].sort((a, b) => {
-      let aVal, bVal;
-
-      switch (this.sortColumn) {
-        case "id":
-          aVal = a.id;
-          bVal = b.id;
-          break;
-        case "client":
-          aVal = a.client.toLowerCase();
-          bVal = b.client.toLowerCase();
-          break;
-        case "items":
-          aVal =
-            a.items
-              ?.map((i) => i.name)
-              .join(", ")
-              .toLowerCase() || "";
-          bVal =
-            b.items
-              ?.map((i) => i.name)
-              .join(", ")
-              .toLowerCase() || "";
-          break;
-        case "returnDate":
-          aVal = a.returnDate || "";
-          bVal = b.returnDate || "";
-          break;
-        case "status":
-          aVal = a.status.toLowerCase();
-          bVal = b.status.toLowerCase();
-          break;
-        default:
-          return 0;
-      }
-
-      if (aVal < bVal) return this.sortDirection === "asc" ? -1 : 1;
-      if (aVal > bVal) return this.sortDirection === "asc" ? 1 : -1;
-      return 0;
+    const loans = this.getFilteredLoans();
+    return this.applySorting(loans, {
+      id: (loan) => loan.id,
+      client: (loan) => loan.client.toLowerCase(),
+      items: (loan) =>
+        loan.items
+          ?.map((i) => i.name)
+          .join(", ")
+          .toLowerCase() || "",
+      returnDate: (loan) => loan.returnDate || "",
+      status: (loan) => loan.status.toLowerCase(),
     });
   }
 
