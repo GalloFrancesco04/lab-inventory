@@ -13,7 +13,7 @@ class ItemRepository
         $this->connection = $connection;
     }
 
-    public function create(InventoryItem $item): void
+    public function create(InventoryItem $item): int
     {
         $stmt = $this->connection->prepare("
             INSERT INTO object_ (object_type_code, state, location)
@@ -22,12 +22,13 @@ class ItemRepository
 
         $stmt->execute([
             'object_type_code' => $item->getObjectTypeCode(),
-            'state'  => $item->getState(),
+            'state'  => $item->getState()->getStateCode(),
             'location'  => $item->getLocation()
         ]);
 
         //Set the generated ID to the Item entity
         $item->setId((int) $this->connection->lastInsertId());
+        return $item->getId();
     }
 
     public function MarkObjectAsLoaned(int $id): void
