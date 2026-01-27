@@ -1,7 +1,7 @@
 import { Toaster } from "../ui/toaster.js";
 import { SearchManager } from "./SearchManager.js";
 import { ModalManager } from "./ModalManager.js";
-import { Logger } from "../ui/logger.js";
+import { Logger } from "../logger.js";
 
 export class Mediator {
   constructor() {
