@@ -108,6 +108,10 @@ class ClientsView extends BaseView {
         this.firstInput,
         VALIDATION_ERRORS.REQUIRED,
       );
+      const lastNameOk = this.newClientValidator.required(
+        this.lastInput,
+        VALIDATION_ERRORS.REQUIRED,
+      );
       const emailRequiredOk = this.newClientValidator.required(
         this.emailInput,
         VALIDATION_ERRORS.REQUIRED,
@@ -119,7 +123,7 @@ class ClientsView extends BaseView {
           )
         : false;
 
-      if (!firstNameOk || !emailRequiredOk || !emailFormatOk) {
+      if (!firstNameOk || !lastNameOk || !emailRequiredOk || !emailFormatOk) {
         this.newClientValidator.displayErrors();
         this.mediator.toaster.error(VALIDATION_ERRORS.FIX_ERRORS);
         this.newClientValidator.focusFirstError();
@@ -148,8 +152,12 @@ class ClientsView extends BaseView {
         this.editFirstInput,
         VALIDATION_ERRORS.REQUIRED,
       );
+      const lastNameOk = this.editClientValidator.required(
+        this.editLastInput,
+        VALIDATION_ERRORS.REQUIRED,
+      );
 
-      if (!firstNameOk) {
+      if (!firstNameOk || !lastNameOk) {
         this.editClientValidator.displayErrors();
         this.mediator.toaster.error(VALIDATION_ERRORS.FIX_ERRORS);
         this.editClientValidator.focusFirstError();
