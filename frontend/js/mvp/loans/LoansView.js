@@ -132,7 +132,12 @@ class LoansView extends BaseView {
       onSubmit: ({ damagedItems, notes }) => {
         if (this.currentLoanId) {
           const today = new Date().toISOString().split("T")[0];
-          this.presenter.closeLoan(this.currentLoanId, today, damagedItems, notes);
+          this.presenter.closeLoan(
+            this.currentLoanId,
+            today,
+            damagedItems,
+            notes,
+          );
           this.renderLoansTable();
           // refresh modal details
           const updated = this.presenter.getLoanById(this.currentLoanId);

@@ -39,14 +39,9 @@ export class NewItemForm {
   validate() {
     this.validator.clearAll();
 
-    const typeOk = this.validator.required(
-      this.typeSelect,
-      "Please select an object type",
-    );
-    const nameOk = this.validator.required(this.nameInput, "Name is required");
-    const locationOk = this.validator.required(
-      this.locationInput,
-      "Location is required (e.g., Lab 1)",
+    const nameOk = this.validator.required(
+      this.nameInput,
+      "Type name is required",
     );
 
     let priceOk = true;
@@ -61,7 +56,7 @@ export class NewItemForm {
       }
     }
 
-    if (!typeOk || !nameOk || !locationOk || !priceOk) {
+    if (!nameOk || !priceOk) {
       this.validator.displayErrors();
       if (this.toaster) this.toaster.error("Fix the highlighted errors");
       this.validator.focusFirstError();
@@ -76,12 +71,7 @@ export class NewItemForm {
     if (!this.validate()) return;
 
     const itemData = {
-      typeCode: this.typeSelect?.value?.trim() || "",
       name: this.nameInput?.value?.trim() || "",
-      brand: this.brandInput?.value?.trim() || "",
-      model: this.modelInput?.value?.trim() || "",
-      note: this.noteInput?.value?.trim() || "",
-      location: this.locationInput?.value?.trim() || "",
     };
 
     if (!this.onCreate) return;

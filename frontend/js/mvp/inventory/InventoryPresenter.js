@@ -33,10 +33,12 @@ export class InventoryPresenter extends BasePresenter {
     const initialItems = [
       {
         id: "20001",
-        name: "Notebook",
-        type: "Electronics",
+        name: "Notebook HP",
+        type: "Computer",
         status: "available",
         location: "Lab 1",
+        brand: "HP",
+        model: "Pavilion 15",
         imageUrl: null,
         maintenance: [
           {
@@ -61,53 +63,38 @@ export class InventoryPresenter extends BasePresenter {
               },
             ],
           },
-          {
-            id: "1002",
-            startDate: "22/12/2025",
-            endDate: "",
-            status: "open",
-            type: "repair",
-            tech: "M. Rossi",
-            desc: "Keyboard key replacement",
-            operations: [
-              {
-                desc: "Keyboard diagnostic",
-                cost: 10.0,
-                startDate: "22/12/2025",
-                endDate: "22/12/2025",
-              },
-              {
-                desc: "Key replacement",
-                cost: 35.0,
-                startDate: "22/12/2025",
-                endDate: "23/12/2025",
-              },
-            ],
-          },
-          {
-            id: "1003",
-            startDate: "15/11/2025",
-            endDate: "15/11/2025",
-            type: "preventive",
-            tech: "S. Bianchi",
-            desc: "Battery health check",
-            operations: [
-              {
-                desc: "Battery test and report",
-                cost: 20.0,
-                startDate: "15/11/2025",
-                endDate: "15/11/2025",
-              },
-            ],
-          },
         ],
       },
       {
         id: "20002",
-        name: "Tablet",
-        type: "Electronics",
+        name: "Notebook Dell",
+        type: "Computer",
         status: "loaned",
+        location: "Lab 1",
+        brand: "Dell",
+        model: "Latitude 5400",
+        imageUrl: null,
+        maintenance: [],
+      },
+      {
+        id: "20003",
+        name: "Notebook Lenovo",
+        type: "Computer",
+        status: "damaged",
         location: "Lab 2",
+        brand: "Lenovo",
+        model: "ThinkPad E14",
+        imageUrl: null,
+        maintenance: [],
+      },
+      {
+        id: "20004",
+        name: "Tablet Apple",
+        type: "Tablet",
+        status: "available",
+        location: "Lab 3",
+        brand: "Apple",
+        model: "iPad Pro",
         imageUrl: null,
         maintenance: [
           {
@@ -132,120 +119,84 @@ export class InventoryPresenter extends BasePresenter {
               },
             ],
           },
-          {
-            id: "1005",
-            startDate: "20/11/2025",
-            endDate: "20/11/2025",
-            type: "preventive",
-            tech: "S. Bianchi",
-            desc: "Software update",
-            operations: [
-              {
-                desc: "OS update and configuration",
-                cost: 15.0,
-                startDate: "20/11/2025",
-                endDate: "20/11/2025",
-              },
-            ],
-          },
-          {
-            id: "1006",
-            startDate: "02/10/2025",
-            endDate: "03/10/2025",
-            type: "replacement",
-            tech: "A. Neri",
-            desc: "Battery replaced",
-            operations: [
-              {
-                desc: "Battery removal",
-                cost: 10.0,
-                startDate: "02/10/2025",
-                endDate: "02/10/2025",
-              },
-              {
-                desc: "New battery installation",
-                cost: 80.0,
-                startDate: "02/10/2025",
-                endDate: "03/10/2025",
-              },
-            ],
-          },
         ],
       },
       {
-        id: "20003",
-        name: "Monitor",
-        type: "Electronics",
+        id: "20005",
+        name: "Monitor Dell",
+        type: "Computer",
+        status: "maintenance",
+        location: "Lab 1",
+        brand: "Dell",
+        model: "P2720H",
+        imageUrl: null,
+        maintenance: [],
+      },
+      {
+        id: "30001",
+        name: "Mouse Logitech",
+        type: "Peripherals",
+        status: "available",
+        location: "Lab 1",
+        brand: "Logitech",
+        model: "M705",
+        imageUrl: null,
+        maintenance: [],
+      },
+      {
+        id: "30002",
+        name: "Keyboard Corsair",
+        type: "Peripherals",
+        status: "available",
+        location: "Lab 2",
+        brand: "Corsair",
+        model: "K60 RGB",
+        imageUrl: null,
+        maintenance: [],
+      },
+      {
+        id: "30003",
+        name: "Headset Sony",
+        type: "Peripherals",
+        status: "loaned",
+        location: "Lab 3",
+        brand: "Sony",
+        model: "WH-1000XM4",
+        imageUrl: null,
+        maintenance: [],
+      },
+      {
+        id: "30004",
+        name: "USB Hub Anker",
+        type: "Peripherals",
+        status: "available",
+        location: "Storage",
+        brand: "Anker",
+        model: "7-in-1",
+        imageUrl: null,
+        maintenance: [],
+      },
+      {
+        id: "30005",
+        name: "Webcam Logitech",
+        type: "Peripherals",
+        status: "damaged",
+        location: "Lab 2",
+        brand: "Logitech",
+        model: "C920",
+        imageUrl: null,
+        maintenance: [],
+      },
+      {
+        id: "20006",
+        name: "Tablet Samsung",
+        type: "Tablet",
         status: "available",
         location: "Lab 3",
+        brand: "Samsung",
+        model: "Galaxy Tab S7",
         imageUrl: null,
-        maintenance: [
-          {
-            id: "1007",
-            startDate: "18/11/2025",
-            endDate: "18/11/2025",
-            type: "replacement",
-            tech: "A. Neri",
-            desc: "Power supply replaced",
-            operations: [
-              {
-                desc: "Power supply unit replacement",
-                cost: 45.0,
-                startDate: "18/11/2025",
-                endDate: "18/11/2025",
-              },
-            ],
-          },
-          {
-            id: "1008",
-            startDate: "05/11/2025",
-            endDate: "05/11/2025",
-            type: "preventive",
-            tech: "S. Bianchi",
-            desc: "Cable check",
-            operations: [
-              {
-                desc: "Cable inspection",
-                cost: 10.0,
-                startDate: "05/11/2025",
-                endDate: "05/11/2025",
-              },
-            ],
-          },
-          {
-            id: "1009",
-            startDate: "22/09/2025",
-            endDate: "",
-            status: "open",
-            type: "repair",
-            tech: "M. Rossi",
-            desc: "HDMI port soldered",
-            operations: [
-              {
-                desc: "HDMI port repair",
-                cost: 25.0,
-                startDate: "22/09/2025",
-                endDate: "23/09/2025",
-              },
-            ],
-          },
-          {
-            id: "1010",
-            startDate: "15/08/2025",
-            endDate: "15/08/2025",
-            type: "preventive",
-            tech: "A. Neri",
-            desc: "Calibration check",
-            operations: [
-              {
-                desc: "Color calibration",
-                cost: 20.0,
-                startDate: "15/08/2025",
-                endDate: "15/08/2025",
-              },
-            ],
-          },
-        ],
+        maintenance: [],
       },
     ];
 
@@ -275,7 +226,16 @@ export class InventoryPresenter extends BasePresenter {
   }
 
   getItemTypes() {
-    return this.objectTypes;
+    // Calculate quantity dynamically based on available items for each type
+    return this.objectTypes.map((type) => {
+      const availableCount = this.data.filter(
+        (item) => item.type === type.name && item.status === "available",
+      ).length;
+      return {
+        ...type,
+        quantity: availableCount,
+      };
+    });
   }
 
   addObjectType(typeName) {
@@ -297,7 +257,6 @@ export class InventoryPresenter extends BasePresenter {
       brand: "Various",
       quantity: 0,
     };
-
     this.objectTypes.push(newType);
     this.notifyListeners();
     return newType;
@@ -316,7 +275,7 @@ export class InventoryPresenter extends BasePresenter {
       model: itemData.model || objectType.model,
       note: itemData.note || "",
       status: "available",
-      location: itemData.location,
+      location: "",
       imageUrl: null,
       maintenance: [],
     };

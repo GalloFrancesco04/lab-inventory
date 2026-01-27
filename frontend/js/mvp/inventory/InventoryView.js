@@ -1,6 +1,7 @@
 import { BaseView } from "../core/BaseView.js";
 import { FormValidator } from "../../utils/validators.js";
 import { ItemDetailModal } from "./modals/ItemDetailModal.js";
+import { ObjectListModal } from "./modals/ObjectListModal.js";
 import { SendToMaintenanceForm } from "./modals/SendToMaintenanceForm.js";
 import { NewItemForm } from "./NewItemForm.js";
 import {
@@ -73,6 +74,16 @@ class InventoryView extends BaseView {
     this.sendToMaintCancelBtn = this.getElement("send-to-maintenance-cancel");
 
     this.currentItemId = null;
+    this.currentTypeCode = null;
+
+    // Object list modal (to show instances of a type)
+    this.objectListModal = new ObjectListModal({
+      modalId: "object-list-modal",
+      openModal: (id) => this.openModal(id),
+      presenter: this.presenter,
+      mediator: this.mediator,
+      onObjectClick: (objectId) => this.openItemModal(objectId),
+    });
 
     this.newItemFormHandler = new NewItemForm({
       form: this.newItemForm,
@@ -85,18 +96,18 @@ class InventoryView extends BaseView {
       toaster: this.mediator.toaster,
       onCreate: (itemData) => {
         try {
-          const newItem = this.presenter.addItem(itemData);
-          if (newItem) {
+          const newType = this.presenter.addObjectType(itemData.name);
+          if (newType) {
             this.mediator.toaster.success(
-              `Item "${newItem.name}" added successfully`,
+              `Type "${newType.name}" added successfully`,
             );
             this.closeModal("new-item-modal");
             return true;
           }
-          this.mediator.toaster.error("Unable to add item");
+          this.mediator.toaster.error("Unable to add type");
           return false;
         } catch (error) {
-          this.handleError("Unable to add item", error);
+          this.handleError("Unable to add type", error);
           return false;
         }
       },
@@ -178,6 +189,9 @@ class InventoryView extends BaseView {
       },
       "item-detail-modal": {
         closeButtons: ["item-detail-close"],
+      },
+      "object-list-modal": {
+        closeButtons: ["object-list-close"],
       },
       "edit-item-modal": {
         options: {
@@ -399,47 +413,54 @@ class InventoryView extends BaseView {
     const tbody = document.querySelector("#inventory-view tbody");
     if (!tbody) return;
     tbody.innerHTML = "";
-    this.getSortedItems().forEach((item) => {
+    let types = [];
+    try {
+      types = this.presenter.getItemTypes();
+    } catch (error) {
+      this.handleError("Unable to load item types", error);
+      return;
+    }
+    types.forEach((type) => {
       const tr = document.createElement("tr");
       tr.className = "table-row";
-      tr.setAttribute("data-item-id", item.id);
+      tr.setAttribute("data-type-code", type.code);
 
-      const idCell = document.createElement("td");
-      idCell.textContent = item.id;
+      const codeCell = document.createElement("td");
+      codeCell.textContent = type.code;
 
       const nameCell = document.createElement("td");
-      nameCell.textContent = item.name;
+      nameCell.textContent = type.name;
 
-      const typeCell = document.createElement("td");
-      typeCell.textContent = item.type;
+      const descCell = document.createElement("td");
+      descCell.textContent = type.description || "-";
 
       const brandCell = document.createElement("td");
-      brandCell.textContent = item.brand || "-";
+      brandCell.textContent = type.brand || "-";
 
       const modelCell = document.createElement("td");
-      modelCell.textContent = item.model || "-";
+      modelCell.textContent = type.model || "-";
 
-      const statusCell = document.createElement("td");
-      const statusBadge = document.createElement("span");
-      statusBadge.className = getItemStatusBadgeClass(item.status);
-      statusBadge.textContent = item.status;
-      statusCell.appendChild(statusBadge);
-
-      const locationCell = document.createElement("td");
-      locationCell.textContent = item.location;
+      const quantityCell = document.createElement("td");
+      quantityCell.textContent = type.quantity || 0;
 
       tr.append(
-        idCell,
+        codeCell,
         nameCell,
-        typeCell,
+        descCell,
         brandCell,
         modelCell,
-        statusCell,
-        locationCell,
+        quantityCell,
       );
-      tr.addEventListener("click", () => this.openItemModal(item.id));
+      tr.addEventListener("click", () =>
+        this.openObjectListModal(type.code, type.name),
+      );
       tbody.appendChild(tr);
     });
+  }
+
+  openObjectListModal(typeCode, typeName) {
+    this.currentTypeCode = typeCode;
+    this.objectListModal?.show(typeCode, typeName);
   }
 
   renderMaintenance(list) {

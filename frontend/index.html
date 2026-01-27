@@ -109,13 +109,12 @@
             <table class="main-table">
                 <thead>
                     <tr>
-                        <th data-sortable data-sort-key="id">Item ID</th>
+                        <th data-sortable data-sort-key="code">Code</th>
                         <th data-sortable data-sort-key="name">Name</th>
-                        <th data-sortable data-sort-key="type">Type</th>
+                        <th data-sortable data-sort-key="description">Description</th>
                         <th data-sortable data-sort-key="brand">Brand</th>
                         <th data-sortable data-sort-key="model">Model</th>
-                        <th data-sortable data-sort-key="status">Status</th>
-                        <th data-sortable data-sort-key="location">Location</th>
+                        <th data-sortable data-sort-key="quantity">Quantity</th>
                     </tr>
                 </thead>
                 <tbody id="inventory-tbody"></tbody>
@@ -365,6 +364,16 @@
                         <div id="item-maintenance-tbody"></div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Object List Modal (to show instances of an ObjectType) -->
+    <div class="modal-overlay" id="object-list-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Object Instances</h2>
+                <button class="modal-close" aria-label="Close modal" id="object-list-close">&times;</button>
             </div>
         </div>
     </div>

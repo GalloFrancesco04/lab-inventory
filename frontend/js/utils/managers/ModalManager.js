@@ -1,6 +1,8 @@
 export class ModalManager {
   constructor() {
     this.modals = new Map();
+    this.baseZIndex = 1000;
+    this.currentZIndex = this.baseZIndex;
     this.initGlobalListeners();
   }
 
@@ -39,6 +41,10 @@ export class ModalManager {
       console.warn(`ModalManager: Cannot open unregistered modal "${id}"`);
       return false;
     }
+
+    // Increment z-index for new modal
+    this.currentZIndex += 1;
+    modal.element.style.zIndex = this.currentZIndex;
 
     modal.element.classList.add("open");
     if (modal.onOpen) {
