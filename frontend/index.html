@@ -285,43 +285,35 @@
     <div class="modal-overlay" id="new-item-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">New Item</h2>
+                <h2 class="modal-title">New Object Type</h2>
                 <button class="modal-close" aria-label="Close modal" id="new-item-close">&times;</button>
             </div>
             <form class="form" id="new-item-form">
                 <div class="form-group">
-                    <label for="new-item-type">Object Type</label>
-                    <div style="display: flex; gap: var(--space-2);">
-                        <select id="new-item-type" required style="flex: 1;">
-                            <option value="">Select a type...</option>
-
-                        </select>
-                        <button type="button" id="new-type-btn" class="btn btn-ghost" style="padding: 8px 12px; white-space: nowrap;">+ New Type</button>
-                    </div>
+                    <label for="new-item-name">Type Name <span style="color: var(--danger);">*</span></label>
+                    <input type="text" id="new-item-name" required placeholder="e.g. Computer, Tablet, Peripherals">
+                    <span class="form-error"></span>
                 </div>
                 <div class="form-group">
-                    <label for="new-item-name">Name</label>
-                    <input type="text" id="new-item-name" required placeholder="e.g. Laptop HP Pavilion, Projector Epson">
+                    <label for="new-item-description">Description</label>
+                    <textarea id="new-item-description" rows="2" placeholder="e.g. Computers and laptops"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="new-item-brand">Brand</label>
-                    <input type="text" id="new-item-brand" placeholder="e.g. HP, Dell">
+                    <input type="text" id="new-item-brand" placeholder="e.g. HP, Dell, Apple">
                 </div>
                 <div class="form-group">
                     <label for="new-item-model">Model</label>
                     <input type="text" id="new-item-model" placeholder="e.g. Pavilion 15, Latitude 5400">
                 </div>
                 <div class="form-group">
-                    <label for="new-item-note">Notes</label>
-                    <textarea id="new-item-note" rows="2" placeholder="Optional notes (e.g. accessories, conditions)"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="new-item-location">Location</label>
-                    <input type="text" id="new-item-location" required placeholder="e.g. Lab 1, Storage 2">
+                    <label for="new-item-quantity">Initial Quantity <span style="color: var(--danger);">*</span></label>
+                    <input type="number" id="new-item-quantity" required min="0" value="0" placeholder="0">
+                    <span class="form-error"></span>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-ghost" id="new-item-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create Item</button>
+                    <button type="submit" class="btn btn-primary">Create Type</button>
                 </div>
             </form>
         </div>

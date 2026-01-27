@@ -240,26 +240,42 @@ export class InventoryPresenter extends BasePresenter {
     });
   }
 
-  addObjectType(typeName) {
-    if (!typeName) return null;
-
-    // Generate code from name (first 4 letters uppercase)
-    const code = typeName.substring(0, 4).toUpperCase().padEnd(4, "X");
+  addObjectType(typeData) {
+    if (!typeData || !typeData.name || !typeData.code) return null;
 
     // Check if code already exists
-    if (this.objectTypes.find((t) => t.code === code)) {
+    if (this.objectTypes.find((t) => t.code === typeData.code)) {
       return null;
     }
 
     const newType = {
-      code,
-      name: typeName,
-      description: typeName,
-      model: "Various",
-      brand: "Various",
-      quantity: 0,
+      code: typeData.code,
+      name: typeData.name,
+      description: typeData.description || "",
+      model: typeData.model || "Various",
+      brand: typeData.brand || "Various",
+      quantity: typeData.quantity || 0,
     };
     this.objectTypes.push(newType);
+
+    // Create OBJECT instances based on quantity
+    if (typeData.quantity && typeData.quantity > 0) {
+      for (let i = 0; i < typeData.quantity; i++) {
+        const newObject = {
+          id: String(20000 + this.data.length + 1),
+          name: typeData.name,
+          type: typeData.name,
+          brand: typeData.brand || "Various",
+          model: typeData.model || "Various",
+          status: "available",
+          location: "",
+          imageUrl: null,
+          maintenance: [],
+        };
+        this.data.push(newObject);
+      }
+    }
+
     this.notifyListeners();
     return newType;
   }

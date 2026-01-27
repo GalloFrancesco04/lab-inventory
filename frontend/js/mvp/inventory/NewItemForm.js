@@ -3,22 +3,20 @@ import { FormValidator } from "../../utils/validators.js";
 export class NewItemForm {
   constructor({
     form,
-    typeSelect,
     nameInput,
+    descriptionInput,
     brandInput,
     modelInput,
-    noteInput,
-    locationInput,
+    quantityInput,
     toaster,
     onCreate,
   }) {
     this.form = form;
-    this.typeSelect = typeSelect;
     this.nameInput = nameInput;
+    this.descriptionInput = descriptionInput;
     this.brandInput = brandInput;
     this.modelInput = modelInput;
-    this.noteInput = noteInput;
-    this.locationInput = locationInput;
+    this.quantityInput = quantityInput;
     this.toaster = toaster;
     this.onCreate = onCreate;
     this.validator = new FormValidator(form);
@@ -44,19 +42,24 @@ export class NewItemForm {
       "Type name is required",
     );
 
-    let priceOk = true;
-    if (this.priceInput && this.priceInput.value) {
-      const priceVal = Number(this.priceInput.value);
-      if (Number.isNaN(priceVal) || priceVal < 0) {
-        priceOk = false;
+    const quantityOk = this.validator.required(
+      this.quantityInput,
+      "Quantity is required",
+    );
+
+    let quantityValueOk = true;
+    if (quantityOk && this.quantityInput && this.quantityInput.value !== "") {
+      const quantityVal = Number(this.quantityInput.value);
+      if (Number.isNaN(quantityVal) || quantityVal < 0) {
+        quantityValueOk = false;
         this.validator.addError(
-          this.priceInput,
-          "Price must be a positive number",
+          this.quantityInput,
+          "Quantity must be a non-negative number",
         );
       }
     }
 
-    if (!nameOk || !priceOk) {
+    if (!nameOk || !quantityOk || !quantityValueOk) {
       this.validator.displayErrors();
       if (this.toaster) this.toaster.error("Fix the highlighted errors");
       this.validator.focusFirstError();
@@ -70,13 +73,21 @@ export class NewItemForm {
     e.preventDefault();
     if (!this.validate()) return;
 
-    const itemData = {
-      name: this.nameInput?.value?.trim() || "",
+    const typeName = this.nameInput?.value?.trim() || "";
+    const code = typeName.substring(0, 4).toUpperCase().padEnd(4, "X");
+
+    const typeData = {
+      name: typeName,
+      code: code,
+      description: this.descriptionInput?.value?.trim() || "",
+      brand: this.brandInput?.value?.trim() || "",
+      model: this.modelInput?.value?.trim() || "",
+      quantity: Number(this.quantityInput?.value || 0),
     };
 
     if (!this.onCreate) return;
 
-    const result = this.onCreate(itemData);
+    const result = this.onCreate(typeData);
     if (result) {
       this.reset();
     }

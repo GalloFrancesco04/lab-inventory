@@ -27,12 +27,12 @@ class InventoryView extends BaseView {
   setupElements() {
     // New Item Modal
     this.newItemForm = this.getElement("new-item-form");
-    this.newItemType = this.getElement("new-item-type");
     this.newItemName = this.getElement("new-item-name");
+    this.newItemDescription = this.getElement("new-item-description");
     this.newItemBrand = this.getElement("new-item-brand");
     this.newItemModel = this.getElement("new-item-model");
-    this.newItemNote = this.getElement("new-item-note");
-    this.newItemLocation = this.getElement("new-item-location");
+    this.newItemQuantity = this.getElement("new-item-quantity");
+    this.newItemNote = this.getElement("new-item-description");
     this.newItemBtn = this.getElement("new-item-btn");
     this.newTypeBtn = this.getElement("new-type-btn");
 
@@ -87,16 +87,15 @@ class InventoryView extends BaseView {
 
     this.newItemFormHandler = new NewItemForm({
       form: this.newItemForm,
-      typeSelect: this.newItemType,
       nameInput: this.newItemName,
+      descriptionInput: this.newItemNote,
       brandInput: this.newItemBrand,
       modelInput: this.newItemModel,
-      noteInput: this.newItemNote,
-      locationInput: this.newItemLocation,
+      quantityInput: this.newItemQuantity,
       toaster: this.mediator.toaster,
-      onCreate: (itemData) => {
+      onCreate: (typeData) => {
         try {
-          const newType = this.presenter.addObjectType(itemData.name);
+          const newType = this.presenter.addObjectType(typeData);
           if (newType) {
             this.mediator.toaster.success(
               `Type "${newType.name}" added successfully`,
@@ -227,7 +226,7 @@ class InventoryView extends BaseView {
     this.newItemType.innerHTML = '<option value="">Select a type...</option>';
     types.forEach((type) => {
       const option = document.createElement("option");
-      option.value = type.code;
+      option.value = type.name;
       option.textContent = type.name;
       this.newItemType.appendChild(option);
     });
@@ -255,14 +254,23 @@ class InventoryView extends BaseView {
       }
 
       try {
-        const newType = this.presenter.addObjectType(typeName);
+        const code = typeName.substring(0, 4).toUpperCase().padEnd(4, "X");
+        const typeData = {
+          name: typeName,
+          code: code,
+          description: "",
+          brand: "Various",
+          model: "Various",
+          quantity: 0,
+        };
+        const newType = this.presenter.addObjectType(typeData);
         if (newType) {
           this.mediator.toaster.success(
             `Type "${newType.name}" created successfully`,
           );
           this.closeModal("new-type-modal");
           this.populateObjectTypes();
-          this.newItemType.value = newType.code;
+          this.newItemType.value = newType.name;
         } else {
           this.mediator.toaster.error("Type already exists or invalid name");
         }
