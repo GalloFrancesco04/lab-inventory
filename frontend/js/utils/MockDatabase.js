@@ -295,6 +295,50 @@ export class MockDatabase {
         phoneNumber: "+39 335 345 6789",
         cost: 20.0,
       },
+      {
+        id: 4,
+        objectId: 12,
+        description: "Battery replacement",
+        startDate: "2024-12-18",
+        endDate: null,
+        type: "repair",
+        technicianId: 2, // Mario Rossi
+        phoneNumber: "+39 328 123 4567",
+        cost: 80.0,
+      },
+      {
+        id: 5,
+        objectId: 15,
+        description: "Keyboard cleaning and maintenance",
+        startDate: "2024-12-15",
+        endDate: null,
+        type: "maintenance",
+        technicianId: 2, // Mario Rossi
+        phoneNumber: "+39 328 123 4567",
+        cost: 45.0,
+      },
+      {
+        id: 6,
+        objectId: 8,
+        description: "Monitor cable replacement",
+        startDate: "2024-12-10",
+        endDate: "2024-12-11",
+        type: "repair",
+        technicianId: 3, // Sara Bianchi
+        phoneNumber: "+39 331 234 5678",
+        cost: 35.0,
+      },
+      {
+        id: 7,
+        objectId: 22,
+        description: "Headset microphone repair",
+        startDate: "2024-12-19",
+        endDate: null,
+        type: "repair",
+        technicianId: 5, // Anna Neri
+        phoneNumber: "+39 339 567 8901",
+        cost: 55.0,
+      },
     ];
 
     // OPERATIONS table - from db.mmd schema
@@ -342,6 +386,58 @@ export class MockDatabase {
         endDate: "2024-12-05",
         cost: 20.0,
       },
+      // Operations for maintenance 4
+      {
+        id: 6,
+        maintenanceId: 4,
+        description: "Battery diagnostic",
+        startDate: "2024-12-18",
+        endDate: "2024-12-18",
+        cost: 20.0,
+      },
+      {
+        id: 7,
+        maintenanceId: 4,
+        description: "Battery replacement",
+        startDate: "2024-12-19",
+        endDate: null,
+        cost: 60.0,
+      },
+      // Operations for maintenance 5
+      {
+        id: 8,
+        maintenanceId: 5,
+        description: "Keyboard cleaning",
+        startDate: "2024-12-15",
+        endDate: null,
+        cost: 25.0,
+      },
+      {
+        id: 9,
+        maintenanceId: 5,
+        description: "Key mechanism inspection",
+        startDate: "2024-12-15",
+        endDate: null,
+        cost: 20.0,
+      },
+      // Operations for maintenance 6
+      {
+        id: 10,
+        maintenanceId: 6,
+        description: "Cable replacement",
+        startDate: "2024-12-10",
+        endDate: "2024-12-11",
+        cost: 35.0,
+      },
+      // Operations for maintenance 7
+      {
+        id: 11,
+        maintenanceId: 7,
+        description: "Microphone repair",
+        startDate: "2024-12-19",
+        endDate: null,
+        cost: 55.0,
+      },
     ];
 
     // Auto-increment counters
@@ -350,8 +446,8 @@ export class MockDatabase {
       clientId: 6,
       objectId: 42,
       loanId: 6,
-      maintenanceId: 4,
-      operationId: 6,
+      maintenanceId: 8,
+      operationId: 12,
     };
   }
 

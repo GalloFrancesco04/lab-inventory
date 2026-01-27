@@ -19,23 +19,31 @@ export class AuthPresenter extends BasePresenter {
         password: "tech123",
         role: "technician",
         fullName: "Mario Rossi",
-        techName: "M. Rossi",
+        techName: "Mario Rossi",
       },
       {
         id: 3,
-        email: "luigi.verdi@library.com",
+        email: "sara.bianchi@library.com",
         password: "tech123",
         role: "technician",
-        fullName: "Luigi Verdi",
-        techName: "R. Verdi", // R. Verdi in maintenance data
+        fullName: "Sara Bianchi",
+        techName: "Sara Bianchi",
       },
       {
         id: 4,
-        email: "anna.bianchi@library.com",
+        email: "roberto.verdi@library.com",
         password: "tech123",
         role: "technician",
-        fullName: "Anna Bianchi",
-        techName: "A. Bianchi",
+        fullName: "Roberto Verdi",
+        techName: "Roberto Verdi",
+      },
+      {
+        id: 5,
+        email: "anna.neri@library.com",
+        password: "tech123",
+        role: "technician",
+        fullName: "Anna Neri",
+        techName: "Anna Neri",
       },
     ];
 
