@@ -81,6 +81,17 @@ export class LoansPresenter extends BasePresenter {
       })),
     };
 
+    // Update item statuses to "loaned" in inventory
+    if (this.inventoryPresenter) {
+      items.forEach((item) => {
+        try {
+          this.inventoryPresenter.updateItem(item.id, { status: "loaned" });
+        } catch (error) {
+          console.error(`Unable to update item ${item.id} status`, error);
+        }
+      });
+    }
+
     this.data.unshift(newLoan);
     this.notifyListeners();
     return newLoan;
@@ -95,6 +106,23 @@ export class LoansPresenter extends BasePresenter {
   }
 
   getAvailableItems() {
+    // Get available OBJECT instances from inventory
+    if (this.inventoryPresenter) {
+      try {
+        const allItems = this.inventoryPresenter.getItems();
+        return allItems
+          .filter((item) => item.status === "available")
+          .map((item) => ({
+            id: item.id,
+            name: item.name,
+            type: item.type,
+          }));
+      } catch (error) {
+        console.error("Unable to get available items from inventory", error);
+      }
+    }
+    
+    // Fallback to mock data
     return this.availableItems;
   }
 
@@ -105,14 +133,33 @@ export class LoansPresenter extends BasePresenter {
   closeLoan(id, actualReturnDate, damagedItems = [], notes = "") {
     const loan = this.getLoanById(id);
     if (!loan) return null;
+    
     loan.status = "closed";
     loan.actualReturnDate = actualReturnDate || loan.actualReturnDate || "";
     loan.damagedItems = damagedItems || [];
     loan.closeNotes = notes || "";
-    if (this.inventoryPresenter && damagedItems.length) {
-      const ids = damagedItems.map((d) => d.id).filter(Boolean);
-      this.inventoryPresenter.markItemsDamaged(ids);
+    
+    // Update inventory statuses
+    if (this.inventoryPresenter) {
+      // Mark damaged items
+      if (damagedItems.length) {
+        const ids = damagedItems.map((d) => d.id).filter(Boolean);
+        this.inventoryPresenter.markItemsDamaged(ids);
+      }
+      
+      // Return non-damaged items to "available"
+      const damagedIds = damagedItems.map((d) => d.id);
+      loan.items.forEach((item) => {
+        if (!damagedIds.includes(item.id)) {
+          try {
+            this.inventoryPresenter.updateItem(item.id, { status: "available" });
+          } catch (error) {
+            console.error(`Unable to return item ${item.id} to available`, error);
+          }
+        }
+      });
     }
+    
     this.notifyListeners();
     return loan;
   }

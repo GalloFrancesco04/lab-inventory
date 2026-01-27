@@ -139,6 +139,8 @@ class LoansView extends BaseView {
             notes,
           );
           this.renderLoansTable();
+          // Refresh available items after closing loan
+          this.refreshAvailableItems();
           // refresh modal details
           const updated = this.presenter.getLoanById(this.currentLoanId);
           this.loanDetailModal?.show(updated);
@@ -197,9 +199,11 @@ class LoansView extends BaseView {
   }
 
   setupEventListeners() {
-    this.newLoanBtn?.addEventListener("click", () =>
-      this.openModal("new-loan-modal"),
-    );
+    this.newLoanBtn?.addEventListener("click", () => {
+      // Refresh available items each time modal opens
+      this.refreshAvailableItems();
+      this.openModal("new-loan-modal");
+    });
 
     this.newLoanForm?.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -250,6 +254,8 @@ class LoansView extends BaseView {
           this.mediator.toaster.success(SUCCESS_MESSAGES.LOAN_CREATED);
           this.closeModal("new-loan-modal");
           this.itemPicker?.reset();
+          // Refresh available items after loan creation
+          this.refreshAvailableItems();
         } else {
           this.mediator.toaster.error(ERROR_MESSAGES.LOAN_FAILED);
         }
@@ -270,6 +276,17 @@ class LoansView extends BaseView {
     this.newClientBtn?.addEventListener("click", () => {
       this.openModal("new-client-modal");
     });
+  }
+
+  refreshAvailableItems() {
+    try {
+      this.availableItems = this.presenter.getAvailableItems
+        ? this.presenter.getAvailableItems()
+        : [];
+      this.itemPicker?.setItems(this.availableItems);
+    } catch (error) {
+      this.handleError("Unable to refresh available items", error);
+    }
   }
 
   populateClients() {
