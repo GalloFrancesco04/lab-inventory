@@ -198,6 +198,7 @@ class MaintenanceView extends BaseView {
       const costCell = document.createElement("td");
       costCell.style.fontWeight = "600";
       costCell.style.color = "var(--primary)";
+      costCell.style.textAlign = "right";
       costCell.textContent = `€${entry.totalCost.toFixed(2)}`;
 
       const statusCell = document.createElement("td");

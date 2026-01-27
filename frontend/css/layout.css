@@ -146,8 +146,9 @@
   background: rgba(17, 24, 39, 0.02);
 }
 
-.main-table td:last-child,
-.main-table th:last-child {
+/* Align Total Cost column to the right */
+.main-table th[data-sort-key="cost"],
+.main-table th[data-sort-key="status"] {
   text-align: right;
 }
 
