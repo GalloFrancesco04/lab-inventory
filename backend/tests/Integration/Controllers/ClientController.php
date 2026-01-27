@@ -144,7 +144,7 @@ runTestCase("Create Client - Valid Data", function () {
     
     // 2. Prepare Mock Data (Randomized to avoid unique constraint violations in real DB)
     $mockData = [
-        'name'    => 'TestUserA',
+        'name'    => 'TestUserB',
         'surname' => 'Automated',
         'email'   => 'test.user.' . time() . '@example.com',
         'state'   => 1
