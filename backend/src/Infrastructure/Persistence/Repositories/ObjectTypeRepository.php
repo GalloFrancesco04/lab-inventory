@@ -39,8 +39,7 @@ class ObjectTypeRepository
                 name = :name, 
                 description = :description, 
                 model = :model, 
-                brand = :brand, 
-                quantity = :quantity
+                brand = :brand
             WHERE code = :code
             ");
 
@@ -49,7 +48,6 @@ class ObjectTypeRepository
             'description' => $objectType->getDescription(),
             'model' => $objectType->getModel(),
             'brand' => $objectType->getBrand(),
-            'quantity' => $objectType->getQuantity(),
             'code'    => $objectType->getCode()
         ]);
     }

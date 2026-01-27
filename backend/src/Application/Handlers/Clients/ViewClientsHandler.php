@@ -21,6 +21,10 @@ class ViewClientsHandler {
 
             $clients = $this->clientRepository->getAll();    
                 
+            if(empty($clients)) {
+                return [];
+            }
+
             return $clients;
 
         }catch(Exception $ex) {

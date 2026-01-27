@@ -27,6 +27,19 @@ class LoanedObjectRepository
         ]); 
     }
 
+    public function delete(int $loan_id, int $object_id): void
+    {
+        $stmt = $this->connection->prepare("
+            DELETE FROM loanedobjects 
+            WHERE loan_id = :loan_id AND object_id = :object_id
+        ");
+
+        $stmt->execute([
+            'loan_id' => $loan_id,
+            'object_id' => $object_id
+        ]);
+    }
+
     public function markAsDamaged(int $loan_id, int $object_id): void
     {
         $stmt = $this->connection->prepare("

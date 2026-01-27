@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanRepository.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanedObjectRepository.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ObjectTypeRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ItemRepository.php';
 
 
 require_once __DIR__ . '/../../../../config/Database.php';
@@ -14,6 +15,7 @@ class UpdateLoanHandler {
     private $loanRepository;
     private $loanedObjectRepository;
     private $objectTypeRepository;
+    private $itemRepository;
     private $transaction;
 
     public function __construct() {
@@ -23,6 +25,7 @@ class UpdateLoanHandler {
         $this->loanRepository = new LoanRepository($connection);
         $this->loanedObjectRepository = new LoanedObjectRepository($connection);
         $this->objectTypeRepository = new ObjectTypeRepository($connection);
+        $this->itemRepository = new ItemRepository($connection);
 
         $this->transaction = new TransactionManager($connection);
     }
@@ -33,6 +36,10 @@ class UpdateLoanHandler {
         try {
             if(empty($command->id)) {
                 throw new Exception("L'Id non puo' essere vuoto");
+            }
+
+            if(count($command->objects) > 5) {
+                throw new Exception("Non e' possibile aggiungere piu' di 5 Oggetti per Prestito");
             }
 
             $loanToUpdate = $this->loanRepository->getLoanById($command->id);
@@ -51,62 +58,113 @@ class UpdateLoanHandler {
             
             $this->transaction->begin();
 
-            foreach($command->objects as $updatedObject) {
-            
-                $loanedObject = $this->loanedObjectRepository->getLoanedObject($loanToUpdate->getId(), $updatedObject->getId());
-                
-                //the object is a new one so I have to add it
-                if(empty($loanedObject)) {
-                
-                    if($loanToUpdate->getQuantity() < 5) {
-                    
-                         // I check if the quantity of the object_type is > 0 and if it is I loan it if not I return an error
-                        $objectType = $this->objectTypeRepository->findByCode($updatedObject->getObjectTypeCode());
+            $currentLoanedObjectsOfLoan = $this->loanedObjectRepository->getLoanedObjectsByLoanId($loanToUpdate->getId());
+            $found = false;
+            if(count($command->objects) < count($currentLoanedObjectsOfLoan)) {
+                foreach($currentLoanedObjectsOfLoan as $currentLoanedObject) {
+                    $found = false;
 
-                        if(empty($objectType)) {
-                            throw new Exception("Non e' stato trovato un object type");
+                    foreach($command->objects as $updatedObject) {
+                        if($updatedObject->getId() == $currentLoanedObject->getObjectId() && $updatedObject->getObjectTypeCode() == $currentLoanedObject->getObjectTypeCode()) {
+
+                            // i update the state of the loanedobject
+                            if($updatedObject->getState()->getStateCode() == 4) {
+                                $this->loanedObjectRepository->markAsDamaged($loanToUpdate->getId(), $updatedObject->getId());
+                            }
+
+                            $found = true;
+                            break;
                         }
+                    }
 
-                        if($objectType->getQuantity() == 0) {
-                            throw new Exception("Non e' possibile prendere in prestito l'oggetto con type code: " . $objectType->getCode());
-                        }
+                    // if I don't found it i remove it from loaned objects, i update the quantity in loan and also the quantity of objecttype available
+                    if(!$found) {
+                        $this->loanedObjectRepository->delete($currentLoanedObject->getLoanId(), $currentLoanedObject->getObjectId());
 
-                        // I check if the user passes an object_id with no correspondence to the objecttype
-                        $objectFromDb = $this->itemRepository->findById($object->getId());
+                        $objectType = $this->objectTypeRepository->findByCode($currentLoanedObject->getObjectTypeCode());
+
+                        $objectFromDb = $this->itemRepository->findById($currentLoanedObject->getObjectId());
 
                         if(empty($objectFromDb)) {
                             throw new Exception("Non esiste un oggetto con l'id specificato");
                         }
 
-                        if($objectFromDb->getObjectTypeCode() != $objectType->getCode()) {
-                            throw new Exception("L'id dell'oggetto e il codice dell'object type non corrispondono a nessun oggetto");
-                        }
+                        $objectFromDb->available();
+                        $this->itemRepository->updateState($objectFromDb->getId(), $objectFromDb->getStateCode());
 
-                        $tmp = new LoanedObject($objectType->getCode(), $objectFromDb->getId(), $loanToUpdate->getId(), 0);
-
-                        $createdLoanedObject = $this->loanedObjectRepository->create($loanToUpdate->getId(), $updatedObject);
-
-                        // the object is correct and the quantity is >= 0 so I decrement it on db
-                        $objectType->removeQuantity(1);
+                        // decreasing the quantity of objects of that type
+                        $objectType->addQuantity(1);
                         $this->objectTypeRepository->updateQuantity($objectType->getCode(), $objectType->getQuantity());
 
-                        // now that the object is added I increase the quantity of objects in loan
-                        $loanToUpdate->setQuantity($loanToUpdate->getQuantity() + 1);
-                        continue;
-                    
-                    }else {
-                    
-                        //reached the maximum quantity of the loan
-                        continue;
+                        $loanToUpdate->setQuantity($loanToUpdate->getQuantity() - 1);
+                        
                     }
-                    
-                    //here the object exists and only the status has changed
-                    // NOTE: this only allows to put it as damaged, not to have a damaged object ant make it loaned
-                    if ($loanedObject->isDamaged() != $updatedObject->damaged)
-                        $this->loanedObjectRepository->markAsDamaged($loanToUpdate->getId(), $updatedObject->id);
                 }
+            }else {
+                
 
-            }   
+            // for each object received i check if it corresponds to 
+            foreach($command->objects as $updatedObject) {
+
+                $found = false;
+                foreach($currentLoanedObjectsOfLoan as $currentLoanedObject) {
+                    if($updatedObject->getId() == $currentLoanedObject->getObjectId() && $updatedObject->getObjectTypeCode() == $currentLoanedObject->getObjectTypeCode()) {
+
+                            // i update the state of the loanedobject
+                            if($updatedObject->getState()->getStateCode() == 4) {
+                                $this->loanedObjectRepository->markAsDamaged($loanToUpdate->getId(), $updatedObject->getId());
+                            }
+
+                            $found = true;
+                            break;
+                        }
+                    }
+                
+                // the object is not present in the loaned objects so i make all the checks and add it
+                if(!$found && $loanToUpdate->getQuantity() < 5) {
+                    // I check if the quantity of the object_type is > 0 and if it is I loan it if not I return an error
+                    $objectType = $this->objectTypeRepository->findByCode($updatedObject->getObjectTypeCode());
+
+                    if(empty($objectType)) {
+                        throw new Exception("Non e' stato trovato un object type");
+                    }
+
+                    if($objectType->getQuantity() == 0) {
+                        throw new Exception("Non e' possibile prendere in prestito l'oggetto con type code: " . $objectType->getCode());
+                    }
+
+                    // I check if the user passes an object_id with no correspondence to the objecttype
+                    $objectFromDb = $this->itemRepository->findById($updatedObject->getId());
+
+                    if(empty($objectFromDb)) {
+                        throw new Exception("Non esiste un oggetto con l'id specificato");
+                    }
+
+                    if($objectFromDb->getObjectTypeCode() != $objectType->getCode()) {
+                        throw new Exception("L'id dell'oggetto e il codice dell'object type non corrispondono a nessun oggetto");
+                    }
+
+                    // i create the new loaned object
+                    $tmp = new LoanedObject($objectType->getCode(), $objectFromDb->getId(), $loanToUpdate->getId(), 0);
+                    $createdLoanedObject = $this->loanedObjectRepository->create($loanToUpdate->getId(), $tmp);
+
+                    $objectFromDb->loan();
+                    $this->itemRepository->updateState($objectFromDb->getId(), $objectFromDb->getStateCode());
+
+                    // decreasing the quantity of objects of that type
+                    $objectType->removeQuantity(1);
+                    $this->objectTypeRepository->updateQuantity($objectType->getCode(), $objectType->getQuantity());
+
+                    // now that the object is added I increase the quantity of objects in loan
+                    $loanToUpdate->setQuantity($loanToUpdate->getQuantity() + 1);
+                    continue;
+                }else {
+                    // quantity > 5
+                    continue;
+                    }
+
+                }
+            }
 
             $this->loanRepository->update($loanToUpdate);
 

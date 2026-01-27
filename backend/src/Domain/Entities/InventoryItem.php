@@ -42,7 +42,7 @@ class InventoryItem {
     }
 
     public function setId(int $id) : void {
-        $this->id = id;
+        $this->id = $id;
     }
 
     public function setState(ItemState $state): void {
