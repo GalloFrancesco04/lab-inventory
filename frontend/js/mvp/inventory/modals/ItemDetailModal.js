@@ -141,6 +141,10 @@ export class ItemDetailModal {
       this.isMaintenanceDisabled,
       this.disabledReason,
     );
-    this.applyButtonState(this.editItemBtn, this.isEditDisabled, this.disabledReason);
+    this.applyButtonState(
+      this.editItemBtn,
+      this.isEditDisabled,
+      this.disabledReason,
+    );
   }
 }

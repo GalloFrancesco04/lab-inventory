@@ -307,7 +307,7 @@ class LoansView extends BaseView {
         loan.client,
         loan.status,
         loan.returnDate || "",
-        ...(loan.items?.map((item) => item.name) || []),
+        String(loan.items?.length || 0),
       ],
       this.searchQuery,
     );
@@ -321,11 +321,7 @@ class LoansView extends BaseView {
     return this.applySorting(loans, {
       id: (loan) => loan.id,
       client: (loan) => loan.client.toLowerCase(),
-      items: (loan) =>
-        loan.items
-          ?.map((i) => i.name)
-          .join(", ")
-          .toLowerCase() || "",
+      items: (loan) => loan.items?.length || 0,
       returnDate: (loan) => loan.returnDate || "",
       status: (loan) => loan.status.toLowerCase(),
     });
@@ -387,8 +383,10 @@ class LoansView extends BaseView {
       clientCell.textContent = loan.client;
 
       const itemCell = document.createElement("td");
-      itemCell.textContent =
-        loan.items?.map((item) => item.name).join(", ") || "-";
+      const itemsBadge = document.createElement("span");
+      itemsBadge.className = "badge badge-neutral";
+      itemsBadge.textContent = loan.items?.length ?? 0;
+      itemCell.appendChild(itemsBadge);
 
       const returnDateCell = document.createElement("td");
       returnDateCell.textContent = loan.returnDate || "-";
