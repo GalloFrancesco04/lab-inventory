@@ -27,6 +27,7 @@ try {
         echo "Fine Prevista: " . $loan->getEndDate()->format('d/m/Y') . "\n";
         $returnDate = $loan->getReturnDate() ? $loan->getReturnDate()->format('d/m/Y') : "Non restituito";
         echo "Restituzione:  " . $returnDate . "\n";
+        echo "Quantita':  " . ($loan->getQuantity()) . "\n";
         echo "Note:          " . ($loan->getNotes() ?? "N/D") . "\n\n";
 
         // --- SEZIONE 2: DATI CLIENTE (Proprietà aggiunta $loan->client) ---
