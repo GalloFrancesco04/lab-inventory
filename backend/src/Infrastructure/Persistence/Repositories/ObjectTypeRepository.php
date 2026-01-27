@@ -1,9 +1,5 @@
 <?php
 
-use PDO;
-require_once __DIR__ . '/../../../Domain/Entities/ObjectType.php';
-
-
 require_once __DIR__ . '/../../../Domain/Entities/ObjectType.php';
 
 class ObjectTypeRepository
@@ -68,19 +64,6 @@ class ObjectTypeRepository
         ]);
     }
 
-    public function updateQuantity(string $code, int $quantity) :void
-    {
-        $stmt = $this->connection->prepare("
-            UPDATE objecttype SET 
-                quantity = :quantity
-            WHERE code = :code
-            ");
-
-        $stmt->execute([
-            'quantity' => $quantity,
-            'code'    => $code
-        ]);
-    }
 
     // //logic delete
     // public function delete(string $code) :void
