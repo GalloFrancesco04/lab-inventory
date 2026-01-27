@@ -43,7 +43,6 @@ class ClientsView extends BaseView {
     this.editClientForm = this.getElement("edit-client-form");
     this.editFirstInput = this.getElement("edit-client-first");
     this.editLastInput = this.getElement("edit-client-last");
-    this.editEmailInput = this.getElement("edit-client-email");
 
     // Block client modal
     this.blockClientForm = this.getElement("block-client-form");
@@ -143,25 +142,14 @@ class ClientsView extends BaseView {
       const payload = {
         firstName: this.editFirstInput?.value?.trim() || "",
         lastName: this.editLastInput?.value?.trim() || "",
-        email: this.editEmailInput?.value?.trim() || "",
       };
 
       const firstNameOk = this.editClientValidator.required(
         this.editFirstInput,
         VALIDATION_ERRORS.REQUIRED,
       );
-      const emailRequiredOk = this.editClientValidator.required(
-        this.editEmailInput,
-        VALIDATION_ERRORS.REQUIRED,
-      );
-      const emailFormatOk = emailRequiredOk
-        ? this.editClientValidator.email(
-            this.editEmailInput,
-            VALIDATION_ERRORS.EMAIL,
-          )
-        : false;
 
-      if (!firstNameOk || !emailRequiredOk || !emailFormatOk) {
+      if (!firstNameOk) {
         this.editClientValidator.displayErrors();
         this.mediator.toaster.error(VALIDATION_ERRORS.FIX_ERRORS);
         this.editClientValidator.focusFirstError();
@@ -361,7 +349,6 @@ class ClientsView extends BaseView {
 
     if (this.editFirstInput) this.editFirstInput.value = firstName;
     if (this.editLastInput) this.editLastInput.value = lastName;
-    if (this.editEmailInput) this.editEmailInput.value = client.email || "";
   }
 }
 
