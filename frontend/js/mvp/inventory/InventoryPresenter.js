@@ -3,207 +3,8 @@ import { MockDatabase } from "../../utils/MockDatabase.js";
 
 export class InventoryPresenter extends BasePresenter {
   constructor() {
-    const objectTypes = [
-      {
-        code: "COMP",
-        name: "Computer",
-        description: "Computers and laptops",
-        model: "Various",
-        brand: "Various",
-        quantity: 15,
-      },
-      {
-        code: "PERF",
-        name: "Peripherals",
-        description: "Computer peripherals and accessories",
-        model: "Various",
-        brand: "Various",
-        quantity: 25,
-      },
-      {
-        code: "TABL",
-        name: "Tablet",
-        description: "Tablets and mobile devices",
-        model: "Various",
-        brand: "Various",
-        quantity: 8,
-      },
-    ];
-
-    const initialItems = [
-      {
-        id: "20001",
-        name: "Notebook HP",
-        type: "Computer",
-        status: "available",
-        location: "Lab 1",
-        brand: "HP",
-        model: "Pavilion 15",
-        imageUrl: null,
-        maintenance: [
-          {
-            id: "1001",
-            startDate: "10/01/2026",
-            endDate: "10/01/2026",
-            type: "preventive",
-            tech: "S. Bianchi",
-            phoneNumber: "+39 328 123 4567",
-            desc: "Dust cleaning and general check",
-            operations: [
-              {
-                desc: "Internal cleaning",
-                cost: 25.0,
-                startDate: "10/01/2026",
-                endDate: "10/01/2026",
-              },
-              {
-                desc: "Thermal paste replacement",
-                cost: 15.0,
-                startDate: "10/01/2026",
-                endDate: "10/01/2026",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: "20002",
-        name: "Notebook Dell",
-        type: "Computer",
-        status: "loaned",
-        location: "Lab 1",
-        brand: "Dell",
-        model: "Latitude 5400",
-        imageUrl: null,
-        maintenance: [],
-      },
-      {
-        id: "20003",
-        name: "Notebook Lenovo",
-        type: "Computer",
-        status: "damaged",
-        location: "Lab 2",
-        brand: "Lenovo",
-        model: "ThinkPad E14",
-        imageUrl: null,
-        maintenance: [],
-      },
-      {
-        id: "20004",
-        name: "Tablet Apple",
-        type: "Tablet",
-        status: "available",
-        location: "Lab 3",
-        brand: "Apple",
-        model: "iPad Pro",
-        imageUrl: null,
-        maintenance: [
-          {
-            id: "1004",
-            startDate: "05/12/2025",
-            endDate: "05/12/2025",
-            type: "repair",
-            tech: "R. Verdi",
-            phoneNumber: "+39 331 456 7890",
-            desc: "Screen replaced",
-            operations: [
-              {
-                desc: "Screen diagnostic",
-                cost: 30.0,
-                startDate: "05/12/2025",
-                endDate: "05/12/2025",
-              },
-              {
-                desc: "LCD replacement",
-                cost: 120.0,
-                startDate: "05/12/2025",
-                endDate: "06/12/2025",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: "20005",
-        name: "Monitor Dell",
-        type: "Computer",
-        status: "maintenance",
-        location: "Lab 1",
-        brand: "Dell",
-        model: "P2720H",
-        imageUrl: null,
-        maintenance: [],
-      },
-      {
-        id: "30001",
-        name: "Mouse Logitech",
-        type: "Peripherals",
-        status: "available",
-        location: "Lab 1",
-        brand: "Logitech",
-        model: "M705",
-        imageUrl: null,
-        maintenance: [],
-      },
-      {
-        id: "30002",
-        name: "Keyboard Corsair",
-        type: "Peripherals",
-        status: "available",
-        location: "Lab 2",
-        brand: "Corsair",
-        model: "K60 RGB",
-        imageUrl: null,
-        maintenance: [],
-      },
-      {
-        id: "30003",
-        name: "Headset Sony",
-        type: "Peripherals",
-        status: "loaned",
-        location: "Lab 3",
-        brand: "Sony",
-        model: "WH-1000XM4",
-        imageUrl: null,
-        maintenance: [],
-      },
-      {
-        id: "30004",
-        name: "USB Hub Anker",
-        type: "Peripherals",
-        status: "available",
-        location: "Storage",
-        brand: "Anker",
-        model: "7-in-1",
-        imageUrl: null,
-        maintenance: [],
-      },
-      {
-        id: "30005",
-        name: "Webcam Logitech",
-        type: "Peripherals",
-        status: "damaged",
-        location: "Lab 2",
-        brand: "Logitech",
-        model: "C920",
-        imageUrl: null,
-        maintenance: [],
-      },
-      {
-        id: "20006",
-        name: "Tablet Samsung",
-        type: "Tablet",
-        status: "available",
-        location: "Lab 3",
-        brand: "Samsung",
-        model: "Galaxy Tab S7",
-        imageUrl: null,
-        maintenance: [],
-      },
-    ];
-
-    super(initialItems);
-    this.objectTypes = objectTypes;
+    super([]);
+    this.db = MockDatabase.getInstance();
   }
 
   subscribe(callback) {
@@ -214,27 +15,101 @@ export class InventoryPresenter extends BasePresenter {
     this.listeners.forEach((cb) => cb());
   }
 
+  // Helper to map OBJECT state to status string
+  stateToStatus(state) {
+    const stateMap = {
+      1: "available",
+      2: "loaned",
+      3: "maintenance",
+      4: "damaged",
+      5: "outofservice",
+    };
+    return stateMap[state] || "available";
+  }
+
+  // Helper to map status string to OBJECT state
+  statusToState(status) {
+    const statusMap = {
+      available: 1,
+      loaned: 2,
+      maintenance: 3,
+      damaged: 4,
+      outofservice: 5,
+    };
+    return statusMap[status] || 1;
+  }
+
   getItemById(id) {
-    return this.data.find((i) => i.id === id);
+    const object = this.db.getObjectById(id);
+    if (!object) return null;
+
+    const objectType = this.db.getObjectTypeByCode(object.objectTypeCode);
+    const maintenanceRecords = this.db.getMaintenanceByObjectId(id);
+
+    // Map maintenance records with operations
+    const maintenance = maintenanceRecords.map((m) => {
+      const operations = this.db.getOperationsByMaintenanceId(m.id);
+      const tech = this.db.getUserById(m.technicianId);
+
+      return {
+        id: m.id,
+        startDate: m.startDate,
+        endDate: m.endDate || "",
+        type: m.type,
+        tech: tech
+          ? tech.email
+              .split("@")[0]
+              .replace(".", " ")
+              .replace(/\b\w/g, (l) => l.toUpperCase())
+          : "Unknown",
+        phoneNumber: m.phoneNumber,
+        desc: m.description,
+        operations: operations.map((op) => ({
+          desc: op.description,
+          cost: op.cost,
+          startDate: op.startDate,
+          endDate: op.endDate || "",
+        })),
+        status: m.endDate ? "closed" : "open",
+      };
+    });
+
+    return {
+      id: object.id,
+      name: objectType ? objectType.name : "Unknown",
+      type: objectType ? objectType.name : "Unknown",
+      brand: objectType ? objectType.brand : "Unknown",
+      model: objectType ? objectType.model : "Unknown",
+      status: this.stateToStatus(object.state),
+      location: object.location,
+      imageUrl: null,
+      maintenance: maintenance,
+    };
   }
 
   getItems() {
-    return this.data;
+    const objects = this.db.getObjects();
+    return objects.map((obj) => this.getItemById(obj.id));
   }
 
   getLocations() {
-    const locations = this.data.map((item) => item.location).filter(Boolean);
+    const objects = this.db.getObjects();
+    const locations = objects.map((obj) => obj.location).filter(Boolean);
     return [...new Set(locations)];
   }
 
   getItemTypes() {
-    // Calculate quantity dynamically based on available items for each type
-    return this.objectTypes.map((type) => {
-      const availableCount = this.data.filter(
-        (item) => item.type === type.name && item.status === "available",
-      ).length;
+    const objectTypes = this.db.getObjectTypes();
+    return objectTypes.map((type) => {
+      const objects = this.db.getObjectsByTypeCode(type.code);
+      const availableCount = objects.filter((obj) => obj.state === 1).length;
+
       return {
-        ...type,
+        code: type.code,
+        name: type.name,
+        description: type.description,
+        model: type.model,
+        brand: type.brand,
         quantity: availableCount,
       };
     });
@@ -244,35 +119,27 @@ export class InventoryPresenter extends BasePresenter {
     if (!typeData || !typeData.name || !typeData.code) return null;
 
     // Check if code already exists
-    if (this.objectTypes.find((t) => t.code === typeData.code)) {
+    if (this.db.getObjectTypeByCode(typeData.code)) {
       return null;
     }
 
-    const newType = {
+    const newType = this.db.addObjectType({
       code: typeData.code,
       name: typeData.name,
       description: typeData.description || "",
       model: typeData.model || "Various",
       brand: typeData.brand || "Various",
       quantity: typeData.quantity || 0,
-    };
-    this.objectTypes.push(newType);
+    });
 
     // Create OBJECT instances based on quantity
     if (typeData.quantity && typeData.quantity > 0) {
       for (let i = 0; i < typeData.quantity; i++) {
-        const newObject = {
-          id: String(20000 + this.data.length + 1),
-          name: typeData.name,
-          type: typeData.name,
-          brand: typeData.brand || "Various",
-          model: typeData.model || "Various",
-          status: "available",
+        this.db.addObject({
+          objectTypeCode: newType.code,
+          state: 1, // available
           location: "",
-          imageUrl: null,
-          maintenance: [],
-        };
-        this.data.push(newObject);
+        });
       }
     }
 
@@ -280,113 +147,97 @@ export class InventoryPresenter extends BasePresenter {
     return newType;
   }
 
-  addItem(itemData) {
-    const objectType = this.objectTypes.find(
-      (t) => t.code === itemData.typeCode,
-    );
-    if (!objectType) return null;
-    const newItem = {
-      id: String(20000 + this.data.length + 1),
-      name: itemData.name || objectType.name,
-      type: objectType.name,
-      brand: itemData.brand || objectType.brand,
-      model: itemData.model || objectType.model,
-      note: itemData.note || "",
-      status: "available",
-      location: "",
-      imageUrl: null,
-      maintenance: [],
-    };
-    this.data.push(newItem);
-    this.notifyListeners();
-    return newItem;
-  }
-
   getTechnicians() {
-    // Return list of available technicians from MockDatabase
-    const mockDb = MockDatabase.getInstance();
-    return mockDb.getTechnicians();
+    const users = this.db.getTechnicians();
+    return users.map((u) => ({
+      id: u.id,
+      email: u.email,
+      name: u.email
+        .split("@")[0]
+        .replace(".", " ")
+        .replace(/\b\w/g, (l) => l.toUpperCase()),
+    }));
   }
 
   createMaintenance(itemId, description, technicianName) {
-    const item = this.getItemById(itemId);
-    if (!item) return null;
+    const object = this.db.getObjectById(itemId);
+    if (!object) return null;
 
-    // Generate new maintenance ID
-    const newMaintenanceId = String(
-      1000 +
-        Math.max(
-          0,
-          ...this.data.flatMap((i) =>
-            i.maintenance.map((m) => parseInt(m.id) || 0),
-          ),
-        ) +
-        1,
+    // Find technician by name (simplified matching)
+    const technicians = this.db.getTechnicians();
+    const tech = technicians.find((t) =>
+      t.email
+        .toLowerCase()
+        .includes(technicianName.toLowerCase().replace(" ", ".")),
     );
 
-    // Create maintenance record
-    const today = new Date();
-    const dateStr = `${String(today.getDate()).padStart(2, "0")}/${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFullYear()}`;
+    if (!tech) return null;
 
-    const newMaintenance = {
-      id: newMaintenanceId,
-      startDate: dateStr,
-      endDate: "",
-      status: "open",
+    const today = new Date().toISOString().split("T")[0];
+
+    const newMaintenance = this.db.addMaintenance({
+      objectId: itemId,
+      description: description,
+      startDate: today,
+      endDate: null,
       type: "repair",
-      tech: technicianName,
-      desc: description,
-      operations: [],
-    };
+      technicianId: tech.id,
+      phoneNumber: tech.phoneNumber || "",
+      cost: 0,
+    });
 
-    // Add maintenance to item
-    item.maintenance.unshift(newMaintenance);
+    // Update object state to maintenance
+    this.db.updateObject(itemId, { state: 3 });
 
-    // Update item status to maintenance
-    item.status = "maintenance";
-
-    // Notify listeners to update UI
     this.notifyListeners();
-
     return newMaintenance;
   }
 
   updateItem(id, payload) {
-    const item = this.getItemById(id);
-    if (!item) throw new Error("Item not found");
+    const object = this.db.getObjectById(id);
+    if (!object) throw new Error("Item not found");
 
-    const allowedStatuses = [
-      "available",
-      "loaned",
-      "maintenance",
-      "damaged",
-      "outofservice",
-    ];
+    const updates = {};
 
-    const status = allowedStatuses.includes(payload.status)
-      ? payload.status
-      : item.status;
+    if (payload.location !== undefined) {
+      updates.location = payload.location;
+    }
 
-    const updates = {
-      name: payload.name?.trim() || item.name,
-      location: payload.location?.trim() || item.location,
-      status,
-    };
+    if (payload.status !== undefined) {
+      const allowedStatuses = [
+        "available",
+        "loaned",
+        "maintenance",
+        "damaged",
+        "outofservice",
+      ];
 
-    return this.update(id, updates);
+      if (allowedStatuses.includes(payload.status)) {
+        updates.state = this.statusToState(payload.status);
+      }
+    }
+
+    const updated = this.db.updateObject(id, updates);
+    if (updated) {
+      this.notifyListeners();
+    }
+    return updated;
   }
 
   markItemsDamaged(itemIds = []) {
     if (!Array.isArray(itemIds) || itemIds.length === 0) return [];
     const updated = [];
+
     itemIds.forEach((id) => {
-      const item = this.getItemById(id);
-      if (item) {
-        item.status = "damaged";
-        updated.push(item);
+      const result = this.db.updateObject(id, { state: 4 }); // damaged
+      if (result) {
+        updated.push(result);
       }
     });
-    if (updated.length) this.notifyListeners();
+
+    if (updated.length) {
+      this.notifyListeners();
+    }
     return updated;
   }
 }

@@ -1,8 +1,10 @@
 import { BasePresenter } from "../core/BasePresenter.js";
+import { MockDatabase } from "../../utils/MockDatabase.js";
 
 export class MaintenancePresenter extends BasePresenter {
   constructor(inventoryPresenter, authPresenter = null) {
-    super();
+    super([]);
+    this.db = MockDatabase.getInstance();
     this.inventoryPresenter = inventoryPresenter;
     this.authPresenter = authPresenter;
   }
@@ -14,7 +16,9 @@ export class MaintenancePresenter extends BasePresenter {
   subscribe(callback) {
     this.listeners.push(callback);
     // Also subscribe to inventory changes so maintenance updates reflect inventory changes
-    this.inventoryPresenter.subscribe(callback);
+    if (this.inventoryPresenter) {
+      this.inventoryPresenter.subscribe(callback);
+    }
   }
 
   notifyListeners() {
@@ -22,31 +26,44 @@ export class MaintenancePresenter extends BasePresenter {
   }
 
   getMaintenanceHistory() {
-    const items = this.inventoryPresenter.getItems();
+    const maintenanceRecords = this.db.getMaintenanceRecords();
     const history = [];
 
-    items.forEach((item) => {
-      if (item.maintenance && item.maintenance.length > 0) {
-        item.maintenance.forEach((m) => {
-          const status = m.status || (m.endDate ? "closed" : "open");
-          history.push({
-            id: m.id || `${item.id}-${m.startDate}`,
-            startDate: m.startDate,
-            endDate: m.endDate,
-            itemId: item.id,
-            itemName: item.name,
-            type: m.type,
-            tech: m.tech,
-            phoneNumber: m.phoneNumber,
-            desc: m.desc,
-            operations: m.operations || [],
-            status,
-            totalCost: m.operations
-              ? m.operations.reduce((sum, op) => sum + (op.cost || 0), 0)
-              : 0,
-          });
-        });
-      }
+    maintenanceRecords.forEach((m) => {
+      const object = this.db.getObjectById(m.objectId);
+      const objectType = object
+        ? this.db.getObjectTypeByCode(object.objectTypeCode)
+        : null;
+      const tech = this.db.getUserById(m.technicianId);
+      const operations = this.db.getOperationsByMaintenanceId(m.id);
+
+      const totalCost = operations.reduce((sum, op) => sum + (op.cost || 0), 0);
+      const status = m.endDate ? "closed" : "open";
+
+      history.push({
+        id: m.id,
+        startDate: m.startDate,
+        endDate: m.endDate || "",
+        itemId: m.objectId,
+        itemName: objectType ? objectType.name : "Unknown",
+        type: m.type,
+        tech: tech
+          ? tech.email
+              .split("@")[0]
+              .replace(".", " ")
+              .replace(/\b\w/g, (l) => l.toUpperCase())
+          : "Unknown",
+        phoneNumber: m.phoneNumber,
+        desc: m.description,
+        operations: operations.map((op) => ({
+          desc: op.description,
+          cost: op.cost,
+          startDate: op.startDate,
+          endDate: op.endDate || "",
+        })),
+        status,
+        totalCost,
+      });
     });
 
     // Filter by technician if user is technician
@@ -70,132 +87,121 @@ export class MaintenancePresenter extends BasePresenter {
   }
 
   getMaintenanceById(id) {
-    const items = this.inventoryPresenter.getItems();
-    for (const item of items) {
-      if (item.maintenance && item.maintenance.length > 0) {
-        const found = item.maintenance.find(
-          (m) => (m.id || `${item.id}-${m.startDate}`) === id,
-        );
-        if (found) {
-          const status = found.status || (found.endDate ? "closed" : "open");
-          return {
-            id: found.id || `${item.id}-${found.startDate}`,
-            startDate: found.startDate,
-            endDate: found.endDate,
-            itemId: item.id,
-            itemName: item.name,
-            type: found.type,
-            tech: found.tech,
-            phoneNumber: found.phoneNumber,
-            desc: found.desc,
-            operations: found.operations || [],
-            status,
-            totalCost: found.operations
-              ? found.operations.reduce((sum, op) => sum + (op.cost || 0), 0)
-              : 0,
-          };
-        }
-      }
-    }
-    return undefined;
+    const m = this.db.getMaintenanceById(id);
+    if (!m) return undefined;
+
+    const object = this.db.getObjectById(m.objectId);
+    const objectType = object
+      ? this.db.getObjectTypeByCode(object.objectTypeCode)
+      : null;
+    const tech = this.db.getUserById(m.technicianId);
+    const operations = this.db.getOperationsByMaintenanceId(m.id);
+
+    const totalCost = operations.reduce((sum, op) => sum + (op.cost || 0), 0);
+    const status = m.endDate ? "closed" : "open";
+
+    return {
+      id: m.id,
+      startDate: m.startDate,
+      endDate: m.endDate || "",
+      itemId: m.objectId,
+      itemName: objectType ? objectType.name : "Unknown",
+      type: m.type,
+      tech: tech
+        ? tech.email
+            .split("@")[0]
+            .replace(".", " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase())
+        : "Unknown",
+      phoneNumber: m.phoneNumber,
+      desc: m.description,
+      operations: operations.map((op) => ({
+        desc: op.description,
+        cost: op.cost,
+        startDate: op.startDate,
+        endDate: op.endDate || "",
+      })),
+      status,
+      totalCost,
+    };
   }
 
   addOperation(maintenanceId, operation) {
-    const items = this.inventoryPresenter.getItems();
+    const today = new Date().toISOString().split("T")[0];
 
-    // Find the item and maintenance record
-    for (const item of items) {
-      if (item.maintenance && item.maintenance.length > 0) {
-        const maintenanceRecord = item.maintenance.find(
-          (m) => (m.id || `${item.id}-${m.startDate}`) === maintenanceId,
-        );
+    const newOperation = this.db.addOperation({
+      maintenanceId: maintenanceId,
+      description: operation.desc || "",
+      startDate: operation.startDate || today,
+      endDate: operation.endDate || null,
+      cost: operation.cost || 0,
+    });
 
-        if (maintenanceRecord) {
-          // Add the operation
-          if (!maintenanceRecord.operations) {
-            maintenanceRecord.operations = [];
-          }
-          maintenanceRecord.operations.push(operation);
-
-          // Notify listeners to update views
-          this.notifyListeners();
-          return true;
-        }
-      }
+    if (newOperation) {
+      this.notifyListeners();
+      return true;
     }
 
     return false;
   }
 
   updateOperation(maintenanceId, operationIndex, updates) {
-    const items = this.inventoryPresenter.getItems();
+    const operations = this.db.getOperationsByMaintenanceId(maintenanceId);
 
-    for (const item of items) {
-      if (item.maintenance && item.maintenance.length > 0) {
-        const maintenanceRecord = item.maintenance.find(
-          (m) => (m.id || `${item.id}-${m.startDate}`) === maintenanceId,
-        );
+    if (operationIndex < 0 || operationIndex >= operations.length) {
+      return false;
+    }
 
-        if (maintenanceRecord) {
-          if (
-            !maintenanceRecord.operations ||
-            operationIndex < 0 ||
-            operationIndex >= maintenanceRecord.operations.length
-          ) {
-            return false;
-          }
+    const operation = operations[operationIndex];
 
-          const op = maintenanceRecord.operations[operationIndex];
+    const updatedOperation = this.db.updateOperation(operation.id, {
+      description: updates.desc,
+      cost:
+        typeof updates.cost === "number" && !Number.isNaN(updates.cost)
+          ? updates.cost
+          : operation.cost,
+      startDate: updates.startDate || operation.startDate,
+      endDate: updates.endDate || operation.endDate,
+    });
 
-          maintenanceRecord.operations[operationIndex] = {
-            ...op,
-            desc: updates.desc ?? op.desc,
-            cost:
-              typeof updates.cost === "number" && !Number.isNaN(updates.cost)
-                ? updates.cost
-                : op.cost,
-            startDate: updates.startDate || op.startDate,
-            endDate: updates.endDate || op.endDate,
-          };
-
-          this.notifyListeners();
-          return true;
-        }
-      }
+    if (updatedOperation) {
+      this.notifyListeners();
+      return true;
     }
 
     return false;
   }
 
   closeMaintenance(maintenanceId, options = {}) {
-    const items = this.inventoryPresenter.getItems();
-    const today = new Date();
-    const dd = String(today.getDate()).padStart(2, "0");
-    const mm = String(today.getMonth() + 1).padStart(2, "0");
-    const yyyy = today.getFullYear();
-    const todayStr = `${dd}/${mm}/${yyyy}`;
+    const today = new Date().toISOString().split("T")[0];
 
-    for (const item of items) {
-      if (item.maintenance && item.maintenance.length > 0) {
-        const maintenanceRecord = item.maintenance.find(
-          (m) => (m.id || `${item.id}-${m.startDate}`) === maintenanceId,
-        );
+    const maintenance = this.db.getMaintenanceById(maintenanceId);
+    if (!maintenance) return false;
 
-        if (maintenanceRecord) {
-          maintenanceRecord.endDate = todayStr;
-          maintenanceRecord.status = "closed";
-          if (options.notes) {
-            maintenanceRecord.closeNotes = options.notes;
-          }
-          if (options.stillBroken) {
-            item.status = "outofservice";
-          }
-          this.notifyListeners();
-          return true;
-        }
+    // Update maintenance record
+    this.db.updateMaintenance(maintenanceId, {
+      endDate: today,
+    });
+
+    // Update object state
+    if (options.stillBroken) {
+      this.db.updateObject(maintenance.objectId, { state: 5 }); // outofservice
+    } else {
+      this.db.updateObject(maintenance.objectId, { state: 1 }); // available
+    }
+
+    // Update via inventory presenter if available
+    if (this.inventoryPresenter) {
+      try {
+        this.inventoryPresenter.updateItem(maintenance.objectId, {
+          status: options.stillBroken ? "outofservice" : "available",
+        });
+      } catch (error) {
+        console.error("Unable to update item status", error);
       }
     }
 
-    return false;
+    this.notifyListeners();
+    return true;
   }
 }
