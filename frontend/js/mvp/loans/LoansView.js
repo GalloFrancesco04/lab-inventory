@@ -95,6 +95,7 @@ class LoansView extends BaseView {
     this.detailReturn = this.getElement("detail-loan-return");
     this.detailId = this.getElement("detail-loan-id");
     this.detailItems = this.getElement("detail-loan-items");
+    this.detailNotes = this.getElement("detail-loan-notes");
     this.closeLoanBtn = this.getElement("detail-close-loan");
 
     // Close loan modal
@@ -117,6 +118,7 @@ class LoansView extends BaseView {
         actualReturnDate: this.detailReturn,
         id: this.detailId,
         items: this.detailItems,
+        notes: this.detailNotes,
       },
     });
 
@@ -127,10 +129,10 @@ class LoansView extends BaseView {
       damagedTrigger: this.closeLoanDamagedTrigger,
       toaster: this.mediator.toaster,
       logger: this.mediator.logger,
-      onSubmit: ({ damagedItems }) => {
+      onSubmit: ({ damagedItems, notes }) => {
         if (this.currentLoanId) {
           const today = new Date().toISOString().split("T")[0];
-          this.presenter.closeLoan(this.currentLoanId, today, damagedItems);
+          this.presenter.closeLoan(this.currentLoanId, today, damagedItems, notes);
           this.renderLoansTable();
           // refresh modal details
           const updated = this.presenter.getLoanById(this.currentLoanId);

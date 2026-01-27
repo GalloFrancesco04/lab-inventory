@@ -102,12 +102,13 @@ export class LoansPresenter extends BasePresenter {
     return this.clients;
   }
 
-  closeLoan(id, actualReturnDate, damagedItems = []) {
+  closeLoan(id, actualReturnDate, damagedItems = [], notes = "") {
     const loan = this.getLoanById(id);
     if (!loan) return null;
     loan.status = "closed";
     loan.actualReturnDate = actualReturnDate || loan.actualReturnDate || "";
     loan.damagedItems = damagedItems || [];
+    loan.closeNotes = notes || "";
     if (this.inventoryPresenter && damagedItems.length) {
       const ids = damagedItems.map((d) => d.id).filter(Boolean);
       this.inventoryPresenter.markItemsDamaged(ids);
