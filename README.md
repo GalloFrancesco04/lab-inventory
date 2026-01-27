@@ -17,7 +17,7 @@ To run the container use
 
 `docker compose up -d `
 
-To access the application go to http://localhost:8080/
+To access the application go to http://localhost:8080/frontend
 
 # Contribute
 
