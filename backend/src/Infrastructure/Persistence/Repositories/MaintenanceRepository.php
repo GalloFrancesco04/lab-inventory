@@ -2,7 +2,12 @@
 
 use PDO;
 use Application\Domain\Entities\Maintenance;
+use Application\Domain\Entities\Items;
 use DateTime;
+
+require_once __DIR__ . '/../../../Domain/Entities/Maintenance.php';
+require_once __DIR__ . '/../../../Domain/Entities/Items.php';
+
 
 class MaintenanceRepository
 {
@@ -62,6 +67,20 @@ class MaintenanceRepository
             'cost' => $maintenance->getCost(),
             'id' => $maintenance->getId()
         ]);
+    }
+
+    //active maintenances
+    public function getActiveMaintenances(): array 
+    {
+        $stmt = $this->connection->prepare("SELECT * FROM maintenance WHERE end_date IS NULL");
+        $stmt->execute();
+
+        $maintenances = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $maintenances[] = $this->mapRowToMaintenance($row);
+        }
+
+        return $maintenances;
     }
 
     //history of maintenances of an object
@@ -146,6 +165,86 @@ class MaintenanceRepository
 
         return (float) $stmt->fetchColumn();
     }
+
+    public function searchByDate(DateTime $date): array
+    {
+        $stmt = $this->connection->prepare("
+            SELECT * FROM maintenance 
+            WHERE start_date <= :date AND (end_date IS NULL OR end_date >= :date)
+        ");
+
+        $stmt->execute([
+            'date' => $date->format('Y-m-d')
+        ]);
+
+        $maintenances = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $maintenances[] = $this->mapRowToMaintenance($row);
+        }
+
+        return $maintenances;
+    }
+
+    public function searchByType(string $type): array
+    {
+        $stmt = $this->connection->prepare("
+            SELECT * FROM maintenance 
+            WHERE type = :type
+        ");
+
+        $stmt->execute([
+            'type' => $type
+        ]);
+
+        $maintenances = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $maintenances[] = $this->mapRowToMaintenance($row);
+        }
+
+        return $maintenances;
+    }
+
+    //get all maintenances assigned to a technician
+    public function getAllTechnicianMaintenances(int $technicianId): array 
+    {
+        $stmt = $this->connection->prepare("
+            SELECT * FROM maintenance WHERE technician_id = :technician_id
+        ");
+
+        $stmt->execute(['technician_id' => $technicianId]);
+
+        $maintenances = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $maintenances[] = $this->mapRowToMaintenance($row);
+        }
+
+        return $maintenances;
+    }
+
+    //get all objects in maintenance assigned to a technician
+    public function getAllTechnicianAssignedObjects(int $tech_id): array
+    {
+        $stmt = $this->connection->prepare("
+            SELECT DISTINCT o.id, o.object_type_code, o.state, o.location
+            FROM maintenance m 
+            JOIN object_ o ON m.object_id = o.id
+            WHERE m.technician_id = :tech_id AND m.end_date IS NULL
+        ");
+
+        $stmt->execute(['tech_id' => $tech_id]);
+
+        $objects = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $objects[] = new Items(
+                $row['object_type_code'],
+                (int)$row['id'],
+                $row['state'],
+                $row['location']
+            );
+        }
+
+        return $objects;
+    } 
     
     private function mapRowToMaintenance(array $row): Maintenance 
     {
@@ -153,12 +252,12 @@ class MaintenanceRepository
         $endDate = (!empty($row['end_date'])) ? new DateTime($row['end_date']) : null;
 
         $maintenance =  new Maintenance(
-            $row['object_id'],
+            (int)$row['object_id'],
             $row['description'],
             $startDate,
             $endDate,
             $row['type'],
-            $row['technician_id'],
+            (int)$row['technician_id'],
             $row['phone_number'],
             (float)$row['cost'],
         );

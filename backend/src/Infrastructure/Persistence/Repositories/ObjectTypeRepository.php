@@ -4,6 +4,8 @@ use PDO;
 require_once __DIR__ . '/../../../Domain/Entities/ObjectType.php';
 
 
+require_once __DIR__ . '/../../../Domain/Entities/ObjectType.php';
+
 class ObjectTypeRepository
 {
     private PDO $connection;
@@ -28,6 +30,20 @@ class ObjectTypeRepository
             'model' => $objectType->getModel(),
             'brand' => $objectType->getBrand(),
             'quantity' => $objectType->getQuantity()
+        ]);
+    }
+
+    public function updateQuantity(string $code, int $newQuantity): void
+    {
+        $stmt = $this->connection->prepare("
+            UPDATE objecttype 
+            SET quantity = :quantity
+            WHERE code = :code
+        ");
+
+        $stmt->execute([
+            'quantity' => $newQuantity,
+            'code'    => $code
         ]);
     }
 
