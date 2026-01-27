@@ -249,6 +249,7 @@ class MaintenanceRepository
         $endDate = (!empty($row['end_date'])) ? new DateTime($row['end_date']) : null;
 
         $maintenance =  new Maintenance(
+            (int)$row['id'],
             (int)$row['object_id'],
             $row['description'],
             $startDate,
@@ -258,7 +259,6 @@ class MaintenanceRepository
             $row['phone_number'],
             (float)$row['cost'],
         );
-        $maintenance->setId((int)$row['id']);
 
         return $maintenance;
     }
