@@ -44,16 +44,13 @@ export class ItemPicker {
     this.items = items;
     if (!this.panel) return;
 
-    this.panel.innerHTML = "";
-    this.labelsMap.clear();
-
+    // Clear existing items but keep search input
     const searchBox = this.searchInput;
-    if (searchBox) {
-      // keep search box at top if exists already
-      if (!this.panel.contains(searchBox)) {
-        this.panel.prepend(searchBox);
-      }
-    }
+    this.labelsMap.clear();
+    
+    // Remove all labels (keep search input)
+    const allLabels = this.panel.querySelectorAll("label");
+    allLabels.forEach((label) => label.remove());
 
     items.forEach((item) => {
       const label = document.createElement("label");
@@ -66,9 +63,17 @@ export class ItemPicker {
       label.style.userSelect = "none";
       label.style.width = "100%";
       label.style.boxSizing = "border-box";
+      label.style.backgroundColor = "transparent";
+      label.style.transition = "background-color 0.2s";
       label.dataset.itemId = item.id;
-      label.dataset.itemSearch =
-        `${item.name} ${item.type} ${item.id}`.toLowerCase();
+      label.dataset.itemSearch = `${item.name} ${item.type} ${item.id}`.toLowerCase();
+
+      label.addEventListener("mouseenter", () => {
+        label.style.backgroundColor = "#f5f5f5";
+      });
+      label.addEventListener("mouseleave", () => {
+        label.style.backgroundColor = "transparent";
+      });
 
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
@@ -78,10 +83,13 @@ export class ItemPicker {
       checkbox.dataset.itemType = item.type;
       checkbox.style.cursor = "pointer";
       checkbox.style.flexShrink = "0";
+      checkbox.style.width = "18px";
+      checkbox.style.height = "18px";
 
       const text = document.createElement("span");
       text.textContent = `${item.name} (${item.type}) - ID: ${item.id}`;
       text.style.flex = "1";
+      text.style.fontSize = "14px";
 
       label.append(checkbox, text);
       this.panel.appendChild(label);
@@ -92,23 +100,33 @@ export class ItemPicker {
   handleToggle(e) {
     e.stopPropagation();
     if (!this.panel) return;
-    const isOpen = this.panel.style.display === "flex";
+    const isOpen = this.panel.style.display !== "none";
     this.panel.style.display = isOpen ? "none" : "flex";
+    this.panel.style.flexDirection = "column";
+    this.panel.style.minWidth = "300px";
     if (!isOpen && this.searchInput) {
-      this.searchInput.focus();
+      setTimeout(() => this.searchInput?.focus(), 0);
     }
   }
 
   handleSearch(e) {
-    const query = e.target.value.toLowerCase();
-    this.labelsMap.forEach((label) => {
-      const matches = label.dataset.itemSearch.includes(query);
-      label.style.display = matches ? "flex" : "none";
-    });
+    const query = e.target.value.toLowerCase().trim();
+    if (query === "") {
+      // Show all items if search is empty
+      this.labelsMap.forEach((label) => {
+        label.style.display = "flex";
+      });
+    } else {
+      // Filter items based on search query
+      this.labelsMap.forEach((label) => {
+        const matches = label.dataset.itemSearch.includes(query);
+        label.style.display = matches ? "flex" : "none";
+      });
+    }
   }
 
   handleDocumentClick(e) {
-    if (!this.panel || this.panel.style.display !== "flex") return;
+    if (!this.panel || this.panel.style.display === "none") return;
     const clickedInsidePanel = this.panel.contains(e.target);
     const clickedButton = this.toggleButton?.contains(e.target);
     if (!clickedInsidePanel && !clickedButton) {
@@ -118,14 +136,23 @@ export class ItemPicker {
 
   handlePanelChange(e) {
     if (!e.target || e.target.type !== "checkbox") return;
-    const selected = this.getSelectedItemsFromDOM();
-    if (selected.length > this.maxItems) {
-      e.target.checked = false;
-      if (this.toaster)
-        this.toaster.warning(`Max ${this.maxItems} items per loan`);
-      return;
+    
+    const itemId = e.target.dataset.itemId;
+
+    if (e.target.checked) {
+      // Check if we can add more items
+      if (this.selectedIds.size >= this.maxItems) {
+        e.target.checked = false;
+        if (this.toaster) {
+          this.toaster.warning(`Max ${this.maxItems} items per loan`);
+        }
+        return;
+      }
+      this.selectedIds.add(itemId);
+    } else {
+      this.selectedIds.delete(itemId);
     }
-    this.selectedIds = new Set(selected.map((i) => i.id));
+
     this.renderSelectedChips(this.getSelectedItems());
   }
 
@@ -139,38 +166,58 @@ export class ItemPicker {
   getSelectedItemsFromDOM() {
     if (!this.panel) return [];
     const selected = [];
-    this.panel.querySelectorAll("input[type='checkbox']").forEach((cb) => {
-      if (cb.checked) {
-        selected.push({
-          id: cb.dataset.itemId,
-          name: cb.dataset.itemName,
-          type: cb.dataset.itemType,
-        });
-      }
+    this.panel.querySelectorAll("input[type='checkbox']:checked").forEach((cb) => {
+      selected.push({
+        id: cb.dataset.itemId,
+        name: cb.dataset.itemName,
+        type: cb.dataset.itemType,
+      });
     });
     return selected;
   }
 
   getSelectedItems() {
-    return this.items.filter((item) => this.selectedIds.has(item.id));
+    const selected = [];
+    this.selectedIds.forEach((id) => {
+      const item = this.items.find((i) => String(i.id) === String(id));
+      if (item) {
+        selected.push(item);
+      }
+    });
+    return selected;
   }
 
   renderSelectedChips(selected) {
     if (!this.selectedContainer) return;
     this.selectedContainer.innerHTML = "";
+    
     selected.forEach((item) => {
       const chip = document.createElement("div");
       chip.className = "chip";
       chip.textContent = `${item.name} (${item.type})`;
+      chip.style.display = "flex";
+      chip.style.alignItems = "center";
+      chip.style.gap = "8px";
+      chip.style.padding = "6px 10px";
+      chip.style.backgroundColor = "#e3f2fd";
+      chip.style.borderRadius = "4px";
+      chip.style.fontSize = "14px";
 
       const removeBtn = document.createElement("button");
       removeBtn.type = "button";
       removeBtn.dataset.removeId = item.id;
       removeBtn.textContent = "×";
       removeBtn.className = "chip-remove";
-      removeBtn.addEventListener("click", this.handleChipClick);
+      removeBtn.style.background = "none";
+      removeBtn.style.border = "none";
+      removeBtn.style.cursor = "pointer";
+      removeBtn.style.padding = "0";
+      removeBtn.style.color = "#666";
+      removeBtn.style.fontSize = "18px";
+      removeBtn.style.lineHeight = "1";
+      removeBtn.addEventListener("click", this.handleChipClick.bind(this));
+      
       chip.appendChild(removeBtn);
-
       this.selectedContainer.appendChild(chip);
     });
   }
