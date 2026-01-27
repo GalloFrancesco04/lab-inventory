@@ -47,6 +47,7 @@ export class InventoryPresenter extends BasePresenter {
             endDate: "10/01/2026",
             type: "preventive",
             tech: "S. Bianchi",
+            phoneNumber: "+39 328 123 4567",
             desc: "Dust cleaning and general check",
             operations: [
               {
@@ -103,6 +104,7 @@ export class InventoryPresenter extends BasePresenter {
             endDate: "05/12/2025",
             type: "repair",
             tech: "R. Verdi",
+            phoneNumber: "+39 331 456 7890",
             desc: "Screen replaced",
             operations: [
               {

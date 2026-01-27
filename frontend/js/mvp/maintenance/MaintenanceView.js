@@ -227,6 +227,10 @@ class MaintenanceView extends BaseView {
     this.detailItem.textContent = maintenance.itemName;
 
     this.detailTech.textContent = maintenance.tech || "-";
+    const detailPhone = this.getElement("maintenance-detail-phone");
+    if (detailPhone) {
+      detailPhone.textContent = maintenance.phoneNumber || "-";
+    }
     this.detailDesc.textContent = maintenance.desc || "-";
     this.detailTotal.textContent = `€${maintenance.totalCost.toFixed(2)}`;
 
