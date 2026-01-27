@@ -91,6 +91,7 @@ class LoansView extends BaseView {
     this.detailStatus = this.getElement("detail-loan-status");
     this.detailClient = this.getElement("detail-loan-client");
     this.detailStart = this.getElement("detail-loan-start");
+    this.detailEnd = this.getElement("detail-loan-end");
     this.detailReturn = this.getElement("detail-loan-return");
     this.detailId = this.getElement("detail-loan-id");
     this.detailItems = this.getElement("detail-loan-items");
@@ -109,7 +110,8 @@ class LoansView extends BaseView {
         status: this.detailStatus,
         client: this.detailClient,
         startDate: this.detailStart,
-        returnDate: this.detailReturn,
+        endDate: this.detailEnd,
+        actualReturnDate: this.detailReturn,
         id: this.detailId,
         items: this.detailItems,
       },
@@ -122,6 +124,14 @@ class LoansView extends BaseView {
       toaster: this.mediator.toaster,
       logger: this.mediator.logger,
       onSubmit: () => {
+        if (this.currentLoanId) {
+          const today = new Date().toISOString().split("T")[0];
+          this.presenter.closeLoan(this.currentLoanId, today);
+          this.renderLoansTable();
+          // refresh modal details
+          const updated = this.presenter.getLoanById(this.currentLoanId);
+          this.loanDetailModal?.show(updated);
+        }
         this.closeModal("close-loan-modal");
         this.closeModal("loan-detail-modal");
       },
@@ -184,7 +194,7 @@ class LoansView extends BaseView {
       e.preventDefault();
       const items = this.itemPicker?.getSelectedItems() || [];
       const client = this.loanClient?.value?.trim();
-      const returnDate = this.loanDate?.value || "";
+      const endDate = this.loanDate?.value || "";
 
       if (!client) {
         this.mediator.toaster.error(ERROR_MESSAGES.SELECT_CLIENT);
@@ -202,8 +212,8 @@ class LoansView extends BaseView {
       }
 
       // Validate return date is not in the past
-      if (returnDate) {
-        const selectedDate = new Date(returnDate);
+      if (endDate) {
+        const selectedDate = new Date(endDate);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         if (selectedDate < today) {
@@ -220,7 +230,7 @@ class LoansView extends BaseView {
         const newLoan = this.presenter.addLoan({
           client,
           startDate,
-          returnDate,
+          endDate,
           items,
         });
 
@@ -275,7 +285,11 @@ class LoansView extends BaseView {
       return;
     }
 
-    this.loanDetailModal?.show(loan);
+    this.currentLoanId = loan.id;
+    this.loanDetailModal?.show({
+      ...loan,
+      _isLate: this.isLateReturn(loan),
+    });
   }
 
   getSelectedItems() {
@@ -306,7 +320,9 @@ class LoansView extends BaseView {
         loan.id,
         loan.client,
         loan.status,
-        loan.returnDate || "",
+        loan.startDate || "",
+        loan.endDate || "",
+        loan.actualReturnDate || "",
         String(loan.items?.length || 0),
       ],
       this.searchQuery,
@@ -322,9 +338,28 @@ class LoansView extends BaseView {
       id: (loan) => loan.id,
       client: (loan) => loan.client.toLowerCase(),
       items: (loan) => loan.items?.length || 0,
-      returnDate: (loan) => loan.returnDate || "",
+      startDate: (loan) => loan.startDate || "",
+      endDate: (loan) => loan.endDate || "",
+      actualReturnDate: (loan) => loan.actualReturnDate || "",
       status: (loan) => loan.status.toLowerCase(),
     });
+  }
+
+  isLateReturn(loan) {
+    if (!loan?.endDate || !loan?.actualReturnDate) return false;
+    const end = this.parseDate(loan.endDate);
+    const actual = this.parseDate(loan.actualReturnDate);
+    if (!end || !actual) return false;
+    return actual > end;
+  }
+
+  formatDate(dateStr) {
+    const date = this.parseDate(dateStr);
+    if (!date || isNaN(date.getTime())) return "-";
+    const dd = String(date.getDate()).padStart(2, "0");
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const yyyy = date.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
   }
 
   setupSorting() {
@@ -388,8 +423,19 @@ class LoansView extends BaseView {
       itemsBadge.textContent = loan.items?.length ?? 0;
       itemCell.appendChild(itemsBadge);
 
+      const startDateCell = document.createElement("td");
+      startDateCell.textContent = this.formatDate(loan.startDate || "-");
+
+      const endDateCell = document.createElement("td");
+      endDateCell.textContent = this.formatDate(loan.endDate || "-");
+
       const returnDateCell = document.createElement("td");
-      returnDateCell.textContent = loan.returnDate || "-";
+      returnDateCell.textContent = this.formatDate(
+        loan.actualReturnDate || "-",
+      );
+      returnDateCell.style.color = this.isLateReturn(loan)
+        ? "var(--danger)"
+        : "";
 
       const statusCell = document.createElement("td");
       const statusBadge = document.createElement("span");
@@ -397,7 +443,15 @@ class LoansView extends BaseView {
       statusBadge.textContent = loan.status;
       statusCell.appendChild(statusBadge);
 
-      row.append(idCell, clientCell, itemCell, returnDateCell, statusCell);
+      row.append(
+        idCell,
+        clientCell,
+        itemCell,
+        startDateCell,
+        endDateCell,
+        returnDateCell,
+        statusCell,
+      );
       row.addEventListener("click", () => this.showLoanDetails(loan.id));
 
       this.loansTbody.appendChild(row);

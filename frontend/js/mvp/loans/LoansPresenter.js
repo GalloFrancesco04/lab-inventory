@@ -9,7 +9,9 @@ export class LoansPresenter extends BasePresenter {
         id: "10001",
         client: "Mario Sale",
         status: "active",
-        returnDate: "12/12/2024",
+        startDate: "01/12/2024",
+        endDate: "12/12/2024",
+        actualReturnDate: "",
         items: [
           { id: "20001", name: "Notebook", type: "Computer" },
           { id: "30001", name: "Mouse", type: "Peripherals" },
@@ -19,14 +21,18 @@ export class LoansPresenter extends BasePresenter {
         id: "10002",
         client: "Sale Mario",
         status: "closed",
-        returnDate: "02/10/2024",
+        startDate: "15/09/2024",
+        endDate: "02/10/2024",
+        actualReturnDate: "02/10/2024",
         items: [{ id: "20002", name: "Tablet", type: "Tablet" }],
       },
       {
         id: "10003",
         client: "Marius Salis",
         status: "active",
-        returnDate: "20/11/2024",
+        startDate: "01/11/2024",
+        endDate: "20/11/2024",
+        actualReturnDate: "",
         items: [
           { id: "20003", name: "Monitor", type: "Computer" },
           { id: "30002", name: "Keyboard", type: "Peripherals" },
@@ -51,7 +57,7 @@ export class LoansPresenter extends BasePresenter {
     ];
   }
 
-  addLoan({ client, startDate, returnDate, items }) {
+  addLoan({ client, startDate, endDate, items }) {
     if (!client || !items || items.length === 0 || items.length > 5) {
       return null;
     }
@@ -61,7 +67,8 @@ export class LoansPresenter extends BasePresenter {
       client,
       startDate: startDate || "",
       status: "active",
-      returnDate: returnDate || "",
+      endDate: endDate || "",
+      actualReturnDate: "",
       items: items.map((item) => ({
         id: item.id,
         name: item.name,
@@ -88,6 +95,15 @@ export class LoansPresenter extends BasePresenter {
 
   getClients() {
     return this.clients;
+  }
+
+  closeLoan(id, actualReturnDate) {
+    const loan = this.getLoanById(id);
+    if (!loan) return null;
+    loan.status = "closed";
+    loan.actualReturnDate = actualReturnDate || loan.actualReturnDate || "";
+    this.notifyListeners();
+    return loan;
   }
 
   addClient(name, email) {
