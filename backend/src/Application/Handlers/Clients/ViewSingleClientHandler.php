@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ClientRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/LoanRepository.php';
 require_once __DIR__ . '/../../../../config/Database.php';
 
 require_once __DIR__ . '/../../Commands/Clients/ViewSingleClientCommand.php';
@@ -8,11 +9,14 @@ require_once __DIR__ . '/../../Commands/Clients/ViewSingleClientCommand.php';
 
 class ViewSingleClientHandler {
     private $clientRepository;
+    private $loanRepository;
 
     public function __construct() {
         $db = new Database();
+        $connection = $db->getConnection();
 
-        $this->clientRepository = new ClientRepository($db->getConnection());
+        $this->clientRepository = new ClientRepository($connection);
+        $this->loanRepository = new LoanRepository($connection);
     }
 
     public function handle(ViewSingleClientCommand $command) {
@@ -28,6 +32,9 @@ class ViewSingleClientHandler {
             if(empty($client)) {
                 return null;
             }
+
+            $clientLoans = $this->loanRepository->getAllLoansOfClient($client->getId());
+            $client->loans = $clientLoans;
 
             return $client;
 
