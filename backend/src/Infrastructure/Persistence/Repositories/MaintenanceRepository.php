@@ -1,12 +1,8 @@
 <?php
 
-use PDO;
-use Application\Domain\Entities\Maintenance;
-use Application\Domain\Entities\Items;
-use DateTime;
 
 require_once __DIR__ . '/../../../Domain/Entities/Maintenance.php';
-require_once __DIR__ . '/../../../Domain/Entities/Items.php';
+require_once __DIR__ . '/../../../Domain/Entities/InventoryItem.php';
 
 
 class MaintenanceRepository
@@ -18,7 +14,7 @@ class MaintenanceRepository
         $this->connection = $connection;
     }
 
-    public function create(Maintenance $maintenance): void 
+    public function create(Maintenance $maintenance): int 
     {
         $stmt = $this->connection->prepare("
             INSERT INTO maintenance (object_id, description, start_date, end_date,
@@ -40,6 +36,7 @@ class MaintenanceRepository
 
             //Set the generated ID to the Maintenance entity
             $maintenance->setId((int) $this->connection->lastInsertId());
+            return $maintenance->getId();
 
     }
 
