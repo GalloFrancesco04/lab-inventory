@@ -5,17 +5,12 @@ require_once __DIR__ . '/../../../../src/Application/Handlers/Loans/ViewLoansHan
 require_once __DIR__ . '/../../../../src/Domain/Entities/Loan.php';
 
 $mediator = new Mediator();
-
-// Registrazione dell'Handler per i prestiti
 $mediator->register('ViewLoansCommand', 'ViewLoansHandler');
 
-echo "========== TEST VISUALIZZAZIONE PRESTITI ==========\n\n";
+echo "========== TEST VISUALIZZAZIONE LISTA PRESTITI COMPLETA ==========\n\n";
 
-/**
- * CASE 1: Recupero lista completa dei prestiti
- */
 try {
-    echo "Test 1: Recupero di tutti i prestiti dal database... ";
+    echo "Recupero di tutti i prestiti in corso... ";
     
     $command = new ViewLoansCommand();
     $loans = $mediator->send($command);
@@ -26,31 +21,32 @@ try {
 
     echo "✅ SUCCESSO\n";
     echo "Numero di prestiti trovati: " . count($loans) . "\n";
-    echo "----------------------------------------------\n";
+    echo str_repeat("=", 60) . "\n\n";
 
-    // Anteprima dati per verifica visiva
     foreach ($loans as $loan) {
         if ($loan instanceof Loan) {
-            $status = $loan->getState() ? "Attivo" : "Chiuso";
-            echo "ID: {$loan->getId()} | Cliente ID: {$loan->getClientId()} | Inizio: {$loan->getStartDate()->format('Y-m-d')} | Stato: {$status}\n";
+            // --- 1. TESTATA PRESTITO ---
+            $status = $loan->getState() ? "🟢 ATTIVO" : "🔴 CHIUSO";
+            echo "PRESTITO ID: {$loan->getId()} | Stato: $status | Quantita': {$loan->getQuantity()}\n ";
+            echo "Periodo:     " . $loan->getStartDate()->format('d/m/Y') . " -> " . $loan->getEndDate()->format('d/m/Y') . "\n";
+            
+            // --- 2. DETTAGLI CLIENTE (Proprietà aggiunta) ---
+            $client = $loan->client ?? null;
+            if ($client) {
+                $cName = method_exists($client, 'getFullName') ? $client->getFullName() : 'N/D';
+                echo "Cliente:     $cName\n";
+            } else {
+                echo "Cliente:     ID {$loan->getClientId()} (Dettagli non caricati)\n";
+            }
+
+            if ($loan->getNotes()) {
+                echo "Note:        {$loan->getNotes()}\n";
+            }
+            
+            echo str_repeat("-", 60) . "\n";
         }
     }
 
-} catch (Exception $e) {
-    echo "❌ ERRORE: " . $e->getMessage() . "\n";
-}
-
-/**
- * CASE 2: Verifica integrità dati
- */
-try {
-    echo "\nTest 2: Verifica che gli oggetti restituiti siano istanze di Loan... ";
-    
-    if (count($loans) > 0 && !($loans[0] instanceof Loan)) {
-        throw new Exception("L'array contiene dati sporchi, non sono oggetti Loan.");
-    }
-    
-    echo "✅ SUCCESSO\n";
 } catch (Exception $e) {
     echo "❌ ERRORE: " . $e->getMessage() . "\n";
 }

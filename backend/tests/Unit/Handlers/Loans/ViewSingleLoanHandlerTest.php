@@ -5,59 +5,66 @@ require_once __DIR__ . '/../../../../src/Application/Handlers/Loans/ViewSingleLo
 require_once __DIR__ . '/../../../../src/Domain/Entities/Loan.php';
 
 $mediator = new Mediator();
-
-// Registrazione dell'handler
 $mediator->register('ViewSingleLoanCommand', 'ViewSingleLoanHandler');
 
-echo "========== TEST VISUALIZZAZIONE SINGOLO PRESTITO ==========\n\n";
+echo "========== TEST VISUALIZZAZIONE PRESTITO COMPLETO ==========\n\n";
 
-/**
- * CASE 1: Recupero prestito esistente (Happy Path)
- */
 try {
-    $targetId = 1; // Assicurati che questo ID esista nella tabella loans
-    echo "Test 1: Recupero prestito con ID {$targetId}... ";
+    $targetId = 1; 
+    echo "Test 1: Recupero prestito ID {$targetId}... ";
     
     $command = new ViewSingleLoanCommand($targetId);
     $loan = $mediator->send($command);
     
     if ($loan instanceof Loan) {
-        echo "✅ SUCCESSO\n";
-        echo "Dettagli Prestito:\n";
-        echo "- ID: " . $loan->getId() . "\n";
-        echo "- Cliente ID: " . $loan->getClientId() . "\n";
-        echo "- Data Inizio: " . $loan->getStartDate()->format('d/m/Y') . "\n";
-        echo "- Data Fine Prevista: " . $loan->getEndDate()->format('d/m/Y') . "\n";
+        echo "✅ SUCCESSO\n\n";
         
-        $returnDate = $loan->getReturnDate() ? $loan->getReturnDate()->format('d/m/Y') : "Non ancora restituito";
-        echo "- Data Restituzione: " . $returnDate . "\n";
-        
-        echo "- Note: " . ($loan->getNotes() ?? "Nessuna nota") . "\n";
-        echo "- Stato: " . ($loan->getState() ? "Attivo" : "Chiuso/Restituito") . "\n";
+        // --- SEZIONE 1: DATI BASE PRESTITO ---
+        echo "=== DETTAGLI PRESTITO ===\n";
+        echo "ID:            " . $loan->getId() . "\n";
+        echo "Stato:         " . ($loan->getState() ? "🟢 ATTIVO" : "🔴 CHIUSO") . "\n";
+        echo "Inizio:        " . $loan->getStartDate()->format('d/m/Y') . "\n";
+        echo "Fine Prevista: " . $loan->getEndDate()->format('d/m/Y') . "\n";
+        $returnDate = $loan->getReturnDate() ? $loan->getReturnDate()->format('d/m/Y') : "Non restituito";
+        echo "Restituzione:  " . $returnDate . "\n";
+        echo "Quantita':  " . ($loan->getQuantity()) . "\n";
+        echo "Note:          " . ($loan->getNotes() ?? "N/D") . "\n\n";
+
+        // --- SEZIONE 2: DATI CLIENTE (Proprietà aggiunta $loan->client) ---
+        echo "=== CLIENTE ASSOCIATO ===\n";
+        $client = $loan->client ?? null;
+        if ($client) {
+            // Usiamo i getter della classe Client
+            $cName = method_exists($client, 'getFullName') ? $client->getFullName() : 'N/D';
+            $cEmail = method_exists($client, 'getEmail') ? $client->getEmail() : 'N/D';
+            echo "Nome:  $cName\n";
+            echo "Email: $cEmail\n\n";
+        } else {
+            echo "⚠️ Dati cliente non caricati.\n\n";
+        }
+
+        // --- SEZIONE 3: OGGETTI PRESTATI (Proprietà aggiunta $loan->items) ---
+        echo "=== OGGETTI NEL PRESTITO ===\n";
+        $items = $loan->loanedObjects ?? []; // Supponiamo sia un array di esemplari fisici
+        if (is_array($items) && count($items) > 0) {
+            foreach ($items as $item) {
+                // Estraiamo codice tipo e posizione dall'esemplare
+                $code = method_exists($item, 'getObjectTypeCode') ? $item->getObjectTypeCode() : 'N/D';
+                $id = method_exists($item, 'getObjectId') ? $item->getObjectId() : 'N/D';
+                $damaged  = method_exists($item, 'isDamaged') ? $item->isDamaged() : 'N/D';
+                
+                echo "  > [Esemplare] Id: $id | Codice: $code | Danneggiato: $damaged\n";
+            }
+        } else {
+            echo "⚠️ Nessun oggetto fisico collegato a questo prestito.\n";
+        }
+
     } else {
-        throw new Exception("Il risultato non è un'istanza di Loan.");
+        throw new Exception("L'handler non ha restituito un'istanza di Loan.");
     }
 
 } catch (Exception $e) {
     echo "❌ ERRORE: " . $e->getMessage() . "\n";
-}
-
-echo "----------------------------------------------------------\n";
-
-/**
- * CASE 2: Recupero ID inesistente (Edge Case)
- */
-try {
-    $invalidId = 0; // O un ID altissimo
-    echo "Test 2: Recupero prestito con ID inesistente ({$invalidId})... ";
-    
-    $command = new ViewSingleLoanCommand($invalidId);
-    $mediator->send($command);
-    
-    echo "⚠️ NOTA: Il sistema non ha generato eccezioni per un ID mancante.\n";
-} catch (Exception $e) {
-    // Verifica che l'handler lanci un'eccezione se il repo restituisce null
-    echo "✅ CATTURATO (Corretto): " . $e->getMessage() . "\n";
 }
 
 echo "\n================ FINE TEST ===================\n";

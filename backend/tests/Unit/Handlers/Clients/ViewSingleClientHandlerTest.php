@@ -9,10 +9,10 @@ $mediator = new Mediator();
 // Registrazione
 $mediator->register('ViewSingleClientCommand', 'ViewSingleClientHandler');
 
-echo "========== TEST VISUALIZZAZIONE SINGOLO CLIENTE ==========\n\n";
+echo "========== TEST VISUALIZZAZIONE SINGOLO CLIENTE E PRESTITI ==========\n\n";
 
 /**
- * CASE 1: Recupero cliente esistente (Happy Path)
+ * CASE 1: Recupero cliente esistente con i suoi prestiti
  */
 try {
     $targetId = 1; // Assicurati che questo ID esista nel tuo DB
@@ -22,11 +22,45 @@ try {
     $client = $mediator->send($command);
     
     if ($client instanceof Client) {
-        echo "✅ SUCCESSO\n";
-        echo "Dettagli Trovati:\n";
-        echo "- Nome Completo: " . $client->getFullName() . "\n";
-        echo "- Email: " . $client->getEmail() . "\n";
-        echo "- Stato: " . $client->getState() . "\n";
+        echo "✅ SUCCESSO\n\n";
+        echo "--- SCHEDA CLIENTE ---\n";
+        echo "Nome Completo: " . $client->getFullName() . "\n";
+        echo "Email:         " . $client->getEmail() . "\n";
+        echo "Stato Cliente: " . $client->getState() . "\n";
+        echo "----------------------\n";
+
+        // Gestione Proprietà 'loans' aggiunta dinamicamente
+        $loans = $client->loans ?? [];
+
+        if (is_array($loans) && count($loans) > 0) {
+            echo "📦 PRESTITI ASSOCIATI:\n";
+            
+            foreach ($loans as $loan) {
+                // Essendo proprietà private in Loan, usiamo i Getter
+                $id    = method_exists($loan, 'getId') ? $loan->getId() : 'N/D';
+                $qty   = method_exists($loan, 'getQuantity') ? $loan->getQuantity() : '1';
+                $state = method_exists($loan, 'getState') 
+                         ? ($loan->getState() ? 'ATTIVO' : 'CHIUSO') 
+                         : 'N/D';
+
+                // Gestione specifica per le date (oggetti DateTime)
+                $start = 'N/D';
+                if (method_exists($loan, 'getStartDate')) {
+                    $dateObj = $loan->getStartDate();
+                    $start = ($dateObj instanceof DateTime) ? $dateObj->format('d/m/Y') : $dateObj;
+                }
+
+                echo "  > [Loan ID: $id] Inizio: $start | Qta: $qty | Stato: $state\n";
+
+                // Se sono presenti note
+                if (method_exists($loan, 'getNotes') && $loan->getNotes()) {
+                    echo "    Note: {$loan->getNotes()}\n";
+                }
+            }
+        } else {
+            echo "ℹ️ Nessun prestito trovato per questo cliente.\n";
+        }
+
     } else {
         throw new Exception("Il risultato non è un'istanza di Client.");
     }
@@ -35,10 +69,10 @@ try {
     echo "❌ ERRORE: " . $e->getMessage() . "\n";
 }
 
-echo "----------------------------------------------------------\n";
+echo "\n----------------------------------------------------------\n";
 
 /**
- * CASE 2: Recupero ID inesistente (Edge Case)
+ * CASE 2: Recupero ID inesistente
  */
 try {
     $invalidId = 999999;
@@ -49,8 +83,7 @@ try {
     
     echo "⚠️ NOTA: Il sistema non ha segnalato l'assenza del cliente.\n";
 } catch (Exception $e) {
-    // Qui verifichiamo che il messaggio sia quello che abbiamo lanciato nell'handler
-    echo "✅ CATTURATO (Corretto): " . $e->getMessage() . "\n";
+    echo "✅ CATTURATO: " . $e->getMessage() . "\n";
 }
 
 echo "\n================ FINE TEST ===================\n";

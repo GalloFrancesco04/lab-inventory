@@ -24,7 +24,7 @@ class ViewObjectTypesHandler {
             return $objectTypes;
 
         } catch (Exception $ex) {
-            throw new Exception("Si e' verificato un errore durante il recupero dei Prestiti: " . $ex->getMessage(), 0, $ex);
+            throw new Exception("Si e' verificato un errore durante il recupero degli ObjectType: " . $ex->getMessage(), 0, $ex);
         }
     }
 }

@@ -6,56 +6,63 @@ require_once __DIR__ . '/../../../../src/Application/Handlers/Inventory/ViewObje
 $mediator = new Mediator();
 $mediator->register('ViewObjectsCommand', 'ViewObjectsHandler');
 
-echo "========== UNIT TEST: VIEW ALL PHYSICAL OBJECTS ==========\n\n";
+echo "========== UNIT TEST: VIEW DETAILED PHYSICAL OBJECTS ==========\n\n";
 
 try {
-    echo "Recupero lista esemplari in corso... ";
-    
-    // Invio il comando (solitamente senza parametri per vedere tutto)
     $result = $mediator->send(new ViewObjectsCommand());
 
     if (is_array($result)) {
-        echo "✅ SUCCESSO!\n";
-        echo "Totale esemplari trovati: " . count($result) . "\n\n";
+        echo "✅ Lista esemplari completa recuperata.\n\n";
 
-        // Funzione helper per estrarre i valori (inclusa la gestione ItemState)
-        $extractValue = function($source, $prop) {
-            if (is_array($source)) return $source[$prop] ?? 'N/D';
-            
-            if (is_object($source)) {
-                $getter = 'get' . str_replace('_', '', ucwords($prop, '_'));
-                $value = method_exists($source, $getter) ? $source->$getter() : ($source->$prop ?? null);
-                
-                // Gestione specifica se il valore restituito è l'oggetto ItemState
-                if (is_object($value)) {
-                    if (method_exists($value, 'getName')) return $value->getName();
-                    if (method_exists($value, 'getValue')) return $value->getValue();
-                    if (method_exists($value, '__toString')) return (string)$value;
-                    return get_class($value);
-                }
-                return $value ?? 'N/D';
+        // Helper per lo stato (ItemState -> getStateCode)
+        $extractState = function($obj) {
+            $stateObj = method_exists($obj, 'getState') ? $obj->getState() : ($obj->state ?? null);
+            if (is_object($stateObj) && method_exists($stateObj, 'getStateCode')) {
+                return $stateObj->getStateCode();
             }
             return 'N/D';
         };
 
-        echo sprintf("%-5s | %-15s | %-20s | %-15s\n", "ID", "TIPO", "POSIZIONE", "STATO");
-        echo str_repeat("-", 65) . "\n";
+        // Header Tabella (Allargato per ospitare tutti i campi)
+        echo sprintf(
+            "%-4s | %-10s | %-15s | %-15s | %-15s | %-10s | %-10s | %-8s | %-5s\n", 
+            "ID", "CODE", "NAME", "BRAND", "MODEL", "STATE", "LOC", "QTY_TOT", "DESC"
+        );
+        echo str_repeat("-", 120) . "\n";
 
-        foreach ($result as $object) {
+        foreach ($result as $obj) {
+            // Proprietà dinamica ObjectType
+            $type = $obj->objectType ?? null;
+
+            // --- Estrazione Campi ObjectType tramite Getter ---
+            $tCode  = (is_object($type) && method_exists($type, 'getCode')) ? $type->getCode() : 'N/D';
+            $tName  = (is_object($type) && method_exists($type, 'getName')) ? $type->getName() : 'N/D';
+            $tBrand = (is_object($type) && method_exists($type, 'getBrand')) ? ($type->getBrand() ?? '-') : '-';
+            $tModel = (is_object($type) && method_exists($type, 'getModel')) ? ($type->getModel() ?? '-') : '-';
+            $tQty   = (is_object($type) && method_exists($type, 'getQuantity')) ? $type->getQuantity() : '0';
+            $tDesc  = (is_object($type) && method_exists($type, 'getDescription')) ? ($type->getDescription() ?? '') : '';
+
+            // --- Estrazione Campi PhysicalObject ---
+            $id       = method_exists($obj, 'getId') ? $obj->getId() : 'N/D';
+            $location = method_exists($obj, 'getLocation') ? $obj->getLocation() : 'N/D';
+            $state    = $extractState($obj);
+
             echo sprintf(
-                "%-5s | %-15s | %-20s | %-15s\n",
-                $extractValue($object, 'id'),
-                $extractValue($object, 'object_type_code'),
-                $extractValue($object, 'location'),
-                $extractValue($object, 'state') // Estratto tramite la logica ItemState dell'helper
+                "%-4s | %-10s | %-15s | %-15s | %-15s | %-10s | %-10s | %-8s | %-5s\n",
+                $id,
+                $tCode,
+                $tName,
+                $tBrand,
+                $tModel,
+                $state,
+                $location,
+                $tQty,
+                $tDesc// Indichiamo solo se la descrizione esiste per brevità
             );
         }
-    } else {
-        echo "❌ ERRORE: L'Handler non ha restituito un array.\n";
     }
-
 } catch (Exception $e) {
-    echo "❌ FALLITO: " . $e->getMessage() . "\n";
+    echo "❌ ERRORE: " . $e->getMessage() . "\n";
 }
 
 echo "\n================ FINE TEST ==========================\n";
