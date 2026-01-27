@@ -66,6 +66,20 @@ class MaintenanceRepository
         ]);
     }
 
+    //active maintenances
+    public function getActiveMaintenances(): array 
+    {
+        $stmt = $this->connection->prepare("SELECT * FROM maintenance WHERE end_date IS NULL");
+        $stmt->execute();
+
+        $maintenances = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $maintenances[] = $this->mapRowToMaintenance($row);
+        }
+
+        return $maintenances;
+    }
+
     //history of maintenances of an object
     public function getObjectMaintenances(int $objectId): array 
     {

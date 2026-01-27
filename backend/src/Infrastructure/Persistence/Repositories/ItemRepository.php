@@ -57,31 +57,31 @@ class ItemRepository
         ]);
     }
 
-    // public function MarkObjectAsBroken(int $id): void
-    // {
-    //     $stmt = $this->connection->prepare("
-    //         UPDATE object_ 
-    //         SET state = 4
-    //         WHERE id = :id
-    //     ");
+    public function MarkObjectAsBroken(int $id): void
+    {
+        $stmt = $this->connection->prepare("
+            UPDATE object_ 
+            SET state = 4
+            WHERE id = :id
+        ");
 
-    //     $stmt->execute([
-    //         'id'    => $id
-    //     ]);
-    // }
+        $stmt->execute([
+            'id'    => $id
+        ]);
+    }
 
-    // public function SendObjectToMaintenance(int $id): void
-    // {
-    //     $stmt = $this->connection->prepare("
-    //         UPDATE object_ 
-    //         SET state = 3
-    //         WHERE id = :id
-    //     ");
+    public function SendObjectToMaintenance(int $id): void
+    {
+        $stmt = $this->connection->prepare("
+            UPDATE object_ 
+            SET state = 3
+            WHERE id = :id
+        ");
 
-    //     $stmt->execute([
-    //         'id'    => $id
-    //     ]);
-    // }
+        $stmt->execute([
+            'id'    => $id
+        ]);
+    }
 
     public function updateState(int $id, string $newState): void
     {
@@ -128,6 +128,19 @@ class ItemRepository
     {
         $stmt = $this->connection->prepare("SELECT * FROM object_");
         $stmt->execute();
+
+        $items = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $items[] = $this->mapRowToItem($row);
+        }
+
+        return $items;
+    }
+
+    public function getAllItemsByTypeCode(string $typeCode): array
+    {
+        $stmt = $this->connection->prepare("SELECT * FROM object_ WHERE object_type_code = :type_code");
+        $stmt->execute(['type_code' => $typeCode]);
 
         $items = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
