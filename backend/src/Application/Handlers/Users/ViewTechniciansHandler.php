@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../../../config/Database.php';
 require_once __DIR__ . '/../../Commands/Users/ViewTechniciansCommand.php';
 
 
-class ViewLoansHandler {
+class ViewTechniciansHandler {
     private $userRepository;
 
     public function __construct() {
@@ -23,6 +23,11 @@ class ViewLoansHandler {
             
             if(empty($technicians)) {
                 return [];
+            }
+
+            // I don't want to return the password do the client
+            foreach($technicians as $tech) {
+                $tech->setPass('');
             }
 
             return $technicians;
