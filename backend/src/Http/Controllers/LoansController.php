@@ -5,6 +5,7 @@ require_once __DIR__ . '/../Response.php';
 require_once __DIR__ . '/../../Application/Mediator/Mediator.php';
 require_once __DIR__ . '/../../../config/Database.php';
 require_once __DIR__ . '/../../Http/Request.php';
+require_once __DIR__ . '/../../Domain/Entities/InventoryItem.php';
 
 // COMMANDS & HANDLERS
 require_once __DIR__ . '/../../Application/Commands/Loans/CreateLoanCommand.php';
@@ -75,25 +76,78 @@ class LoansController {
      
      */
     public function create(Request $request) {
-        $data = $request->getBody();
+       
+         $data = $request->getBody();
         try {
-            // Assumiamo che CreateLoanCommand accetti l'array $data
-            $command = new CreateLoanCommand($data);
+            $client_id = $data['client_id'] ?? null;
+            $start_date = $data['start_date'] ?? date('Y-m-d');
+            $end_date = $data['end_date'] ?? null;
+            $note = $data['note'] ?? null;
+            
+            // Prepare InventoryItem instances
+            $rawItems = $data['inventory_items'] ?? [];
+            $objectInstances = [];
+
+            foreach ($rawItems as $itemData) {
+                // retrieve id, quantity, state
+                $itemId = is_array($itemData) ? ($itemData['id'] ?? null) : $itemData;
+                $quantity = is_array($itemData) ? ($itemData['quantity'] ?? 1) : 1;
+                $state = is_array($itemData) ? ($itemData['state'] ?? 'active') : 'active';
+
+                // Create InventoryItem instance
+                // Not using null coalescing here to ensure id is set
+                $item = new InventoryItem($itemId, $quantity, $state);
+                
+                $objectInstances[] = $item;
+            }
+
+            // Create and send the CreateLoanCommand
+            $command = new CreateLoanCommand(
+                $start_date, 
+                $end_date, 
+                $client_id, 
+                $note, 
+                ...$objectInstances
+            );
+
             $id = $this->mediator->send($command);
             Response::success(["message" => "Loan created successfully", "id" => $id], 201);
         } catch (Exception $e) {
             Response::error($e->getMessage(), "CREATE_ERROR", 400);
-        }
     }
+}
 
     /**
      * PUT /api/loans/{id}
      
      */
     public function update(Request $request, $id) {
-        $data = $request->getBody();
+      $data = $request->getBody();
         try {
-            $command = new UpdateLoanCommand((int)$id, $data);
+            $note = $data['note'] ?? '';
+            
+            // Prepare InventoryItem instances
+            $rawItems = $data['inventory_items'] ?? [];
+            $objectInstances = [];
+            // Create InventoryItem instances
+            foreach ($rawItems as $itemData) {
+                $itemId = is_array($itemData) ? ($itemData['id'] ?? null) : $itemData;
+                $quantity = is_array($itemData) ? ($itemData['quantity'] ?? 1) : 1;
+                $state = is_array($itemData) ? ($itemData['state'] ?? 'active') : 'active';
+
+                // Create InventoryItem instance
+                $item = new InventoryItem($itemId, $quantity, $state);
+                
+                $objectInstances[] = $item;
+            }
+
+            // Create and send the UpdateLoanCommand
+            $command = new UpdateLoanCommand(
+                (int)$id, 
+                $note, 
+                ...$objectInstances
+            );
+
             $this->mediator->send($command);
             Response::success(["message" => "Loan updated successfully"]);
         } catch (Exception $e) {
@@ -105,7 +159,7 @@ class LoansController {
      * DELETE /api/loans/{id}
      
      */
-    public function delete(Request $request, $id) {
+    public function close(Request $request, $id) {
         try {
             
             $command = new CloseLoanCommand((int)$id);

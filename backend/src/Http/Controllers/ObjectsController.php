@@ -44,7 +44,7 @@ class ObjectsController {
     public function create(Request $request) {
         $data = $request->getBody();
         try {
-            $command = new CreateObjectCommand($data);
+            $command = new CreateObjectCommand($data["object_type_code"], $data["location"] ?? null);
             $id = $this->mediator->send($command);
             Response::success(["message" => "Oggetto fisico creato", "id" => $id], 201);
         } catch (Exception $e) {
@@ -56,7 +56,7 @@ class ObjectsController {
         $data = $request->getBody();
         try {
             // Create and send the update command
-            $command = new UpdateObjectCommand((int)$id, $data);
+            $command = new UpdateObjectCommand((int)$id, $data["location"]);
             $this->mediator->send($command);
             Response::success(["message" => "Oggetto aggiornato correttamente"]);
         } catch (Exception $e) {
@@ -79,7 +79,7 @@ class ObjectsController {
     public function sendMaintenance(Request $request) {
         $data = $request->getBody();
         try {
-            $command = new SendToMaintenanceCommand($data);
+            $command = new SendToMaintenanceCommand($data["object_id"], $data["description"], $data["technician_id"], $data["start_date"], $data["end_date"], $data["type"], $data["phone_number"], $data["cost"]);
             $this->mediator->send($command);
             Response::success(["message" => "Oggetto inviato in manutenzione"]);
         } catch (Exception $e) {

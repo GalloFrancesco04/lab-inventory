@@ -3,10 +3,11 @@
 require_once __DIR__ . '/../Response.php';
 require_once __DIR__ . '/../../Application/Mediator/Mediator.php';
 require_once __DIR__ . '/../../Http/Request.php';
-
-// Import Commands and Handlers
-require_once __DIR__ . '/../../Application/Commands/Auth/LoginCommand.php';
+require_once __DIR__ . '/../../Application/Commands/Auth/AuthUserCommand.php';
 require_once __DIR__ . '/../../Application/Handlers/Auth/LoginHandler.php';
+require_once __DIR__ . '/../../Application/Handlers/Auth/AuthUserHandler.php';
+
+
 
 class AuthController {
     private $mediator;
@@ -14,7 +15,7 @@ class AuthController {
     public function __construct() {
         $this->mediator = new Mediator();
         // register commands and their handlers
-        $this->mediator->register(LoginCommand::class, LoginHandler::class);
+        $this->mediator->register(AuthUserCommand::class, AuthUserHandler::class);
     }
 
     /**
@@ -25,7 +26,7 @@ class AuthController {
 
         try {
             // send login command via mediator
-            $command = new LoginCommand($data); 
+            $command = new AuthUserCommand($data['username'], $data['password']); 
             $tokenData = $this->mediator->send($command);
 
             // back to client

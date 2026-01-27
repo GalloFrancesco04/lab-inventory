@@ -81,7 +81,7 @@ class ObjectTypesController {
 
         try {
             // Create the command with data from request
-            $command = new CreateObjectTypeCommand($data);
+            $command = new CreateObjectTypeCommand($data["code"], $data["name"], $data["description"], $data["model"], $data["brand"]);
 
             // Send the command via the mediator
             $newCode = $this->mediator->send($command);
@@ -103,7 +103,10 @@ class ObjectTypesController {
             // Il $code arriva dall'URL, il resto dal body JSON
             $command = new UpdateObjectTypeCommand(
                 $code,
-                $data
+                $data["name"],
+                $data["description"],
+                $data["model"],
+                $data["brand"]
             );
 
             $this->mediator->send($command);
