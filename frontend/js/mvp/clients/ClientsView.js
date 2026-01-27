@@ -38,7 +38,6 @@ class ClientsView extends BaseView {
     this.clientDetailLast = this.getElement("client-detail-last");
     this.clientEditBtn = this.getElement("client-edit-btn");
     this.clientBlockBtn = this.getElement("client-block-btn");
-    this.clientDeleteBtn = this.getElement("client-delete-btn");
 
     // Edit client modal
     this.editClientForm = this.getElement("edit-client-form");
@@ -50,9 +49,6 @@ class ClientsView extends BaseView {
     this.blockClientForm = this.getElement("block-client-form");
     this.blockDaysInput = this.getElement("block-days");
     this.blockReasonInput = this.getElement("block-reason");
-
-    // Delete client modal
-    this.deleteClientConfirm = this.getElement("delete-client-confirm");
 
     this.newClientValidator = new FormValidator(this.newClientForm);
     this.editClientValidator = new FormValidator(this.editClientForm);
@@ -90,9 +86,6 @@ class ClientsView extends BaseView {
       },
       "block-client-modal": {
         closeButtons: ["block-client-close", "block-client-cancel"],
-      },
-      "delete-client-modal": {
-        closeButtons: ["delete-client-close", "delete-client-cancel"],
       },
     });
   }
@@ -195,11 +188,6 @@ class ClientsView extends BaseView {
       this.openModal("delete-client-modal");
     });
 
-    this.clientBlockBtn?.addEventListener("click", () => {
-      if (!this.currentClientId) return;
-      this.openModal("block-client-modal");
-    });
-
     this.blockClientForm?.addEventListener("submit", (e) => {
       e.preventDefault();
       if (!this.currentClientId) return;
@@ -212,18 +200,6 @@ class ClientsView extends BaseView {
         this.openClientDetail(this.currentClientId);
       } catch (error) {
         this.handleError("Unable to block client", error);
-      }
-    });
-
-    this.deleteClientConfirm?.addEventListener("click", () => {
-      if (!this.currentClientId) return;
-      try {
-        this.presenter.deleteClient(this.currentClientId);
-        this.mediator.toaster.success(SUCCESS_MESSAGES.CLIENT_DELETED);
-        this.closeModal("delete-client-modal");
-        this.closeModal("client-detail-modal");
-      } catch (error) {
-        this.handleError("Unable to delete client", error);
       }
     });
   }

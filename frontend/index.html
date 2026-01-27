@@ -547,7 +547,6 @@
                 <div class="detail-actions" style="margin-top: var(--space-4); display: flex; gap: var(--space-2);">
                     <button class="btn btn-primary" id="client-edit-btn">Edit Client</button>
                     <button class="btn btn-danger" id="client-block-btn">Block Client</button>
-                    <button class="btn btn-warning" id="client-delete-btn">Delete Client</button>
                 </div>
             </div>
         </div>
@@ -609,22 +608,6 @@
         </div>
     </div>
 
-    <!-- Delete Client Confirmation Modal -->
-    <div class="modal-overlay" id="delete-client-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Delete Client</h2>
-                <button class="modal-close" aria-label="Close modal" id="delete-client-close">&times;</button>
-            </div>
-            <div class="form">
-                <p style="margin: 0; color: var(--text-muted);">Are you sure you want to permanently delete this client? This action cannot be undone.</p>
-                <div class="form-actions" style="margin-top: var(--space-4);">
-                    <button type="button" class="btn btn-ghost" id="delete-client-cancel">Cancel</button>
-                    <button type="button" class="btn btn-primary" style="background: var(--danger); border-color: var(--danger);" id="delete-client-confirm">Delete Client</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Maintenance Detail Modal -->
     <div class="modal-overlay" id="maintenance-detail-modal">
