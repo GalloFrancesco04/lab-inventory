@@ -10,6 +10,7 @@ export function getItemStatusBadgeClass(status) {
   if (status === "available") return "badge badge-success";
   if (status === "loaned") return "badge badge-warning";
   if (status === "maintenance") return "badge badge-warning";
+  if (status === "damaged") return "badge badge-danger";
   if (status === "outofservice") return "badge badge-danger";
   return "badge";
 }

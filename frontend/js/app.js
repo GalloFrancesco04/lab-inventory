@@ -86,7 +86,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const inventoryPresenter = new InventoryPresenter();
   const clientsPresenter = new ClientsPresenter();
-  const loansPresenter = new LoansPresenter(clientsPresenter);
+  const loansPresenter = new LoansPresenter(
+    clientsPresenter,
+    inventoryPresenter,
+  );
   const maintenancePresenter = new MaintenancePresenter(
     inventoryPresenter,
     authPresenter,

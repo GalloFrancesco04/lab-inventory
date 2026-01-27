@@ -2,7 +2,7 @@ import { BasePresenter } from "../core/BasePresenter.js";
 import { MockDatabase } from "../../utils/MockDatabase.js";
 
 export class LoansPresenter extends BasePresenter {
-  constructor(clientsPresenter = null) {
+  constructor(clientsPresenter = null, inventoryPresenter = null) {
     const mockDb = MockDatabase.getInstance();
     const initialLoans = [
       {
@@ -12,6 +12,7 @@ export class LoansPresenter extends BasePresenter {
         startDate: "01/12/2024",
         endDate: "12/12/2024",
         actualReturnDate: "",
+        damagedItems: [],
         items: [
           { id: "20001", name: "Notebook", type: "Computer" },
           { id: "30001", name: "Mouse", type: "Peripherals" },
@@ -24,6 +25,7 @@ export class LoansPresenter extends BasePresenter {
         startDate: "15/09/2024",
         endDate: "02/10/2024",
         actualReturnDate: "02/10/2024",
+        damagedItems: [],
         items: [{ id: "20002", name: "Tablet", type: "Tablet" }],
       },
       {
@@ -33,6 +35,7 @@ export class LoansPresenter extends BasePresenter {
         startDate: "01/11/2024",
         endDate: "20/11/2024",
         actualReturnDate: "",
+        damagedItems: [],
         items: [
           { id: "20003", name: "Monitor", type: "Computer" },
           { id: "30002", name: "Keyboard", type: "Peripherals" },
@@ -42,6 +45,7 @@ export class LoansPresenter extends BasePresenter {
 
     super(initialLoans);
     this.clientsPresenter = clientsPresenter;
+    this.inventoryPresenter = inventoryPresenter;
     this.clients = mockDb.getClients();
     this.availableItems = [
       { id: "20001", name: "Laptop", type: "Computer" },
@@ -69,6 +73,7 @@ export class LoansPresenter extends BasePresenter {
       status: "active",
       endDate: endDate || "",
       actualReturnDate: "",
+      damagedItems: [],
       items: items.map((item) => ({
         id: item.id,
         name: item.name,
@@ -97,11 +102,16 @@ export class LoansPresenter extends BasePresenter {
     return this.clients;
   }
 
-  closeLoan(id, actualReturnDate) {
+  closeLoan(id, actualReturnDate, damagedItems = []) {
     const loan = this.getLoanById(id);
     if (!loan) return null;
     loan.status = "closed";
     loan.actualReturnDate = actualReturnDate || loan.actualReturnDate || "";
+    loan.damagedItems = damagedItems || [];
+    if (this.inventoryPresenter && damagedItems.length) {
+      const ids = damagedItems.map((d) => d.id).filter(Boolean);
+      this.inventoryPresenter.markItemsDamaged(ids);
+    }
     this.notifyListeners();
     return loan;
   }

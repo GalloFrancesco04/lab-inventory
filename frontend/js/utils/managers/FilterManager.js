@@ -107,8 +107,8 @@ export class FilterManager {
             { value: "available", label: "Available" },
             { value: "loaned", label: "Loaned" },
             { value: "maintenance", label: "In Maintenance" },
-            { value: "broken", label: "Broken" },
-            { value: "outOfService", label: "Out of Service" },
+            { value: "damaged", label: "Damaged" },
+            { value: "outofservice", label: "Out of Service" },
           ],
         },
         {

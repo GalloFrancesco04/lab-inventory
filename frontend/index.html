@@ -263,9 +263,12 @@
                     <label for="close-loan-notes">Notes</label>
                     <textarea id="close-loan-notes" rows="3" placeholder="Add notes about returned items (e.g., conditions, accessories missing)"></textarea>
                 </div>
-                <div class="form-group" style="flex-direction: row; align-items: center; gap: var(--space-2);">
-                    <input type="checkbox" id="close-loan-damaged" style="width: auto;">
-                    <label for="close-loan-damaged" style="margin: 0;">Mark items as damaged</label>
+                <div class="form-group">
+                    <label for="close-loan-damaged-trigger">Mark returned items as damaged</label>
+                    <div class="multi-select" id="close-loan-damaged">
+                        <button type="button" class="multi-select-trigger" id="close-loan-damaged-trigger">Select damaged items (optional)</button>
+                        <div class="multi-select-menu" id="close-loan-damaged-menu"></div>
+                    </div>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-ghost" id="close-loan-cancel">Cancel</button>

@@ -382,6 +382,7 @@ export class InventoryPresenter extends BasePresenter {
       "available",
       "loaned",
       "maintenance",
+      "damaged",
       "outofservice",
     ];
 
@@ -396,5 +397,19 @@ export class InventoryPresenter extends BasePresenter {
     };
 
     return this.update(id, updates);
+  }
+
+  markItemsDamaged(itemIds = []) {
+    if (!Array.isArray(itemIds) || itemIds.length === 0) return [];
+    const updated = [];
+    itemIds.forEach((id) => {
+      const item = this.getItemById(id);
+      if (item) {
+        item.status = "damaged";
+        updated.push(item);
+      }
+    });
+    if (updated.length) this.notifyListeners();
+    return updated;
   }
 }

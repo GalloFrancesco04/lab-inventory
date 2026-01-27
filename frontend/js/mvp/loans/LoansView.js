@@ -100,7 +100,10 @@ class LoansView extends BaseView {
     // Close loan modal
     this.closeLoanForm = this.getElement("close-loan-form");
     this.closeLoanNotes = this.getElement("close-loan-notes");
-    this.closeLoanDamaged = this.getElement("close-loan-damaged");
+    this.closeLoanDamagedMenu = this.getElement("close-loan-damaged-menu");
+    this.closeLoanDamagedTrigger = this.getElement(
+      "close-loan-damaged-trigger",
+    );
 
     this.loanDetailModal = new LoanDetailModal({
       modalId: "loan-detail-modal",
@@ -120,13 +123,14 @@ class LoansView extends BaseView {
     this.closeLoanHandler = new CloseLoanForm({
       form: this.closeLoanForm,
       notesInput: this.closeLoanNotes,
-      damagedInput: this.closeLoanDamaged,
+      damagedMenu: this.closeLoanDamagedMenu,
+      damagedTrigger: this.closeLoanDamagedTrigger,
       toaster: this.mediator.toaster,
       logger: this.mediator.logger,
-      onSubmit: () => {
+      onSubmit: ({ damagedItems }) => {
         if (this.currentLoanId) {
           const today = new Date().toISOString().split("T")[0];
-          this.presenter.closeLoan(this.currentLoanId, today);
+          this.presenter.closeLoan(this.currentLoanId, today, damagedItems);
           this.renderLoansTable();
           // refresh modal details
           const updated = this.presenter.getLoanById(this.currentLoanId);
@@ -248,6 +252,11 @@ class LoansView extends BaseView {
     });
 
     this.closeLoanBtn?.addEventListener("click", () => {
+      // Populate damaged items list with current loan items
+      if (this.currentLoanId) {
+        const loan = this.presenter.getLoanById(this.currentLoanId);
+        this.closeLoanHandler?.setItems(loan?.items || []);
+      }
       this.openModal("close-loan-modal");
     });
 
