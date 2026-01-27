@@ -151,6 +151,20 @@ class ItemRepository
         return $items;
     }
 
+
+    public function getAllAvailableItems(): array
+    {
+        $stmt = $this->connection->prepare("SELECT * FROM object_ WHERE state = 1");
+        $stmt->execute();
+
+        $items = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $items[] = $this->mapRowToItem($row);
+        }
+
+        return $items;
+    }
+
     public function getAllItemsByTypeCode(string $typeCode): array
     {
         $stmt = $this->connection->prepare("SELECT * FROM object_ WHERE object_type_code = :type_code");
