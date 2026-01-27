@@ -138,7 +138,7 @@ export class InventoryPresenter extends BasePresenter {
         this.db.addObject({
           objectTypeCode: newType.code,
           state: 1, // available
-          location: "",
+          location: typeData.location || "",
         });
       }
     }

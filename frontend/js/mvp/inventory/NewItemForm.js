@@ -8,6 +8,7 @@ export class NewItemForm {
     brandInput,
     modelInput,
     quantityInput,
+    locationInput,
     toaster,
     onCreate,
   }) {
@@ -17,6 +18,7 @@ export class NewItemForm {
     this.brandInput = brandInput;
     this.modelInput = modelInput;
     this.quantityInput = quantityInput;
+    this.locationInput = locationInput;
     this.toaster = toaster;
     this.onCreate = onCreate;
     this.validator = new FormValidator(form);
@@ -83,6 +85,7 @@ export class NewItemForm {
       brand: this.brandInput?.value?.trim() || "",
       model: this.modelInput?.value?.trim() || "",
       quantity: Number(this.quantityInput?.value || 0),
+      location: this.locationInput?.value?.trim() || "",
     };
 
     if (!this.onCreate) return;
