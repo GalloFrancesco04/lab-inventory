@@ -286,6 +286,9 @@ class LoansView extends BaseView {
     }
 
     this.currentLoanId = loan.id;
+    if (this.closeLoanBtn) {
+      this.closeLoanBtn.style.display = loan.status === "closed" ? "none" : "";
+    }
     this.loanDetailModal?.show({
       ...loan,
       _isLate: this.isLateReturn(loan),
