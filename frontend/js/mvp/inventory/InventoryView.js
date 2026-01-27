@@ -118,6 +118,7 @@ class InventoryView extends BaseView {
       },
       renderMaintenance: (list) => this.renderMaintenance(list),
       sendToMaintenanceBtn: this.sendToMaintBtn,
+      editItemBtn: this.editItemBtn,
       toaster: this.mediator.toaster,
     });
 

@@ -6,6 +6,7 @@ export class ItemDetailModal {
     renderMaintenance,
     onSendToMaintenance,
     sendToMaintenanceBtn,
+    editItemBtn,
     toaster,
   }) {
     this.modalId = modalId;
@@ -14,17 +15,24 @@ export class ItemDetailModal {
     this.renderMaintenance = renderMaintenance;
     this.onSendToMaintenance = onSendToMaintenance;
     this.sendToMaintenanceBtn = sendToMaintenanceBtn;
+    this.editItemBtn = editItemBtn;
     this.toaster = toaster;
     this.disabledReason = "";
     this.isMaintenanceDisabled = false;
+    this.isEditDisabled = false;
 
     this.handleMaintenanceClick = this.handleMaintenanceClick.bind(this);
+    this.handleEditClick = this.handleEditClick.bind(this);
     if (this.sendToMaintenanceBtn) {
       this.sendToMaintenanceBtn.addEventListener(
         "click",
         this.handleMaintenanceClick,
         true,
       );
+    }
+
+    if (this.editItemBtn) {
+      this.editItemBtn.addEventListener("click", this.handleEditClick, true);
     }
   }
 
@@ -36,10 +44,26 @@ export class ItemDetailModal {
         true,
       );
     }
+
+    if (this.editItemBtn) {
+      this.editItemBtn.removeEventListener("click", this.handleEditClick, true);
+    }
   }
 
   handleMaintenanceClick(e) {
     if (this.isMaintenanceDisabled && this.disabledReason) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      if (this.toaster) {
+        this.toaster.warning(this.disabledReason);
+      }
+      return false;
+    }
+  }
+
+  handleEditClick(e) {
+    if (this.isEditDisabled && this.disabledReason) {
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
@@ -79,39 +103,44 @@ export class ItemDetailModal {
     if (model) model.textContent = item.model || "-";
     if (note) note.textContent = item.note || "-";
     this.setStatusBadge(item.status);
-    this.updateMaintenanceButton(item.status);
+    this.updateActionButtons(item.status);
     if (this.renderMaintenance) this.renderMaintenance(item.maintenance);
     if (this.openModal && this.modalId) this.openModal(this.modalId);
   }
 
-  updateMaintenanceButton(status) {
-    if (!this.sendToMaintenanceBtn) return;
+  getDisabledReason(status) {
+    if (status === "maintenance") return "Item is already in maintenance";
+    if (status === "loaned") return "Item is currently loaned";
+    if (status === "outofservice") return "Item is out of service";
+    return "Item is not available";
+  }
 
+  applyButtonState(button, isDisabled, reason) {
+    if (!button) return;
+    if (isDisabled) {
+      button.title = reason;
+      button.className = "btn btn-ghost";
+      button.style.cursor = "not-allowed";
+      button.style.opacity = "0.6";
+    } else {
+      button.title = "";
+      button.className = "btn btn-primary";
+      button.style.cursor = "pointer";
+      button.style.opacity = "1";
+    }
+  }
+
+  updateActionButtons(status) {
     const isAvailable = status === "available";
     this.isMaintenanceDisabled = !isAvailable;
+    this.isEditDisabled = !isAvailable;
+    this.disabledReason = isAvailable ? "" : this.getDisabledReason(status);
 
-    if (!isAvailable) {
-      let reason = "";
-      if (status === "maintenance") {
-        reason = "Item is already in maintenance";
-      } else if (status === "loaned") {
-        reason = "Item is currently loaned";
-      } else if (status === "outofservice") {
-        reason = "Item is out of service";
-      } else {
-        reason = "Item is not available";
-      }
-      this.disabledReason = reason;
-      this.sendToMaintenanceBtn.title = reason;
-      this.sendToMaintenanceBtn.className = "btn btn-ghost";
-      this.sendToMaintenanceBtn.style.cursor = "not-allowed";
-      this.sendToMaintenanceBtn.style.opacity = "0.6";
-    } else {
-      this.disabledReason = "";
-      this.sendToMaintenanceBtn.title = "";
-      this.sendToMaintenanceBtn.className = "btn btn-primary";
-      this.sendToMaintenanceBtn.style.cursor = "pointer";
-      this.sendToMaintenanceBtn.style.opacity = "1";
-    }
+    this.applyButtonState(
+      this.sendToMaintenanceBtn,
+      this.isMaintenanceDisabled,
+      this.disabledReason,
+    );
+    this.applyButtonState(this.editItemBtn, this.isEditDisabled, this.disabledReason);
   }
 }
