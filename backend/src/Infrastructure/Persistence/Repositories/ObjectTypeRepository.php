@@ -32,6 +32,20 @@ class ObjectTypeRepository
         ]);
     }
 
+    public function updateQuantity(string $code, int $newQuantity): void
+    {
+        $stmt = $this->connection->prepare("
+            UPDATE objecttype 
+            SET quantity = :quantity
+            WHERE code = :code
+        ");
+
+        $stmt->execute([
+            'quantity' => $newQuantity,
+            'code'    => $code
+        ]);
+    }
+
     //Update ObjectType's information
     public function update(ObjectType $objectType) :void
     {

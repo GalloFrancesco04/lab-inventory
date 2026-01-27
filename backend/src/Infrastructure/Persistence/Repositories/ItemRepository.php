@@ -30,6 +30,19 @@ class ItemRepository
         //Set the generated ID to the Item entity
         $item->setId((int) $this->connection->lastInsertId());
     }
+    
+    public function MarkObjectAsAvailable(int $id): void
+    {
+        $stmt = $this->connection->prepare("
+            UPDATE object_ 
+            SET state = 1
+            WHERE id = :id
+        ");
+
+        $stmt->execute([
+            'id'    => $id
+        ]);
+    }
 
     public function MarkObjectAsLoaned(int $id): void
     {
@@ -44,20 +57,8 @@ class ItemRepository
         ]);
     }
 
-    public function MarkObjectAsAvailable(int $id): void
-    {
-        $stmt = $this->connection->prepare("
-            UPDATE object_ 
-            SET state = 1
-            WHERE id = :id
-        ");
 
-        $stmt->execute([
-            'id'    => $id
-        ]);
-    }
-
-    public function MarkObjectAsBroken(int $id): void
+     public function MarkObjectAsDamaged(int $id): void
     {
         $stmt = $this->connection->prepare("
             UPDATE object_ 
@@ -69,7 +70,7 @@ class ItemRepository
             'id'    => $id
         ]);
     }
-
+        
     public function SendObjectToMaintenance(int $id): void
     {
         $stmt = $this->connection->prepare("
@@ -83,7 +84,21 @@ class ItemRepository
         ]);
     }
 
-    public function updateState(int $id, string $newState): void
+    public function MarkObjectAsOutOfService(int $id): void
+    {
+        $stmt = $this->connection->prepare("
+            UPDATE object_ 
+            SET state = 5
+            WHERE id = :id
+        ");
+
+        $stmt->execute([
+            'id'    => $id
+        ]);
+    }
+
+
+    public function updateState(int $id, int $newState): void
     {
         $stmt = $this->connection->prepare("
             UPDATE object_ 

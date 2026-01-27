@@ -2,9 +2,12 @@
 
 use PDO;
 use Application\Domain\Entities\Maintenance;
+use Application\Domain\Entities\Items;
 use DateTime;
 
 require_once __DIR__ . '/../../../Domain/Entities/Maintenance.php';
+require_once __DIR__ . '/../../../Domain/Entities/Items.php';
+
 
 class MaintenanceRepository
 {
@@ -200,6 +203,48 @@ class MaintenanceRepository
 
         return $maintenances;
     }
+
+    //get all maintenances assigned to a technician
+    public function getAllTechnicianMaintenances(int $technicianId): array 
+    {
+        $stmt = $this->connection->prepare("
+            SELECT * FROM maintenance WHERE technician_id = :technician_id
+        ");
+
+        $stmt->execute(['technician_id' => $technicianId]);
+
+        $maintenances = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $maintenances[] = $this->mapRowToMaintenance($row);
+        }
+
+        return $maintenances;
+    }
+
+    //get all objects in maintenance assigned to a technician
+    public function getAllTechnicianAssignedObjects(int $tech_id): array
+    {
+        $stmt = $this->connection->prepare("
+            SELECT DISTINCT o.id, o.object_type_code, o.state, o.location
+            FROM maintenance m 
+            JOIN object_ o ON m.object_id = o.id
+            WHERE m.technician_id = :tech_id AND m.end_date IS NULL
+        ");
+
+        $stmt->execute(['tech_id' => $tech_id]);
+
+        $objects = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $objects[] = new Items(
+                $row['object_type_code'],
+                (int)$row['id'],
+                $row['state'],
+                $row['location']
+            );
+        }
+
+        return $objects;
+    } 
     
     private function mapRowToMaintenance(array $row): Maintenance 
     {
