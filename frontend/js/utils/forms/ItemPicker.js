@@ -47,7 +47,7 @@ export class ItemPicker {
     // Clear existing items but keep search input
     const searchBox = this.searchInput;
     this.labelsMap.clear();
-    
+
     // Remove all labels (keep search input)
     const allLabels = this.panel.querySelectorAll("label");
     allLabels.forEach((label) => label.remove());
@@ -66,7 +66,8 @@ export class ItemPicker {
       label.style.backgroundColor = "transparent";
       label.style.transition = "background-color 0.2s";
       label.dataset.itemId = item.id;
-      label.dataset.itemSearch = `${item.name} ${item.type} ${item.id}`.toLowerCase();
+      label.dataset.itemSearch =
+        `${item.name} ${item.type} ${item.id}`.toLowerCase();
 
       label.addEventListener("mouseenter", () => {
         label.style.backgroundColor = "#f5f5f5";
@@ -136,7 +137,7 @@ export class ItemPicker {
 
   handlePanelChange(e) {
     if (!e.target || e.target.type !== "checkbox") return;
-    
+
     const itemId = e.target.dataset.itemId;
 
     if (e.target.checked) {
@@ -166,13 +167,15 @@ export class ItemPicker {
   getSelectedItemsFromDOM() {
     if (!this.panel) return [];
     const selected = [];
-    this.panel.querySelectorAll("input[type='checkbox']:checked").forEach((cb) => {
-      selected.push({
-        id: cb.dataset.itemId,
-        name: cb.dataset.itemName,
-        type: cb.dataset.itemType,
+    this.panel
+      .querySelectorAll("input[type='checkbox']:checked")
+      .forEach((cb) => {
+        selected.push({
+          id: cb.dataset.itemId,
+          name: cb.dataset.itemName,
+          type: cb.dataset.itemType,
+        });
       });
-    });
     return selected;
   }
 
@@ -190,7 +193,7 @@ export class ItemPicker {
   renderSelectedChips(selected) {
     if (!this.selectedContainer) return;
     this.selectedContainer.innerHTML = "";
-    
+
     selected.forEach((item) => {
       const chip = document.createElement("div");
       chip.className = "chip";
@@ -216,7 +219,7 @@ export class ItemPicker {
       removeBtn.style.fontSize = "18px";
       removeBtn.style.lineHeight = "1";
       removeBtn.addEventListener("click", this.handleChipClick.bind(this));
-      
+
       chip.appendChild(removeBtn);
       this.selectedContainer.appendChild(chip);
     });

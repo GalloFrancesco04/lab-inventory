@@ -159,18 +159,12 @@ export class InventoryPresenter extends BasePresenter {
     }));
   }
 
-  createMaintenance(itemId, description, technicianName) {
+  createMaintenance(itemId, description, technicianId) {
     const object = this.db.getObjectById(itemId);
     if (!object) return null;
 
-    // Find technician by name (simplified matching)
-    const technicians = this.db.getTechnicians();
-    const tech = technicians.find((t) =>
-      t.email
-        .toLowerCase()
-        .includes(technicianName.toLowerCase().replace(" ", ".")),
-    );
-
+    // Get technician by ID (technicianId is passed from form value)
+    const tech = this.db.getUserById(parseInt(technicianId));
     if (!tech) return null;
 
     const today = new Date().toISOString().split("T")[0];

@@ -560,8 +560,8 @@ class InventoryView extends BaseView {
       '<option value="">Select a technician...</option>';
     technicians.forEach((tech) => {
       const option = document.createElement("option");
-      option.value = tech;
-      option.textContent = tech;
+      option.value = tech.id;
+      option.textContent = tech.name;
       this.maintenanceTechnicianSelect.appendChild(option);
     });
   }
