@@ -110,6 +110,7 @@ class UserRepository
         return null; // Technician not found
     }
 
+
     //Convert a database row to a User entity
     private function mapRowToUser(array $row): User
     {
