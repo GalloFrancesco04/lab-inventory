@@ -1,135 +1,62 @@
 INGSW-2526-T14/
 ├── compose.yml
-├── .env
-├── .gitignore
+├── Dockerfile
 ├── README.md
 ├── docs/
-│   ├── requirements.md
-│   ├── usecases.md
-│   ├── api.md                      # Contratto REST (endpoint, payload, errori, codici HTTP)
-│   ├── mvp-frontend.md             # Struttura MVP FE (View/Presenter/Model)
-│   ├── state-transitions.md        # Tabella stati/azioni/transizioni (State pattern)
-│   ├── architecture.md             # Layering BE + pattern (Mediator/State) + diagrammi
-│   └── contributions.md            # Contributo di ciascun membro (richiesto dal docente)
+│   ├── folder_structure.txt       
+│   ├── USER_MANUAL.md              
+│   ├── diagrams/
+│   │   ├── class/
+│   │   │   └── handlers/          
+│   │   └── sequence/               
 │
 ├── database/
-│   ├── schema.sql
-│   ├── seed.sql
-│   └── migrations/                 # opzionale (se fate versioning)
+│   └── init.sql
 │
 ├── backend/
-│   ├── public/
-│   │   └── index.php               # Front controller (tutte le request API passano qui)
-│   │
 │   ├── config/
-│   │   ├── env.php                 # Lettura .env / config runtime
-│   │   └── database.php            # Connessione PDO + opzioni
+│   │   └── Database.php            
+│   │
+│   ├── public/
+│   │   └── index.php               
 │   │
 │   ├── src/
 │   │   ├── Http/
-│   │   │   ├── Router.php
 │   │   │   ├── Request.php
-│   │   │   ├── Response.php        # JSON response helper
-│   │   │   ├── Middleware/
-│   │   │   │   ├── AuthMiddleware.php
-│   │   │   │   └── RoleMiddleware.php
+│   │   │   ├── Response.php
+│   │   │   ├── Router.php
 │   │   │   └── Controllers/
 │   │   │       ├── AuthController.php
 │   │   │       ├── ClientsController.php
-│   │   │       ├── ItemsController.php
-│   │   │       ├── ObjectTypesController.php
 │   │   │       ├── LoansController.php
 │   │   │       ├── MaintenanceController.php
-│   │   │       └── TechController.php
+│   │   │       ├── ObjectsController.php
+│   │   │       ├── ObjectTypesController.php
+│   │   │       └── OperationController.php
 │   │   │
 │   │   ├── Application/
 │   │   │   ├── Mediator/
-│   │   │   │   ├── Mediator.php
-│   │   │   │   ├── Command.php
-│   │   │   │   ├── Query.php
-│   │   │   │   └── Handler.php
+│   │   │   │   └── Mediator.php
 │   │   │   │
 │   │   │   ├── Commands/
 │   │   │   │   ├── Auth/
-│   │   │   │   │   ├── LoginCommand.php
-│   │   │   │   │   └── LogoutCommand.php
 │   │   │   │   ├── Clients/
-│   │   │   │   │   ├── CreateClientCommand.php
-│   │   │   │   │   ├── UpdateClientCommand.php
-│   │   │   │   │   ├── BlockClientCommand.php
-│   │   │   │   │   └── UnblockClientCommand.php
 │   │   │   │   ├── Inventory/
-│   │   │   │   │   ├── CreateItemCommand.php
-│   │   │   │   │   ├── UpdateItemCommand.php
-│   │   │   │   │   └── SendToMaintenanceCommand.php
-│   │   │   │   ├── ObjectTypes/
-│   │   │   │   │   ├── CreateObjectTypeCommand.php
-│   │   │   │   │   └── UpdateObjectTypeCommand.php
 │   │   │   │   ├── Loans/
-│   │   │   │   │   ├── CreateLoanCommand.php
-│   │   │   │   │   ├── CloseLoanCommand.php
-│   │   │   │   │   └── CancelLoanCommand.php     # opzionale
-│   │   │   │   └── Maintenance/
-│   │   │   │       ├── AddOperationCommand.php
-│   │   │   │       ├── EditOperationCommand.php
-│   │   │   │       └── CloseMaintenanceCommand.php
-│   │   │   │
-│   │   │   ├── Queries/
-│   │   │   │   ├── Clients/
-│   │   │   │   │   ├── ListClientsQuery.php
-│   │   │   │   │   └── GetClientQuery.php
-│   │   │   │   ├── Inventory/
-│   │   │   │   │   ├── ListItemsQuery.php
-│   │   │   │   │   └── GetItemQuery.php
+│   │   │   │   ├── Maintenance/
 │   │   │   │   ├── ObjectTypes/
-│   │   │   │   │   └── ListObjectTypesQuery.php
-│   │   │   │   ├── Loans/
-│   │   │   │   │   ├── ListLoansQuery.php
-│   │   │   │   │   └── GetLoanQuery.php
-│   │   │   │   └── Maintenance/
-│   │   │   │       ├── GetMaintenanceQuery.php
-│   │   │   │       └── ListAssignedItemsQuery.php
+│   │   │   │   ├── Operations/
+│   │   │   │   └── Users/
 │   │   │   │
-│   │   │   ├── Handlers/
-│   │   │   │   ├── Auth/
-│   │   │   │   │   ├── LoginHandler.php
-│   │   │   │   │   └── LogoutHandler.php
-│   │   │   │   ├── Clients/
-│   │   │   │   │   ├── CreateClientHandler.php
-│   │   │   │   │   ├── UpdateClientHandler.php
-│   │   │   │   │   ├── BlockClientHandler.php
-│   │   │   │   │   └── UnblockClientHandler.php
-│   │   │   │   ├── Inventory/
-│   │   │   │   │   ├── CreateItemHandler.php
-│   │   │   │   │   ├── UpdateItemHandler.php
-│   │   │   │   │   └── SendToMaintenanceHandler.php
-│   │   │   │   ├── ObjectTypes/
-│   │   │   │   │   ├── CreateObjectTypeHandler.php
-│   │   │   │   │   └── UpdateObjectTypeHandler.php
-│   │   │   │   ├── Loans/
-│   │   │   │   │   ├── CreateLoanHandler.php
-│   │   │   │   │   ├── CloseLoanHandler.php
-│   │   │   │   │   └── CancelLoanHandler.php      # opzionale
-│   │   │   │   └── Maintenance/
-│   │   │   │       ├── AddOperationHandler.php
-│   │   │   │       ├── EditOperationHandler.php
-│   │   │   │       └── CloseMaintenanceHandler.php
-│   │   │   │
-│   │   │   ├── DTO/
-│   │   │   │   ├── Responses/
-│   │   │   │   │   ├── ClientDto.php
-│   │   │   │   │   ├── ItemDto.php
-│   │   │   │   │   ├── LoanDto.php
-│   │   │   │   │   └── MaintenanceDto.php
-│   │   │   │   └── Errors/
-│   │   │   │       ├── ApiError.php
-│   │   │   │       └── ValidationError.php
-│   │   │   │
-│   │   │   └── Exceptions/
-│   │   │       ├── NotFoundException.php
-│   │   │       ├── ForbiddenException.php
-│   │   │       ├── ValidationException.php
-│   │   │       └── ConflictException.php
+│   │   │   └── Handlers/
+│   │   │       ├── Auth/
+│   │   │       ├── Clients/
+│   │   │       ├── Inventory/
+│   │   │       ├── Loans/
+│   │   │       ├── Maintenance/
+│   │   │       ├── ObjectTypes/
+│   │   │       ├── Operations/
+│   │   │       └── Users/
 │   │   │
 │   │   ├── Domain/
 │   │   │   ├── Entities/
@@ -141,101 +68,73 @@ INGSW-2526-T14/
 │   │   │   │   ├── LoanedObject.php
 │   │   │   │   ├── Maintenance.php
 │   │   │   │   └── Operation.php
-│   │   │   ├── ValueObjects/
-│   │   │   │   ├── Money.php
-│   │   │   │   └── Email.php
-│   │   │   ├── States/
-│   │   │   │   ├── ItemState.php
-│   │   │   │   ├── AvailableState.php
-│   │   │   │   ├── LoanedState.php
-│   │   │   │   ├── UnderMaintenanceState.php
-│   │   │   │   ├── DamagedState.php
-│   │   │   │   └── OutOfServiceState.php
-│   │   │   └── Exceptions/
-│   │   │       ├── InvalidStateTransition.php
-│   │   │       └── DomainRuleViolation.php
+│   │   │   │
+│   │   │   └── States/
+│   │   │       ├── ItemState.php
+│   │   │       ├── AvailableState.php
+│   │   │       ├── LoanedState.php
+│   │   │       ├── InMaintenanceState.php
+│   │   │       ├── DamagedState.php
+│   │   │       └── OutOfServiceState.php
 │   │   │
 │   │   └── Infrastructure/
 │   │       ├── Persistence/
 │   │       │   ├── Connection/
-│   │       │   │   ├── PdoConnectionFactory.php
-│   │       │   │   └── TransactionManager.php
 │   │       │   └── Repositories/
-│   │       │       ├── UserRepository.php
-│   │       │       ├── ClientRepository.php
-│   │       │       ├── ObjectTypeRepository.php
-│   │       │       ├── ItemRepository.php
-│   │       │       ├── LoanRepository.php
-│   │       │       ├── LoanedObjectsRepository.php
-│   │       │       ├── MaintenanceRepository.php
-│   │       │       └── OperationRepository.php
 │   │       └── Security/
 │   │           ├── PasswordHasher.php
 │   │           └── SessionManager.php
 │   │
-│   ├── vendor/                  # se usate composer (opzionale)
 │   └── tests/
 │       ├── Unit/
-│       │   └── DomainStateTest.php
+│       │   └── Handlers/
+│       │       ├── Auth/
+│       │       ├── Clients/
+│       │       ├── Inventory/
+│       │       ├── Loans/
+│       │       ├── Maintenance/
+│       │       ├── ObjectTypes/
+│       │       ├── Operations/
+│       │       └── Users/
+│       │
 │       └── Integration/
-│           └── CreateLoanFlowTest.php
+│           └── Controllers/
+│               ├── AuthControllerTest.php
+│               ├── ClientControllerTest.php
+│               ├── LoanControllerTest.php
+│               ├── MaintenanceControllerTest.php
+│               ├── ObjectControllerTest.php
+│               ├── ObjectTypeControllerTest.php
+│               └── OperationControllerTest.php
 │
 └── frontend/
     ├── index.html
-    ├── assets/
-    │   └── images/
     ├── css/
-    │   ├── style.css
-    │   └── responsive.css
+    │   ├── base.css
+    │   ├── components.css
+    │   ├── layout.css
+    │   ├── modal.css
+    │   ├── tokens.css
+    │   └── utilities.css
+    │
     └── js/
-        ├── app.js               # bootstrap app + routing FE
+        ├── app.js                  
         ├── api/
-        │   └── apiClient.js     # fetch wrapper (baseUrl, auth, error handling)
+        │   └── ApiClient.js        
         ├── mvp/
-        │   ├── core/
-        │   │   ├── BaseView.js
-        │   │   ├── BasePresenter.js
-        │   │   └── Router.js    # SPA router semplice (hash-based)
         │   ├── auth/
-        │   │   ├── LoginView.js
-        │   │   └── LoginPresenter.js
         │   ├── clients/
-        │   │   ├── ClientsView.js
-        │   │   └── ClientsPresenter.js
+        │   ├── core/
         │   ├── inventory/
-        │   │   ├── InventoryView.js
-        │   │   ├── InventoryPresenter.js
-        │   │   ├── NewItemForm.js
-        │   │   └── modals/
-        │   │       ├── ItemDetailModal.js
-        │   │       └── SendToMaintenanceForm.js
         │   ├── loans/
-        │   │   ├── LoansView.js
-        │   │   ├── LoansPresenter.js
-        │   │   └── modals/
-        │   │       ├── LoanDetailModal.js
-        │   │       └── CloseLoanForm.js
         │   └── maintenance/
-        │       ├── MaintenanceView.js
-        │       └── MaintenancePresenter.js
-        ├── api/
-        │   └── apiClient.js     # fetch wrapper (baseUrl, auth, error handling)
         └── utils/
-            ├── forms/
-            │   ├── NewClientForm.js
-            │   └── ItemPicker.js
-            ├── managers/
-            │   ├── Mediator.js
-            │   ├── FilterManager.js
-            │   ├── SearchManager.js
-            │   └── ModalManager.js
-            ├── ui/
-            │   ├── badges.js
-            │   ├── formatters.js
-            │   ├── dom.js
-            │   ├── toaster.js
-            │   └── logger.js
-            ├── validators.js
-            ├── messages.js
             ├── ClientFilter.js
-            └── MockDatabase.js
+            ├── Logger.js
+            ├── Messages.js
+            ├── MockDatabase.js
+            ├── Transformers.js
+            ├── Validators.js
+            ├── forms/
+            ├── managers/
+            └── ui/
