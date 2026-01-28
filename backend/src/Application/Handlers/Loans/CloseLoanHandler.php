@@ -53,16 +53,12 @@ class CloseLoanHandler {
             
             $this->transaction->begin();
 
-            $result = $this->loanRepository->closeLoan($loanToClose->getId(), $returnDate);
+            $this->loanRepository->closeLoan($loanToClose->getId(), $returnDate);
                     
             // I want to mark the object state as 'available' or 'damaged' so first I get all the loanedObjects
             $loanedObjects = $this->loanedObjectRepository->getLoanedObjectsByLoanId($loanToClose->getId());
 
-            if(empty($loanedObjects)) {
-                throw new Exception("Il Prestito non ha oggetti");
-            }
-
-
+            
             foreach($loanedObjects as $loanedObject) {
                 
                 if ($loanedObject->isDamaged()) 
@@ -85,9 +81,9 @@ class CloseLoanHandler {
             }catch(Exception $ex) {
 
                 $this->transaction->rollback();
-                throw new Exception("Si e' verificato qualche problema nella chiusura del Prestito");
+                 throw new Exception("Si e' verificato un errore durante la chiusura del Prestito: " . $ex->getMessage(), 0, $ex);
             }
 
-        return $result;
+        
     }
 }
