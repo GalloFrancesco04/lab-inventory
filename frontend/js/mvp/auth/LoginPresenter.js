@@ -19,7 +19,6 @@ export class AuthPresenter extends BasePresenter {
         password: "tech123",
         role: "technician",
         fullName: "Mario Rossi",
-        techName: "Mario Rossi",
       },
       {
         id: 3,
@@ -27,7 +26,6 @@ export class AuthPresenter extends BasePresenter {
         password: "tech123",
         role: "technician",
         fullName: "Sara Bianchi",
-        techName: "Sara Bianchi",
       },
       {
         id: 4,
@@ -35,7 +33,6 @@ export class AuthPresenter extends BasePresenter {
         password: "tech123",
         role: "technician",
         fullName: "Roberto Verdi",
-        techName: "Roberto Verdi",
       },
       {
         id: 5,
@@ -43,7 +40,6 @@ export class AuthPresenter extends BasePresenter {
         password: "tech123",
         role: "technician",
         fullName: "Anna Neri",
-        techName: "Anna Neri",
       },
     ];
 
@@ -76,7 +72,6 @@ export class AuthPresenter extends BasePresenter {
         email: user.email,
         role: user.role,
         fullName: user.fullName,
-        techName: user.techName, // For filtering maintenance by technician
       };
       this.saveCurrentUser();
       this.notifyListeners();

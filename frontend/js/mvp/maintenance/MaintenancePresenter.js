@@ -47,12 +47,7 @@ export class MaintenancePresenter extends BasePresenter {
         itemId: m.objectId,
         itemName: objectType ? objectType.name : "Unknown",
         type: m.type,
-        tech: tech
-          ? tech.email
-              .split("@")[0]
-              .replace(".", " ")
-              .replace(/\b\w/g, (l) => l.toUpperCase())
-          : "Unknown",
+        tech: tech ? tech.email : "Unknown",
         phoneNumber: m.phoneNumber,
         desc: m.description,
         operations: operations.map((op) => ({
@@ -69,13 +64,9 @@ export class MaintenancePresenter extends BasePresenter {
     // Filter by technician if user is technician
     let filteredHistory = history;
     const currentUser = this.getCurrentUser();
-    if (
-      currentUser &&
-      currentUser.role === "technician" &&
-      currentUser.techName
-    ) {
+    if (currentUser && currentUser.role === "technician" && currentUser.email) {
       filteredHistory = history.filter(
-        (m) => m.tech === currentUser.techName && m.status !== "closed",
+        (m) => m.tech === currentUser.email && m.status !== "closed",
       );
     }
 
@@ -107,12 +98,7 @@ export class MaintenancePresenter extends BasePresenter {
       itemId: m.objectId,
       itemName: objectType ? objectType.name : "Unknown",
       type: m.type,
-      tech: tech
-        ? tech.email
-            .split("@")[0]
-            .replace(".", " ")
-            .replace(/\b\w/g, (l) => l.toUpperCase())
-        : "Unknown",
+      tech: tech ? tech.email : "Unknown",
       phoneNumber: m.phoneNumber,
       desc: m.description,
       operations: operations.map((op) => ({

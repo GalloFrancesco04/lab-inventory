@@ -239,7 +239,7 @@ class MaintenanceView extends BaseView {
     const canTechnicianEdit =
       currentUser &&
       currentUser.role === "technician" &&
-      currentUser.techName === maintenance.tech &&
+      currentUser.email === maintenance.tech &&
       maintenance.status !== "closed";
 
     this.canEditOperations = canTechnicianEdit;

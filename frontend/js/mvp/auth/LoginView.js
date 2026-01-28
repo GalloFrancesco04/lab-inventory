@@ -148,7 +148,8 @@ export class LoginView extends BaseView {
       this.mainContent.style.display = "block";
     }
 
-    this.userNameSpan.textContent = user.fullName;
+    this.userNameSpan.textContent =
+      user.role === "technician" ? user.email : user.fullName;
 
     // Hide tabs based on role
     this.updateNavbarForRole(user.role);
