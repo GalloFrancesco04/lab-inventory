@@ -84,15 +84,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initRouter(routes, handleRouteChange, "#/loans");
 
-  const inventoryPresenter = new InventoryPresenter();
+  const inventoryPresenter = new InventoryPresenter(mediator);
   const clientsPresenter = new ClientsPresenter();
   const loansPresenter = new LoansPresenter(
     clientsPresenter,
     inventoryPresenter,
+    mediator,
   );
   const maintenancePresenter = new MaintenancePresenter(
     inventoryPresenter,
     authPresenter,
+    mediator,
   );
 
   // Set presenter on filter manager for client filter
