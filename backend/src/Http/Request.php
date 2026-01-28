@@ -30,7 +30,7 @@ class Request {
         return $this->path;
     }
 
-    // Restituisce tutto il body o una chiave specifica
+    // return  array|string|null
     public function getBody(?string $key = null) {
         if ($key) {
             return $this->body[$key] ?? null;
@@ -38,7 +38,7 @@ class Request {
         return $this->body;
     }
 
-    // Restituisce i parametri URL (query string)
+    // return array|string|null
     public function getQuery(?string $key = null) {
         if ($key) {
             return $this->query[$key] ?? null;
