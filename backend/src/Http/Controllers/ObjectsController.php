@@ -79,7 +79,7 @@ class ObjectsController {
     public function sendMaintenance(Request $request) {
         $data = $request->getBody();
         try {
-            $command = new SendToMaintenanceCommand($data["object_id"], $data["description"], $data["technician_id"], $data["start_date"], $data["end_date"], $data["type"], $data["phone_number"], $data["cost"]);
+            $command = new SendToMaintenanceCommand($data["object_id"], $data["description"], $data["technician_id"], $data["start_date"], );
             $this->mediator->send($command);
             Response::success(["message" => "Oggetto inviato in manutenzione"]);
         } catch (Exception $e) {
