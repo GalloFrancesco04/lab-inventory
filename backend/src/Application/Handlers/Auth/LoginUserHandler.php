@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/UserRepository.php';
 require_once __DIR__ . '/../../../Infrastructure/Security/SessionManager.php';
 require_once __DIR__ . '/../../../Infrastructure/Security/PasswordHasher.php';
-require_once __DIR__ . '/../../Commands/Auth/AuthUserCommand.php';
+require_once __DIR__ . '/../../Commands/Auth/LoginUserCommand.php';
 
 require_once __DIR__ . '/../../../../config/Database.php';
 
@@ -22,7 +22,7 @@ class LoginUserHandler {
         $this->passwordHasher = new PasswordHasher();
     }
 
-    public function handle(AuthUserCommand $command) {
+    public function handle(LoginUserCommand $command) {
         try {
 
         if (empty($command->email) || empty($command->pass)) {

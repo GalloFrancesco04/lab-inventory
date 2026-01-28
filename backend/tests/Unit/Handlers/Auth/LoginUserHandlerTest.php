@@ -1,11 +1,11 @@
 <?php
 require_once __DIR__ . '/../../../../src/Application/Mediator/Mediator.php';
-require_once __DIR__ . '/../../../../src/Application/Commands/Auth/AuthUserCommand.php';
+require_once __DIR__ . '/../../../../src/Application/Commands/Auth/LoginUserCommand.php';
 require_once __DIR__ . '/../../../../src/Application/Handlers/Auth/LoginUserHandler.php';
 require_once __DIR__ . '/../../../../src/Infrastructure/Security/SessionManager.php';
 
 $mediator = new Mediator();
-$mediator->register('AuthUserCommand', 'LoginUserHandler');
+$mediator->register('LoginUserCommand', 'LoginUserHandler');
 $session = new SessionManager();
 
 echo "========== TEST: PROCESSO DI AUTENTICAZIONE UTENTE ==========\n\n";
@@ -14,7 +14,7 @@ try {
     // 1. CASO: Credenziali errate
     echo "Test 1: Tentativo con password errata... ";
     try {
-        $badCommand = new AuthUserCommand("admin@example.com", "wrong_password");
+        $badCommand = new LoginUserCommand("admin@example.com", "wrong_password");
         $mediator->send($badCommand);
         echo "❌ ERRORE: Il sistema ha permesso il login con password errata!\n";
     } catch (Exception $e) {
@@ -30,7 +30,7 @@ try {
 
     echo "Test 2: Tentativo con credenziali corrette ($email)... ";
     
-    $loginCommand = new AuthUserCommand($email, $pass);
+    $loginCommand = new LoginUserCommand($email, $pass);
     $mediator->send($loginCommand);
     
     echo "✅ SUCCESSO: Login eseguito.\n";
