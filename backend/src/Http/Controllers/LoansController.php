@@ -92,8 +92,8 @@ class LoansController {
                 // retrieve id, quantity, state
                 $itemId = is_array($itemData) ? ($itemData['id'] ?? null) : $itemData;
                 $quantity = is_array($itemData) ? ($itemData['quantity'] ?? 1) : 1;
-                $state = is_array($itemData) ? ($itemData['state'] ?? 'active') : 'active';
-
+                $state = is_array($itemData) ? ($itemData['state'] ?? '1') : '1';
+                $state=(int)$state;
                 // Create InventoryItem instance
                 // Not using null coalescing here to ensure id is set
                 $item = new InventoryItem($itemId, $quantity, $state);
@@ -133,7 +133,8 @@ class LoansController {
             foreach ($rawItems as $itemData) {
                 $itemId = is_array($itemData) ? ($itemData['id'] ?? null) : $itemData;
                 $quantity = is_array($itemData) ? ($itemData['quantity'] ?? 1) : 1;
-                $state = is_array($itemData) ? ($itemData['state'] ?? 'active') : 'active';
+                $state = is_array($itemData) ? ($itemData['state'] ?? '1') : '1';
+                $state = (int)$state;
 
                 // Create InventoryItem instance
                 $item = new InventoryItem($itemId, $quantity, $state);
