@@ -317,6 +317,62 @@ export class MockDatabase {
         phoneNumber: "+39 328 123 4567",
         cost: 45.0,
       },
+      // Previous maintenance history
+      {
+        id: 6,
+        objectId: 5,
+        description: "RAM upgrade",
+        startDate: "2024-10-15",
+        endDate: "2024-10-18",
+        type: "repair",
+        technicianId: 3, // Sara Bianchi
+        phoneNumber: "+39 331 234 5678",
+        cost: 120.0,
+      },
+      {
+        id: 7,
+        objectId: 5,
+        description: "Motherboard repair",
+        startDate: "2024-08-20",
+        endDate: "2024-08-25",
+        type: "repair",
+        technicianId: 4, // Roberto Verdi
+        phoneNumber: "+39 335 345 6789",
+        cost: 200.0,
+      },
+      {
+        id: 8,
+        objectId: 7,
+        description: "Display replacement",
+        startDate: "2024-09-10",
+        endDate: "2024-09-15",
+        type: "repair",
+        technicianId: 2, // Mario Rossi
+        phoneNumber: "+39 328 123 4567",
+        cost: 300.0,
+      },
+      {
+        id: 9,
+        objectId: 12,
+        description: "Screen cleaning",
+        startDate: "2024-11-01",
+        endDate: "2024-11-03",
+        type: "maintenance",
+        technicianId: 3, // Sara Bianchi
+        phoneNumber: "+39 331 234 5678",
+        cost: 30.0,
+      },
+      {
+        id: 10,
+        objectId: 15,
+        description: "Keyboard replacement",
+        startDate: "2024-07-20",
+        endDate: "2024-07-22",
+        type: "repair",
+        technicianId: 5, // Anna Neri
+        phoneNumber: "+39 340 456 7890",
+        cost: 80.0,
+      },
       {
         id: 6,
         objectId: 8,

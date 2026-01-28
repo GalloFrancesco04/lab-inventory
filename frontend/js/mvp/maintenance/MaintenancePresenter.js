@@ -112,6 +112,33 @@ export class MaintenancePresenter extends BasePresenter {
     };
   }
 
+  getMaintenancesByObjectId(objectId) {
+    const allMaintenances = this.db.getMaintenanceRecords();
+    const itemMaintenances = allMaintenances
+      .filter((m) => m.objectId === objectId)
+      .map((m) => {
+        const tech = this.db.getUserById(m.technicianId);
+        const operations = this.db.getOperationsByMaintenanceId(m.id);
+        const totalCost = operations.reduce(
+          (sum, op) => sum + (op.cost || 0),
+          0,
+        );
+        const status = m.endDate ? "closed" : "open";
+
+        return {
+          id: m.id,
+          startDate: m.startDate,
+          endDate: m.endDate || "",
+          tech: tech ? tech.email : "Unknown",
+          desc: m.description,
+          status,
+          totalCost,
+        };
+      });
+
+    return itemMaintenances;
+  }
+
   addOperation(maintenanceId, operation) {
     const today = new Date().toISOString().split("T")[0];
 

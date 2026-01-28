@@ -35,6 +35,7 @@ class MaintenanceView extends BaseView {
     this.detailTotal = this.getElement("maintenance-detail-total");
     this.statusBadge = this.getElement("maintenance-status-badge");
     this.operationsList = this.getElement("operations-list");
+    this.itemMaintenanceHistory = this.getElement("item-maintenance-history");
     this.addOperationBtn = this.getElement("add-operation-btn");
     this.closeMaintenanceBtn = this.getElement("maintenance-close-btn");
     this.closeConfirmAccept = this.getElement(
@@ -273,7 +274,109 @@ class MaintenanceView extends BaseView {
     }
 
     this.renderOperations(maintenance.operations || []);
+    this.renderItemMaintenanceHistory(maintenance.itemId);
     this.openModal("maintenance-detail-modal");
+  }
+
+  renderItemMaintenanceHistory(objectId) {
+    if (!this.itemMaintenanceHistory || !objectId) return;
+
+    let itemMaintenances = [];
+    try {
+      itemMaintenances = this.presenter.getMaintenancesByObjectId(objectId);
+    } catch (error) {
+      this.itemMaintenanceHistory.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: var(--space-4);">Unable to load history</p>`;
+      return;
+    }
+
+    // Filter out the current maintenance and sort by date descending
+    const otherMaintenances = itemMaintenances
+      .filter((m) => m.id !== this.currentMaintenanceId)
+      .sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+
+    if (otherMaintenances.length === 0) {
+      this.itemMaintenanceHistory.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: var(--space-4);">No previous maintenance</p>`;
+      return;
+    }
+
+    this.itemMaintenanceHistory.innerHTML = "";
+
+    otherMaintenances.forEach((maint) => {
+      const maintDiv = document.createElement("div");
+      maintDiv.style.cssText = `
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: var(--space-3);
+        background: rgba(17, 24, 39, 0.01);
+        cursor: pointer;
+        transition: background-color 0.2s;
+      `;
+      
+      maintDiv.onmouseover = () => {
+        maintDiv.style.backgroundColor = "rgba(17, 24, 39, 0.05)";
+      };
+      maintDiv.onmouseout = () => {
+        maintDiv.style.backgroundColor = "rgba(17, 24, 39, 0.01)";
+      };
+
+      const maintHeader = document.createElement("div");
+      maintHeader.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space-2);
+      `;
+
+      const maintId = document.createElement("span");
+      maintId.style.cssText = "font-weight: 700; color: var(--text);";
+      maintId.textContent = `Maintenance #${maint.id}`;
+
+      maintHeader.appendChild(maintId);
+
+      const maintDetails = document.createElement("div");
+      maintDetails.style.cssText = `
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-2);
+        font-size: 0.9rem;
+      `;
+
+      const details = [
+        { label: "Technician", value: maint.tech || "-" },
+        { label: "Cost", value: `€${maint.totalCost?.toFixed(2) || "0.00"}` },
+        { label: "Start Date", value: maint.startDate || "-" },
+        { label: "End Date", value: maint.endDate || "-" },
+      ];
+
+      details.forEach(({ label, value }) => {
+        const detailRow = document.createElement("div");
+        detailRow.style.cssText =
+          "display: flex; justify-content: space-between;";
+
+        const labelEl = document.createElement("span");
+        labelEl.style.cssText = "color: var(--text-muted); font-size: 0.85rem;";
+        labelEl.textContent = label;
+
+        const valueEl = document.createElement("span");
+        valueEl.style.cssText = "color: var(--text); font-weight: 600;";
+        valueEl.textContent = value;
+
+        detailRow.appendChild(labelEl);
+        detailRow.appendChild(valueEl);
+        maintDetails.appendChild(detailRow);
+      });
+
+      maintDiv.appendChild(maintHeader);
+      maintDiv.appendChild(maintDetails);
+      
+      // Add click handler to view history maintenance details
+      maintDiv.addEventListener("click", () => {
+        this.currentMaintenanceId = maint.id;
+        this.showMaintenanceDetails(maint.id);
+      });
+      
+      this.itemMaintenanceHistory.appendChild(maintDiv);
+    });
   }
 
   handleCloseMaintenance() {
