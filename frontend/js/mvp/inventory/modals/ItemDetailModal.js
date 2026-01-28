@@ -1,4 +1,6 @@
-export class ItemDetailModal {
+import { BaseModal } from "../../core/BaseModal.js";
+
+export class ItemDetailModal extends BaseModal {
   constructor({
     modalId,
     openModal,
@@ -8,9 +10,15 @@ export class ItemDetailModal {
     sendToMaintenanceBtn,
     editItemBtn,
     toaster,
+    mediator,
   }) {
-    this.modalId = modalId;
-    this.openModal = openModal;
+    super({
+      modalId,
+      openModal,
+      mediator,
+      data: {},
+    });
+
     this.fields = fields;
     this.renderMaintenance = renderMaintenance;
     this.onSendToMaintenance = onSendToMaintenance;
@@ -21,8 +29,13 @@ export class ItemDetailModal {
     this.isMaintenanceDisabled = false;
     this.isEditDisabled = false;
 
+    this.setupEventListeners();
+  }
+
+  setupEventListeners() {
     this.handleMaintenanceClick = this.handleMaintenanceClick.bind(this);
     this.handleEditClick = this.handleEditClick.bind(this);
+
     if (this.sendToMaintenanceBtn) {
       this.sendToMaintenanceBtn.addEventListener(
         "click",
@@ -48,6 +61,7 @@ export class ItemDetailModal {
     if (this.editItemBtn) {
       this.editItemBtn.removeEventListener("click", this.handleEditClick, true);
     }
+    super.destroy();
   }
 
   handleMaintenanceClick(e) {

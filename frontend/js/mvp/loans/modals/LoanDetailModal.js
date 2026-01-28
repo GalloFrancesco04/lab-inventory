@@ -1,7 +1,14 @@
-export class LoanDetailModal {
-  constructor({ modalId, openModal, fields }) {
-    this.modalId = modalId;
-    this.openModal = openModal;
+import { BaseModal } from "../../core/BaseModal.js";
+
+export class LoanDetailModal extends BaseModal {
+  constructor({ modalId, openModal, fields, mediator }) {
+    super({
+      modalId,
+      openModal,
+      mediator,
+      data: {},
+    });
+
     this.fields = fields;
     this.disabledReason = "";
   }

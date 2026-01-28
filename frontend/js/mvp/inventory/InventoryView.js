@@ -140,6 +140,7 @@ class InventoryView extends BaseView {
       sendToMaintenanceBtn: this.sendToMaintBtn,
       editItemBtn: this.editItemBtn,
       toaster: this.mediator.toaster,
+      mediator: this.mediator,
     });
 
     this.maintenanceForm = new SendToMaintenanceForm({

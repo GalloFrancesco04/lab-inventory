@@ -120,6 +120,7 @@ class LoansView extends BaseView {
         items: this.detailItems,
         notes: this.detailNotes,
       },
+      mediator: this.mediator,
     });
 
     this.closeLoanHandler = new CloseLoanForm({
