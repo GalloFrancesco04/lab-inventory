@@ -204,7 +204,10 @@ class MaintenanceView extends BaseView {
 
       const statusCell = document.createElement("td");
       const statusBadge = document.createElement("span");
-      statusBadge.className = entry.status === "closed" ? "badge badge-danger" : "badge badge-success";
+      statusBadge.className =
+        entry.status === "closed"
+          ? "badge badge-danger"
+          : "badge badge-success";
       statusBadge.textContent = entry.status === "closed" ? "closed" : "open";
       statusBadge.style.whiteSpace = "nowrap";
       statusCell.appendChild(statusBadge);

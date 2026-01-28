@@ -1,7 +1,7 @@
 // Get CSS badge class for loan status
 export function getLoanStatusBadgeClass(status) {
   if (status === "active") return "badge badge-success";
-  if (status === "closed") return "badge badge-neutral";
+  if (status === "closed") return "badge badge-danger";
   return "badge";
 }
 

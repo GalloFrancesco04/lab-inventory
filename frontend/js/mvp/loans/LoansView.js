@@ -476,8 +476,10 @@ class LoansView extends BaseView {
       const statusCell = document.createElement("td");
       const statusBadge = document.createElement("span");
       statusBadge.className = getLoanStatusBadgeClass(loan.status);
-      statusBadge.textContent = loan.status;
+      statusBadge.textContent = loan.status === "closed" ? "Closed" : "Active";
+      statusBadge.style.whiteSpace = "nowrap";
       statusCell.appendChild(statusBadge);
+      statusCell.style.textAlign = "right";
 
       row.append(
         idCell,
