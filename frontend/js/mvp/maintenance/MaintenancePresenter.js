@@ -13,6 +13,15 @@ export class MaintenancePresenter extends BasePresenter {
     return this.authPresenter ? this.authPresenter.getCurrentUser() : null;
   }
 
+  getCurrentUserRole() {
+    const user = this.getCurrentUser();
+    return user ? user.role : null;
+  }
+
+  isTechnician() {
+    return this.getCurrentUserRole() === "technician";
+  }
+
   subscribe(callback) {
     this.listeners.push(callback);
     // Also subscribe to inventory changes so maintenance updates reflect inventory changes

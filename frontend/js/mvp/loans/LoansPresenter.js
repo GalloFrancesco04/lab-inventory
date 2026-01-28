@@ -223,6 +223,17 @@ export class LoansPresenter extends BasePresenter {
       });
     }
 
+    // Emit event for other modules to listen
+    if (this.mediator) {
+      const allItems = loanedObjects.map((lo) => ({ id: lo.objectId }));
+
+      this.mediator.emit("loan:closed", {
+        loanId: id,
+        items: allItems,
+        damagedItems: damagedItems,
+      });
+    }
+
     this.notifyListeners();
     return this.getLoanById(id);
   }
