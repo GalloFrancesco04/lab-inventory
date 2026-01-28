@@ -319,7 +319,7 @@ class MaintenanceView extends BaseView {
 
     operations.forEach((op, index) => {
       const card = document.createElement("div");
-      card.style.padding = "var(--space-3)";
+      card.style.padding = "var(--space-4)";
       card.style.background = "#f8f9fa";
       card.style.border = "1px solid #dee2e6";
       card.style.borderRadius = "var(--radius-sm)";
