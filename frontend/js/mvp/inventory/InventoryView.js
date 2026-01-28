@@ -90,7 +90,8 @@ class InventoryView extends BaseView {
       presenter: this.presenter,
       mediator: this.mediator,
       onObjectClick: (objectId) => this.openItemModal(objectId),
-      onNewInstance: (typeCode, typeName) => this.openNewInstanceForm(typeCode, typeName),
+      onNewInstance: (typeCode, typeName) =>
+        this.openNewInstanceForm(typeCode, typeName),
     });
 
     this.newItemFormHandler = new NewItemForm({
@@ -374,16 +375,26 @@ class InventoryView extends BaseView {
       }
 
       // Business rules: only allow status change between available and outofservice
+      // Damaged items can be sent to maintenance or changed to outofservice only
       if (currentItem && currentItem.status !== newStatus) {
-        const allowedStatuses = ["available", "outofservice"];
-
-        if (
-          !allowedStatuses.includes(currentItem.status) ||
-          !allowedStatuses.includes(newStatus)
-        ) {
-          this.mediator.toaster.error(
-            "Status can only be changed between Available and Out of Service. Other status changes require specific workflows (loan, maintenance).",
-          );
+        const allowedTransitions = {
+          "available": ["outofservice"],
+          "outofservice": ["available"],
+          "damaged": ["outofservice"], // Damaged items can only go to outofservice
+        };
+        
+        const allowedNewStatuses = allowedTransitions[currentItem.status] || [];
+        
+        if (!allowedNewStatuses.includes(newStatus)) {
+          if (currentItem.status === "damaged") {
+            this.mediator.toaster.error(
+              "Damaged items can only be marked as Out of Service or sent to maintenance.",
+            );
+          } else {
+            this.mediator.toaster.error(
+              "Status can only be changed between Available and Out of Service. Other status changes require specific workflows (loan, maintenance).",
+            );
+          }
           return;
         }
       }
@@ -602,7 +613,7 @@ class InventoryView extends BaseView {
     // Store the type information for use when submitting the form
     this.pendingInstanceTypeCode = typeCode;
     this.pendingInstanceTypeName = typeName;
-    
+
     // Open the new instance modal
     this.openModal("new-instance-modal");
   }
