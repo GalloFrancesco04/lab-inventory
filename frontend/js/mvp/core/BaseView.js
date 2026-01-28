@@ -251,14 +251,13 @@ export class BaseView {
     return new Date(dateStr);
   }
 
-  // Generic error handler - logs and toasts errors
+  // Error handler
   handleError(message, error) {
-    if (this.mediator?.logger?.error) {
-      this.mediator.logger.error(message, error);
-    } else {
-      console.error(message, error);
-    }
-    this.mediator?.toaster?.error(message);
+    this.mediator?.handleError(message, error, {
+      view: this.constructor.name,
+      timestamp: new Date(),
+      severity: "error",
+    });
   }
 
   // Cleanup - override in subclasses if needed

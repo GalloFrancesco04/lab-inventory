@@ -2,6 +2,7 @@ import { Toaster } from "../ui/toaster.js";
 import { SearchManager } from "./SearchManager.js";
 import { ModalManager } from "./ModalManager.js";
 import { Logger } from "../logger.js";
+import { ErrorHandler } from "./ErrorHandler.js";
 
 export class Mediator {
   constructor() {
@@ -9,6 +10,7 @@ export class Mediator {
     this.searchManager = new SearchManager();
     this.modalManager = new ModalManager();
     this.logger = new Logger();
+    this.errorHandler = new ErrorHandler(this.logger, this.toaster);
 
     // Event Bus for cross-module communication
     this.eventListeners = new Map();
@@ -65,6 +67,10 @@ export class Mediator {
     if (index > -1) {
       listeners.splice(index, 1);
     }
+  }
+
+  handleError(message, error, context = {}) {
+    return this.errorHandler.handle(message, error, context);
   }
 
   notify(sender, event, data) {
