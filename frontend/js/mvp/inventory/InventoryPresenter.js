@@ -147,6 +147,20 @@ export class InventoryPresenter extends BasePresenter {
     return newType;
   }
 
+  addObjectInstance(typeCode, location = "") {
+    const typeObj = this.db.getObjectTypeByCode(typeCode);
+    if (!typeObj) return null;
+
+    const newObject = this.db.addObject({
+      objectTypeCode: typeCode,
+      state: 1, // available
+      location: location,
+    });
+
+    this.notifyListeners();
+    return newObject;
+  }
+
   getTechnicians() {
     const users = this.db.getTechnicians();
     return users.map((u) => ({

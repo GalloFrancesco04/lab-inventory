@@ -37,6 +37,10 @@ class InventoryView extends BaseView {
     this.newItemBtn = this.getElement("new-item-btn");
     this.newTypeBtn = this.getElement("new-type-btn");
 
+    // New Instance Modal
+    this.newInstanceForm = this.getElement("new-instance-form");
+    this.newInstanceLocation = this.getElement("new-instance-location");
+
     // New Type Modal
     this.newTypeForm = this.getElement("new-type-form");
     this.newTypeName = this.getElement("new-type-name");
@@ -76,6 +80,8 @@ class InventoryView extends BaseView {
 
     this.currentItemId = null;
     this.currentTypeCode = null;
+    this.pendingInstanceTypeCode = null;
+    this.pendingInstanceTypeName = null;
 
     // Object list modal (to show instances of a type)
     this.objectListModal = new ObjectListModal({
@@ -84,6 +90,7 @@ class InventoryView extends BaseView {
       presenter: this.presenter,
       mediator: this.mediator,
       onObjectClick: (objectId) => this.openItemModal(objectId),
+      onNewInstance: (typeCode, typeName) => this.openNewInstanceForm(typeCode, typeName),
     });
 
     this.newItemFormHandler = new NewItemForm({
@@ -193,6 +200,19 @@ class InventoryView extends BaseView {
       },
       "object-list-modal": {
         closeButtons: ["object-list-close"],
+      },
+      "new-instance-modal": {
+        options: {
+          onOpen: () => {
+            this.newInstanceForm?.reset();
+          },
+          onClose: () => {
+            this.newInstanceForm?.reset();
+            this.pendingInstanceTypeCode = null;
+            this.pendingInstanceTypeName = null;
+          },
+        },
+        closeButtons: ["new-instance-close", "new-instance-cancel"],
       },
       "edit-item-modal": {
         options: {
@@ -306,6 +326,36 @@ class InventoryView extends BaseView {
     this.sendToMaintForm?.addEventListener("submit", (e) => {
       e.preventDefault();
       this.handleSendToMaintenance();
+    });
+
+    // New Instance Form
+    this.newInstanceForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const location = this.newInstanceLocation?.value?.trim();
+
+      if (!location) {
+        this.mediator.toaster.error("Location is required");
+        return;
+      }
+
+      try {
+        const result = this.presenter.addObjectInstance(
+          this.pendingInstanceTypeCode,
+          location,
+        );
+
+        if (result) {
+          this.mediator.toaster.success(
+            `New instance of "${this.pendingInstanceTypeName}" created successfully`,
+          );
+          this.closeModal("new-instance-modal");
+          this.objectListModal?.refreshCurrentView();
+        } else {
+          this.mediator.toaster.error("Unable to create new instance");
+        }
+      } catch (error) {
+        this.handleError("Unable to create new instance", error);
+      }
     });
 
     this.editItemForm?.addEventListener("submit", (e) => {
@@ -546,6 +596,15 @@ class InventoryView extends BaseView {
     this.currentItemId = itemId;
     this.populateTechnicians();
     this.itemDetailModal?.show(item);
+  }
+
+  openNewInstanceForm(typeCode, typeName) {
+    // Store the type information for use when submitting the form
+    this.pendingInstanceTypeCode = typeCode;
+    this.pendingInstanceTypeName = typeName;
+    
+    // Open the new instance modal
+    this.openModal("new-instance-modal");
   }
 
   populateTechnicians() {

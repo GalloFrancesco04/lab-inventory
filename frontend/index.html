@@ -368,9 +368,33 @@
     <div class="modal-overlay" id="object-list-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Object Instances</h2>
+                <div style="display: flex; align-items: center; gap: var(--space-2); flex: 1;">
+                    <h2 class="modal-title">Object Instances</h2>
+                    <button class="btn btn-primary btn-sm" id="new-instance-btn" style="margin-left: auto;">+ New Instance</button>
+                </div>
                 <button class="modal-close" aria-label="Close modal" id="object-list-close">&times;</button>
             </div>
+        </div>
+    </div>
+
+    <!-- New Instance Modal -->
+    <div class="modal-overlay" id="new-instance-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">New Instance</h2>
+                <button class="modal-close" aria-label="Close modal" id="new-instance-close">&times;</button>
+            </div>
+            <form class="form" id="new-instance-form">
+                <div class="form-group">
+                    <label for="new-instance-location">Location <span style="color: var(--danger);">*</span></label>
+                    <input type="text" id="new-instance-location" placeholder="e.g. Lab A, Storage, Lab B" required>
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="new-instance-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Instance</button>
+                </div>
+            </form>
         </div>
     </div>
 
