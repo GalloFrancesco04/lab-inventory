@@ -25,7 +25,7 @@ class OperationsRepository
             'maintenance_id' => $operation->getMaintenanceId(),
             'description' => $operation->getDescription(),
             'start_date' => $operation->getStartDate()->format('Y-m-d'),
-            'end_date' => $operation->getEndDate()->format('Y-m-d'),
+            'end_date' => null,
             'cost' => $operation->getCost()
         ]);
 
