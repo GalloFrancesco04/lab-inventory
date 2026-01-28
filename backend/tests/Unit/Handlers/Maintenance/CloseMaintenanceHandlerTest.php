@@ -6,29 +6,36 @@ require_once __DIR__ . '/../../../../src/Application/Handlers/Maintenance/CloseM
 $mediator = new Mediator();
 $mediator->register('CloseMaintenanceCommand', 'CloseMaintenanceHandler');
 
-echo "========== TEST: CHIUSURA MANUTENZIONE (VOID RETURN) ==========\n\n";
+echo "========== TEST: CHIUSURA MANUTENZIONE CON VARIANTI STATO ==========\n\n";
 
-try {
-    $maintenanceId = 1; 
-    $finalNotes = "Intervento concluso. Apparato testato e funzionante.";
-    $closureDate = new DateTime();
+/**
+ * Funzione helper per eseguire il test di chiusura
+ */
+$runCloseTest = function($mId, $notes, $isDamaged, $mediator) {
+    $statusText = $isDamaged ? "DANNEGGIATO (1)" : "RIPRISTINATO (0)";
+    echo "--- Test Chiusura ID $mId | Flag Damaged: $statusText ---\n";
+    
+    try {
+        $closureDate = new DateTime();
+        
+        $command = new CloseMaintenanceCommand($mId, $isDamaged);
+        
+        $mediator->send($command);
+        
+        echo "✅ SUCCESSO: Manutenzione $mId chiusa.\n";
+        echo "Esito previsto: L'oggetto dovrebbe essere " . ($isDamaged ? "nello stato DANNEGGIATO." : "nello stato DISPONIBILE (1).") . "\n\n";
+        
+    } catch (Exception $e) {
+        echo "❌ FALLITO: " . $e->getMessage() . "\n\n";
+    }
+};
 
-    echo "Tentativo di chiusura manutenzione ID: $maintenanceId...\n";
+// --- CASO 1: CHIUSURA STANDARD (Oggetto riparato correttamente) ---
+// Utilizziamo il flag 0 (o lo omettiamo se il tuo costruttore ha il default)
+$runCloseTest(1, "Riparazione perfetta, test superato.", 0, $mediator);
 
-    // Creazione del comando
-    $command = new CloseMaintenanceCommand($maintenanceId, $finalNotes, $closureDate);
+// --- CASO 2: CHIUSURA CON OGGETTO DANNEGGIATO (Irreparabile o scartato) ---
+// Passiamo 1 per indicare che l'oggetto non è più utilizzabile
+$runCloseTest(1, "Componenti interni fusi, oggetto non riparabile.", 1, $mediator);
 
-    // Esecuzione del comando
-    // Non assegniamo il risultato a una variabile perché l'handler non restituisce nulla
-    $mediator->send($command);
-
-    // Se arriviamo qui senza eccezioni, l'operazione è andata a buon fine
-    echo "✅ SUCCESSO: La manutenzione è stata chiusa.\n";
-    echo "L'oggetto associato dovrebbe ora essere nello stato 'Disponibile' (1).\n";
-
-} catch (Exception $e) {
-    // Se qualcosa va storto (es. ID inesistente o errore DB), l'handler lancerà un'eccezione
-    echo "❌ ERRORE: " . $e->getMessage() . "\n";
-}
-
-echo "\n================ FINE TEST ==========================\n";
+echo "================ FINE TEST ==========================\n";
