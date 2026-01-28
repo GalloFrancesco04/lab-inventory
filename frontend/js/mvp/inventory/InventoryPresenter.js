@@ -1,5 +1,10 @@
 import { BasePresenter } from "../core/BasePresenter.js";
 import { MockDatabase } from "../../utils/MockDatabase.js";
+import {
+  emailToDisplayName,
+  stateToStatus,
+  statusToState,
+} from "../../utils/transformers.js";
 
 export class InventoryPresenter extends BasePresenter {
   constructor(mediator = null) {
@@ -69,30 +74,6 @@ export class InventoryPresenter extends BasePresenter {
     this.listeners.forEach((cb) => cb());
   }
 
-  // Helper to map OBJECT state to status string
-  stateToStatus(state) {
-    const stateMap = {
-      1: "available",
-      2: "loaned",
-      3: "maintenance",
-      4: "damaged",
-      5: "outofservice",
-    };
-    return stateMap[state] || "available";
-  }
-
-  // Helper to map status string to OBJECT state
-  statusToState(status) {
-    const statusMap = {
-      available: 1,
-      loaned: 2,
-      maintenance: 3,
-      damaged: 4,
-      outofservice: 5,
-    };
-    return statusMap[status] || 1;
-  }
-
   getItemById(id) {
     const object = this.db.getObjectById(id);
     if (!object) return null;
@@ -110,12 +91,7 @@ export class InventoryPresenter extends BasePresenter {
         startDate: m.startDate,
         endDate: m.endDate || "",
         type: m.type,
-        tech: tech
-          ? tech.email
-              .split("@")[0]
-              .replace(".", " ")
-              .replace(/\b\w/g, (l) => l.toUpperCase())
-          : "Unknown",
+        tech: tech ? emailToDisplayName(tech.email) : "Unknown",
         phoneNumber: m.phoneNumber,
         desc: m.description,
         operations: operations.map((op) => ({
