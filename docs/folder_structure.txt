@@ -203,15 +203,39 @@ INGSW-2526-T14/
         │   │   ├── ClientsView.js
         │   │   └── ClientsPresenter.js
         │   ├── inventory/
-        │   │   ├── ItemsView.js
-        │   │   └── ItemsPresenter.js
+        │   │   ├── InventoryView.js
+        │   │   ├── InventoryPresenter.js
+        │   │   ├── NewItemForm.js
+        │   │   └── modals/
+        │   │       ├── ItemDetailModal.js
+        │   │       └── SendToMaintenanceForm.js
         │   ├── loans/
         │   │   ├── LoansView.js
-        │   │   └── LoansPresenter.js
+        │   │   ├── LoansPresenter.js
+        │   │   └── modals/
+        │   │       ├── LoanDetailModal.js
+        │   │       └── CloseLoanForm.js
         │   └── maintenance/
-        │       ├── TechView.js
-        │       └── TechPresenter.js
+        │       ├── MaintenanceView.js
+        │       └── MaintenancePresenter.js
+        ├── api/
+        │   └── apiClient.js     # fetch wrapper (baseUrl, auth, error handling)
         └── utils/
-            ├── dom.js
+            ├── forms/
+            │   ├── NewClientForm.js
+            │   └── ItemPicker.js
+            ├── managers/
+            │   ├── Mediator.js
+            │   ├── FilterManager.js
+            │   ├── SearchManager.js
+            │   └── ModalManager.js
+            ├── ui/
+            │   ├── badges.js
+            │   ├── formatters.js
+            │   ├── dom.js
+            │   ├── toaster.js
+            │   └── logger.js
             ├── validators.js
-            └── formatters.js
+            ├── messages.js
+            ├── ClientFilter.js
+            └── MockDatabase.js

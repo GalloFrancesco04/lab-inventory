@@ -1,0 +1,322 @@
+/* Modal Overlay & Container */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
+  padding: 0 12px;
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.modal-content {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-3) var(--space-4);
+  max-width: 500px;
+  width: 90%;
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  margin: 12px auto 0;
+}
+
+.modal-content.modal-lg {
+  max-width: 760px;
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-2);
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  color: var(--text);
+}
+
+/* Item Detail Modal */
+.item-detail-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.item-image-box {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+}
+
+.item-detail-grid .item-info-stack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.item-detail-grid .item-info-stack .item-meta-secondary {
+  grid-column: 2;
+}
+
+@media (max-width: 640px) {
+  .item-detail-grid .item-info-stack {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Maintenance List */
+.item-maint-list {
+  margin-top: var(--space-4);
+}
+
+/* Maintenance list title spacing for the modal */
+.item-maint-list .section-title {
+  font-size: 1rem;
+  margin-bottom: var(--space-3);
+}
+
+.item-info-action {
+  margin-top: var(--space-2);
+}
+
+.item-detail-grid .item-info-action {
+  grid-column: 1 / -1;
+}
+
+/* Scrollable maintenance list with a slim scrollbar */
+.maintenance-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: var(--space-2);
+}
+
+.maintenance-list-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.maintenance-list-container::-webkit-scrollbar-track {
+  background: rgba(17, 24, 39, 0.05);
+  border-radius: 3px;
+}
+
+.maintenance-list-container::-webkit-scrollbar-thumb {
+  background: rgba(17, 24, 39, 0.2);
+  border-radius: 3px;
+}
+
+.maintenance-list-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(17, 24, 39, 0.3);
+}
+
+.maintenance-entry {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  background: rgba(17, 24, 39, 0.01);
+}
+
+.maintenance-entry:first-child {
+  margin-top: 0;
+}
+
+.maint-row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: var(--space-3);
+  font-size: 0.9rem;
+  padding-bottom: var(--space-2);
+}
+
+.maint-row:last-child {
+  padding-bottom: 0;
+}
+
+.maint-label {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.maint-value {
+  color: var(--text);
+  word-break: break-word;
+}
+
+/* Multi-select dropdown */
+.multi-select {
+  position: relative;
+}
+
+.multi-select-trigger {
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  cursor: pointer;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.multi-select-trigger::after {
+  content: "▾";
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-left: auto;
+}
+
+.multi-select-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  max-height: 220px;
+  overflow-y: auto;
+  display: none;
+  z-index: 10;
+}
+
+.multi-select.open .multi-select-menu {
+  display: block;
+}
+
+.multi-select-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.multi-select-option:hover {
+  background: rgba(17, 24, 39, 0.04);
+}
+
+.multi-select-option input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.multi-select-empty {
+  padding: 10px 12px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.detail-notes .note-box {
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.loaned-item-card {
+  position: relative;
+}
+
+.loan-damaged-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+}
+
+/* Object List Modal */
+.object-list-content {
+  margin-top: var(--space-4);
+}
+
+.modal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.modal-table thead {
+  background-color: var(--surface-muted);
+  border-bottom: 2px solid var(--border);
+}
+
+.modal-table th {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+}
+
+.modal-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.2s ease;
+}
+
+.modal-table tbody tr:hover {
+  background-color: var(--surface-muted);
+  cursor: pointer;
+}
+
+.modal-table td {
+  padding: var(--space-3);
+  color: var(--text);
+}
+
+.modal-table-row {
+  user-select: none;
+}

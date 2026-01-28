@@ -1,0 +1,52 @@
+stateDiagram-v2
+    [*] --> Idle
+
+    Idle --> Active: create loan
+
+    Active --> Completed: return success
+    Active --> Overdue: 30 days passed
+    Active --> Cancelled: cancel loan
+
+    Overdue --> Active: extend loan
+    Overdue --> Completed: return success
+
+    Completed --> [*]
+    Cancelled --> [*]
+
+---
+
+stateDiagram-v2
+    [*] --> Available
+
+    Available --> OnLoan: loan created
+    Available --> InMaintenance: send to maintenance
+    Available --> Broken: marked broken
+    Available --> OutOfService: retire item
+
+    OnLoan --> Available: loan returned ok
+    OnLoan --> Broken: loan returned damaged
+
+    InMaintenance --> Available: maintenance completed ok
+    InMaintenance --> Broken: maintenance completed broken
+
+    Broken --> InMaintenance: send to maintenance
+    Broken --> OutOfService: irreparable
+
+    OutOfService --> [*]
+
+---
+
+stateDiagram-v2
+    [*] --> Login
+
+    Login --> LoginError: login failed
+    LoginError --> Login: retrylogin
+
+    Login --> Success
+    Success --> AdminDashboard: role == admin
+    Success --> TechnicianDashboard: role == technician
+
+    AdminDashboard --> LoggedOut: logout
+    TechnicianDashboard --> LoggedOut: logout
+
+    LoggedOut --> [*]
