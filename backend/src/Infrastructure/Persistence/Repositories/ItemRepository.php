@@ -1,8 +1,7 @@
 <?php
 
-use PDO;
-require_once __DIR__ . '/../../../Domain/Entities/InventoryItem.php';
 
+require_once __DIR__ . '/../../../Domain/Entities/InventoryItem.php';
 
 class ItemRepository
 {
@@ -30,6 +29,19 @@ class ItemRepository
         $item->setId((int) $this->connection->lastInsertId());
         return $item->getId();
     }
+    
+    public function MarkObjectAsAvailable(int $id): void
+    {
+        $stmt = $this->connection->prepare("
+            UPDATE object_ 
+            SET state = 1
+            WHERE id = :id
+        ");
+
+        $stmt->execute([
+            'id'    => $id
+        ]);
+    }
 
     public function MarkObjectAsLoaned(int $id): void
     {
@@ -44,11 +56,25 @@ class ItemRepository
         ]);
     }
 
-    public function MarkObjectAsAvailable(int $id): void
+
+     public function MarkObjectAsDamaged(int $id): void
     {
         $stmt = $this->connection->prepare("
             UPDATE object_ 
-            SET state = 1
+            SET state = 4
+            WHERE id = :id
+        ");
+
+        $stmt->execute([
+            'id'    => $id
+        ]);
+    }
+        
+    public function SendObjectToMaintenance(int $id): void
+    {
+        $stmt = $this->connection->prepare("
+            UPDATE object_ 
+            SET state = 3
             WHERE id = :id
         ");
 
@@ -57,31 +83,19 @@ class ItemRepository
         ]);
     }
 
-    // public function MarkObjectAsBroken(int $id): void
-    // {
-    //     $stmt = $this->connection->prepare("
-    //         UPDATE object_ 
-    //         SET state = 4
-    //         WHERE id = :id
-    //     ");
+    public function MarkObjectAsOutOfService(int $id): void
+    {
+        $stmt = $this->connection->prepare("
+            UPDATE object_ 
+            SET state = 5
+            WHERE id = :id
+        ");
 
-    //     $stmt->execute([
-    //         'id'    => $id
-    //     ]);
-    // }
+        $stmt->execute([
+            'id'    => $id
+        ]);
+    }
 
-    // public function SendObjectToMaintenance(int $id): void
-    // {
-    //     $stmt = $this->connection->prepare("
-    //         UPDATE object_ 
-    //         SET state = 3
-    //         WHERE id = :id
-    //     ");
-
-    //     $stmt->execute([
-    //         'id'    => $id
-    //     ]);
-    // }
 
     public function updateState(int $id, int $newState): void
     {
@@ -138,14 +152,41 @@ class ItemRepository
     }
 
 
+    public function getAllAvailableItems(): array
+    {
+        $stmt = $this->connection->prepare("SELECT * FROM object_ WHERE state = 1");
+        $stmt->execute();
+
+        $items = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $items[] = $this->mapRowToItem($row);
+        }
+
+        return $items;
+    }
+
+    public function getAllItemsByTypeCode(string $typeCode): array
+    {
+        $stmt = $this->connection->prepare("SELECT * FROM object_ WHERE object_type_code = :type_code");
+        $stmt->execute(['type_code' => $typeCode]);
+
+        $items = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $items[] = $this->mapRowToItem($row);
+        }
+
+        return $items;
+    }
+
+
 //Input array of search function : 
     //     $filters = [
     //                                         // key => value (User input) 
     //     'state'  (int)   =>    ,       
-    //     'name'   (string) =>    ,
+    //     'object_type_code'   (string) =>    ,
     //     'location' (string) =>    ,         
     // ];
-    public function searchByStateNameLocation(array $filters): array
+    public function searchByStateTypeLocation(array $filters): array
     {
         $query = "SELECT o.id, ot.code, ot.name, ot.description, o.state, o.location
             FROM object_ o JOIN objecttype ot ON o.object_type_code = ot.code
@@ -159,10 +200,9 @@ class ItemRepository
             $params['state'] = $filters['state'];
         }
 
-        if(!empty($filters['name'])){
-            $query .= " AND ot.name LIKE :name";
-            $params['name'] = $filters['name'];         //match
-            // $params['name'] = $filters['name'] . '%'  ; //starts with
+        if(!empty($filters['object_type_code'])){
+            $query .= " AND ot.code LIKE :object_type_code";
+            $params['object_type_code'] = $filters['object_type_code'];     
         }
 
         if(!empty($filters['location'])){

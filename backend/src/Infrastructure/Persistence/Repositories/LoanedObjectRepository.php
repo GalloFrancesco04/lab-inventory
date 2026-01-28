@@ -4,6 +4,10 @@ use PDO;
 require_once __DIR__ . '/../../../Domain/Entities/LoanedObject.php';
 
 
+require_once __DIR__ . '/../../../Domain/Entities/LoanedObject.php';
+require_once __DIR__ . '/../../../Domain/Entities/InventoryItem.php';
+require_once __DIR__ . '/../../../Domain/Entities/Loan.php';
+
 class LoanedObjectRepository
 {
     private PDO $connection;

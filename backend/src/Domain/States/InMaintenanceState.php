@@ -30,6 +30,7 @@ class InMaintenanceState implements ItemState {
     }
 
     public function handleMaintenance(InventoryItem $item): void {
+        throw new Exception("Oggetto gia' in Manutenzione");
         return;
     }
 
