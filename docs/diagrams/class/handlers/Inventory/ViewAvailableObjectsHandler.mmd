@@ -1,0 +1,19 @@
+classDiagram
+    class ViewAvailableObjectsCommand {
+    }
+
+    class ViewAvailableObjectsHandler {
+        +handle(ViewAvailableObjectsCommand command)
+    }
+
+    class ItemRepository {
+        +getAllAvailableItems()
+    }
+
+    class ObjectTypeRepository {
+        +findByCode(string code)
+    }
+
+    ViewAvailableObjectsHandler --> ViewAvailableObjectsCommand
+    ViewAvailableObjectsHandler --> ItemRepository
+    ViewAvailableObjectsHandler --> ObjectTypeRepository

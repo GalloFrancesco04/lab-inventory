@@ -1,0 +1,20 @@
+classDiagram
+    class UpdateObjectTypeCommand {
+        +string code
+        +string name
+        +string description
+        +string model
+        +string brand
+    }
+
+    class UpdateObjectTypeHandler {
+        +handle(UpdateObjectTypeCommand command)
+    }
+
+    class ObjectTypeRepository {
+        +findByCode(string code)
+        +update(ObjectType objectType)
+    }
+
+    UpdateObjectTypeHandler --> UpdateObjectTypeCommand
+    UpdateObjectTypeHandler --> ObjectTypeRepository
