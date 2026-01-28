@@ -53,12 +53,12 @@ class ObjectsController {
         if (is_array($obj)) return $obj;
 
         return [
-            // Adatta questi getter ai nomi reali nella tua Entity
+            // Getter based on fields used in create/update
             'id' => method_exists($obj, 'getId') ? $obj->getId() : null,
             'object_type_code' => method_exists($obj, 'getTypeCode') ? $obj->getTypeCode() : (method_exists($obj, 'getObjectTypeCode') ? $obj->getObjectTypeCode() : null),
             'location' => method_exists($obj, 'getLocation') ? $obj->getLocation() : null,
             'status' => method_exists($obj, 'getStatus') ? $obj->getStatus() : null,
-            // Aggiungi altri campi se necessario
+            // Additional fields can be added here as needed
         ];
     }
 

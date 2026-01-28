@@ -49,14 +49,13 @@ class AuthController {
     public function logout(Request $request) {
 
     try {
-            // Anche se non ha parametri, passiamo attraverso il Mediator
-            // per gestire eventuali logiche server-side (es. blacklisting token, log db)
+            // send logout command via mediator
             $command = new LogoutUserCommand();
             $this->mediator->send($command);
 
             Response::success(["message" => "Logout effettuato con successo"]);
         } catch (Exception $e) {
-            // Anche se fallisce internamente, all'utente mostriamo successo o errore generico
+            // Handle any exceptions that may occur during logout
             Response::error($e->getMessage(), "LOGOUT_ERROR", 500);
         }
     }

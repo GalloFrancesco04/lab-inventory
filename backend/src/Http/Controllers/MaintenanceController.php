@@ -52,11 +52,11 @@ class MaintenanceController {
      */
     public function getAll(Request $request) {
         try {
-            // UPDATED: Usa il nome plurale come richiesto
+            // UPDATED: use ViewMaintenancesCommand
             $command = new ViewMaintenancesCommand();
             $logsObjects = $this->mediator->send($command);
             
-            // Mapping manuale per evitare JSON vuoti
+            // Map each maintenance object to array
             $logsArray = [];
             if (is_array($logsObjects)) {
                 foreach ($logsObjects as $log) {
