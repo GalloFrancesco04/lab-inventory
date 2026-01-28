@@ -1,0 +1,14 @@
+classDiagram
+    class ViewObjectTypesCommand {
+    }
+
+    class ViewObjectTypesHandler {
+        +handle(ViewObjectTypesCommand command)
+    }
+
+    class ObjectTypeRepository {
+        +getAll()
+    }
+
+    ViewObjectTypesHandler --> ViewObjectTypesCommand
+    ViewObjectTypesHandler --> ObjectTypeRepository

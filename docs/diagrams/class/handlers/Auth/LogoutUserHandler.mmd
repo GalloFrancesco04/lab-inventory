@@ -1,0 +1,14 @@
+classDiagram
+    class LogoutUserCommand {
+    }
+
+    class LogoutUserHandler {
+        +handle(LogoutUserCommand command)
+    }
+
+    class SessionManager {
+        +logout()
+    }
+
+    LogoutUserHandler --> LogoutUserCommand
+    LogoutUserHandler --> SessionManager

@@ -1,0 +1,34 @@
+classDiagram
+    class CreateLoanCommand {
+        +int clientId
+        +date startDate
+        +date endDate
+        +array items
+        +string notes
+    }
+
+    class CreateLoanHandler {
+        +handle(CreateLoanCommand command)
+    }
+
+    class LoanRepository {
+        +create(Loan loan)
+    }
+
+    class ClientRepository {
+        +findById(int id)
+    }
+
+    class ItemRepository {
+        +findById(int id)
+    }
+
+    class LoanedObjectRepository {
+        +create(LoanedObject object)
+    }
+
+    CreateLoanHandler --> CreateLoanCommand
+    CreateLoanHandler --> LoanRepository
+    CreateLoanHandler --> ClientRepository
+    CreateLoanHandler --> ItemRepository
+    CreateLoanHandler --> LoanedObjectRepository

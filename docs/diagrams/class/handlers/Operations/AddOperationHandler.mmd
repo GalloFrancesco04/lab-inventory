@@ -1,0 +1,23 @@
+classDiagram
+    class AddOperationCommand {
+        +int maintenance_id
+        +string description
+        +DateTime start_date
+        +float cost
+    }
+
+    class AddOperationHandler {
+        +handle(AddOperationCommand command)
+    }
+
+    class MaintenanceRepository {
+        +findById(int id)
+    }
+
+    class OperationsRepository {
+        +create(Operation operation)
+    }
+
+    AddOperationHandler --> AddOperationCommand
+    AddOperationHandler --> MaintenanceRepository
+    AddOperationHandler --> OperationsRepository

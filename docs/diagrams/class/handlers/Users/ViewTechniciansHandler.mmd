@@ -1,0 +1,14 @@
+classDiagram
+    class ViewTechniciansCommand {
+    }
+
+    class ViewTechniciansHandler {
+        +handle(ViewTechniciansCommand command)
+    }
+
+    class UserRepository {
+        +getAllTechnicians()
+    }
+
+    ViewTechniciansHandler --> ViewTechniciansCommand
+    ViewTechniciansHandler --> UserRepository

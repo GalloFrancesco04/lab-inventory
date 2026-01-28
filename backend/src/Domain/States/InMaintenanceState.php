@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__.'/ItemState.php';
-require_once __DIR__.'/OutOfServiceState.php';
+require_once __DIR__.'/DamagedState.php';
 require_once __DIR__.'/AvailableState.php';
 
 class InMaintenanceState implements ItemState {
@@ -20,12 +20,12 @@ class InMaintenanceState implements ItemState {
 
 
     public function handleOutOfService(InventoryItem $item): void {
-        // from maintenance to out of service
-        $item->setState(new OutOfServiceState());
+        return;
     }
 
 
     public function handleDamaged(InventoryItem $item): void {
+        $item->setState(new DamagedState());
         return;
     }
 

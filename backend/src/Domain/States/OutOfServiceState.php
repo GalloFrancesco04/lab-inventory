@@ -11,10 +11,12 @@ class OutOfServiceState implements ItemState {
     }
 
     public function handleAvailable(InventoryItem $item): void {
+        return;
     }
 
 
     public function handleOutOfService(InventoryItem $item): void {
+        $item->setState(new OutOfServiceState());
         return;
     }
 
