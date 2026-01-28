@@ -43,4 +43,8 @@ class User {
     public function setRole(int $role): void {
         $this->role = $role;
     }
+
+    public function setId(int $id): void {
+        $this->id = $id;
+    }
 }
