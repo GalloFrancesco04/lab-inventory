@@ -110,7 +110,7 @@ export class InventoryPresenter extends BasePresenter {
       type: objectType ? objectType.name : "Unknown",
       brand: objectType ? objectType.brand : "Unknown",
       model: objectType ? objectType.model : "Unknown",
-      status: this.stateToStatus(object.state),
+      status: stateToStatus(object.state),
       location: object.location,
       imageUrl: null,
       maintenance: maintenance,
@@ -251,7 +251,7 @@ export class InventoryPresenter extends BasePresenter {
       ];
 
       if (allowedStatuses.includes(payload.status)) {
-        updates.state = this.statusToState(payload.status);
+        updates.state = statusToState(payload.status);
       }
     }
 
