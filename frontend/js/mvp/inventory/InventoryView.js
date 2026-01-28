@@ -1,5 +1,5 @@
 import { BaseView } from "../core/BaseView.js";
-import { FormValidator } from "../../utils/validators.js";
+import { FormValidator } from "../../utils/Validators.js";
 import { ItemDetailModal } from "./modals/ItemDetailModal.js";
 import { ObjectListModal } from "./modals/ObjectListModal.js";
 import { SendToMaintenanceForm } from "./modals/SendToMaintenanceForm.js";
@@ -7,12 +7,12 @@ import { NewItemForm } from "./NewItemForm.js";
 import {
   getItemStatusBadgeClass,
   getMaintenanceTypeBadgeClass,
-} from "../../utils/ui/badges.js";
+} from "../../utils/ui/Badges.js";
 import {
   VALIDATION_ERRORS,
   SUCCESS_MESSAGES,
   ERROR_MESSAGES,
-} from "../../utils/messages.js";
+} from "../../utils/Messages.js";
 
 class InventoryView extends BaseView {
   constructor(presenter, mediator) {

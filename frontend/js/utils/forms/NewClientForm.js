@@ -1,4 +1,4 @@
-import { FormValidator } from "../validators.js";
+import { FormValidator } from "../Validators.js";
 
 export class NewClientForm {
   constructor({ form, firstInput, lastInput, emailInput, toaster, onCreate }) {

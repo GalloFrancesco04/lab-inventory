@@ -1,10 +1,10 @@
 import { BaseView } from "../core/BaseView.js";
-import { FormValidator } from "../../utils/validators.js";
+import { FormValidator } from "../../utils/Validators.js";
 import {
   VALIDATION_ERRORS,
   SUCCESS_MESSAGES,
   ERROR_MESSAGES,
-} from "../../utils/messages.js";
+} from "../../utils/Messages.js";
 
 class ClientsView extends BaseView {
   constructor(presenter, mediator) {

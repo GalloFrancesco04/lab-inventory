@@ -3,7 +3,7 @@ import {
   VALIDATION_ERRORS,
   SUCCESS_MESSAGES,
   ERROR_MESSAGES,
-} from "../../utils/messages.js";
+} from "../../utils/Messages.js";
 
 class MaintenanceView extends BaseView {
   constructor(presenter, mediator) {

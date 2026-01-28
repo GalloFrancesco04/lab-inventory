@@ -4,7 +4,7 @@ import {
   emailToDisplayName,
   stateToStatus,
   statusToState,
-} from "../../utils/transformers.js";
+} from "../../utils/Transformers.js";
 
 export class InventoryPresenter extends BasePresenter {
   constructor(mediator = null) {

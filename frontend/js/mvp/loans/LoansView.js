@@ -3,12 +3,12 @@ import { ItemPicker } from "../../utils/forms/ItemPicker.js";
 import { NewClientForm } from "../../utils/forms/NewClientForm.js";
 import { LoanDetailModal } from "./modals/LoanDetailModal.js";
 import { CloseLoanForm } from "./modals/CloseLoanForm.js";
-import { getLoanStatusBadgeClass } from "../../utils/ui/badges.js";
+import { getLoanStatusBadgeClass } from "../../utils/ui/Badges.js";
 import {
   VALIDATION_ERRORS,
   SUCCESS_MESSAGES,
   ERROR_MESSAGES,
-} from "../../utils/messages.js";
+} from "../../utils/Messages.js";
 
 class LoansView extends BaseView {
   constructor(presenter, mediator) {

@@ -1,6 +1,6 @@
 import { BasePresenter } from "../core/BasePresenter.js";
 import { MockDatabase } from "../../utils/MockDatabase.js";
-import { LoanValidator, ValidationError } from "../../utils/validators.js";
+import { LoanValidator, ValidationError } from "../../utils/Validators.js";
 
 export class LoansPresenter extends BasePresenter {
   constructor(
