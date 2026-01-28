@@ -36,6 +36,9 @@ class MaintenanceView extends BaseView {
     this.statusBadge = this.getElement("maintenance-status-badge");
     this.operationsList = this.getElement("operations-list");
     this.itemMaintenanceHistory = this.getElement("item-maintenance-history");
+    this.itemMaintenanceHistorySection = this.getElement(
+      "item-maintenance-history-section",
+    );
     this.addOperationBtn = this.getElement("add-operation-btn");
     this.closeMaintenanceBtn = this.getElement("maintenance-close-btn");
     this.closeConfirmAccept = this.getElement(
@@ -274,7 +277,17 @@ class MaintenanceView extends BaseView {
     }
 
     this.renderOperations(maintenance.operations || []);
-    this.renderItemMaintenanceHistory(maintenance.itemId);
+
+    // Only show maintenance history to technicians
+    if (this.presenter.isTechnician()) {
+      if (this.itemMaintenanceHistorySection) {
+        this.itemMaintenanceHistorySection.style.display = "block";
+      }
+      this.renderItemMaintenanceHistory(maintenance.itemId);
+    } else if (this.itemMaintenanceHistorySection) {
+      this.itemMaintenanceHistorySection.style.display = "none";
+    }
+
     this.openModal("maintenance-detail-modal");
   }
 
@@ -311,7 +324,7 @@ class MaintenanceView extends BaseView {
         cursor: pointer;
         transition: background-color 0.2s;
       `;
-      
+
       maintDiv.onmouseover = () => {
         maintDiv.style.backgroundColor = "rgba(17, 24, 39, 0.05)";
       };
@@ -368,13 +381,13 @@ class MaintenanceView extends BaseView {
 
       maintDiv.appendChild(maintHeader);
       maintDiv.appendChild(maintDetails);
-      
+
       // Add click handler to view history maintenance details
       maintDiv.addEventListener("click", () => {
         this.currentMaintenanceId = maint.id;
         this.showMaintenanceDetails(maint.id);
       });
-      
+
       this.itemMaintenanceHistory.appendChild(maintDiv);
     });
   }
