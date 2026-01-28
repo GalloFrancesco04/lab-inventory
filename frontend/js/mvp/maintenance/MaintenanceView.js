@@ -33,6 +33,7 @@ class MaintenanceView extends BaseView {
     this.detailTech = this.getElement("maintenance-detail-tech");
     this.detailDesc = this.getElement("maintenance-detail-desc");
     this.detailTotal = this.getElement("maintenance-detail-total");
+    this.statusBadge = this.getElement("maintenance-status-badge");
     this.operationsList = this.getElement("operations-list");
     this.addOperationBtn = this.getElement("add-operation-btn");
     this.closeMaintenanceBtn = this.getElement("maintenance-close-btn");
@@ -234,6 +235,13 @@ class MaintenanceView extends BaseView {
     }
     this.detailDesc.textContent = maintenance.desc || "-";
     this.detailTotal.textContent = `€${maintenance.totalCost.toFixed(2)}`;
+
+    // Update status badge
+    if (this.statusBadge) {
+      const isOpen = maintenance.status !== "closed";
+      this.statusBadge.textContent = isOpen ? "Open" : "Closed";
+      this.statusBadge.className = isOpen ? "badge badge-success" : "badge badge-danger";
+    }
 
     const currentUser = this.presenter.getCurrentUser?.();
     const canTechnicianEdit =
