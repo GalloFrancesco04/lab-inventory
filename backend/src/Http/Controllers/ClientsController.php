@@ -19,9 +19,7 @@ require_once __DIR__ . '/../../Application/Handlers/Clients/CreateClientHandler.
 require_once __DIR__ . '/../../Application/Commands/Clients/UpdateClientCommand.php';
 require_once __DIR__ . '/../../Application/Handlers/Clients/UpdateClientHandler.php';
 
-// Import specific Command and Handler for Client Deletion
-//require_once __DIR__ . '/../../Application/Commands/Clients/DeleteClientCommand.php';
-//require_once __DIR__ . '/../../Application/Handlers/Clients/DeleteClientHandler.php';
+
 
 // Import specific Commands and Handlers for Blocking/Unblocking Clients
 require_once __DIR__ . '/../../Application/Commands/Clients/BlockClientCommand.php';
@@ -140,24 +138,7 @@ class ClientsController {
         }
     }
 
-    /**
-    * DELETE /api/clients/{id}
-    * Deletes a client.
-    */
-   /*public function delete(Request $request, $id) {
-        try {
-            // Create command with ID
-            $command = new DeleteClientCommand($id);
-            
-            // Dispatch to Mediator
-            $this->mediator->send($command);
-
-            Response::success(["message" => "Client deleted successfully"]);
-
-        } catch (Exception $e) {
-            Response::error($e->getMessage(), "DELETE_ERROR", 400);
-        }
-    } */
+   
 
     /**
     * POST /api/clients/block
