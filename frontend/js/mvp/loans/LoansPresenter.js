@@ -1,5 +1,6 @@
 import { BasePresenter } from "../core/BasePresenter.js";
 import { MockDatabase } from "../../utils/MockDatabase.js";
+import { LoanValidator, ValidationError } from "../../utils/validators.js";
 
 export class LoansPresenter extends BasePresenter {
   constructor(
@@ -66,15 +67,28 @@ export class LoansPresenter extends BasePresenter {
   }
 
   addLoan({ client, startDate, endDate, items }) {
-    if (!client || !items || items.length === 0 || items.length > 5) {
-      return null;
+    // Validate loan data
+    try {
+      LoanValidator.validateCreate({ client, startDate, endDate, items });
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        throw error;
+      }
+      throw new ValidationError("Loan validation failed");
+    }
+
+    // Additional validation: max 5 items per loan
+    if (items.length > 5) {
+      throw new ValidationError("Maximum 5 items per loan", "items");
     }
 
     // Find client by name
     const clients = this.db.getClients();
     const clientObj = clients.find((c) => `${c.name} ${c.surname}` === client);
 
-    if (!clientObj) return null;
+    if (!clientObj) {
+      throw new ValidationError("Client not found");
+    }
 
     // Create loan
     const newLoan = this.db.addLoan({
