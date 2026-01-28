@@ -25,7 +25,7 @@ CREATE TABLE client (
 );
 
 -- Insert sample client
-INSERT INTO client (email, name, surname, state) VALUES ('mario.sale@example.com', 'Mario', 'Sale', 1);
+
 
 -- =========================
 -- OBJECTTYPE, OBJECT
@@ -136,3 +136,100 @@ CREATE TABLE operations (
 );
 
 
+-- ========================
+
+
+-- =========================
+-- 1. POPOLAMENTO UTENTI (Staff/Tecnici)
+-- =========================
+-- Role: 1 = Admin, 2 = Tecnico
+INSERT INTO `user` (email, pass, role) VALUES 
+('admin@lab.it', '$2a$12$srdWkI8c3ADcYQHpHH7OBOHUpD00Oq4mLKexaXO.uhntNlEYZJZe2', 1),
+('luca.tecnico@lab.it', '$2a$12$vQz71VwpxqFdJVX5kzek1eLj846rYfp8RFEFjMbzhAGn7V3Aui6vW', 2);
+
+-- =========================
+-- 2. POPOLAMENTO CLIENTI (Studenti/Professori)
+-- =========================
+-- Nota: Mario Sale era già nell'esempio, aggiungiamo altri
+INSERT INTO client (email, name, surname, state) VALUES 
+('giulia.bianchi@studenti.it', 'Giulia', 'Bianchi', 1), -- Studente attivo
+('prof.verdi@uni.it', 'Luigi', 'Verdi', 1),             -- Professore attivo
+('marco.neri@studenti.it', 'Marco', 'Neri', 0);         -- Studente sospeso
+
+-- =========================
+-- 3. POPOLAMENTO TIPI OGGETTO (Catalogo)
+-- =========================
+INSERT INTO objecttype (code, name, description, model, brand, quantity) VALUES 
+('NB-DELL-XPS15', 'Laptop Prestazioni Alte', 'Laptop per rendering e calcolo', 'XPS 15', 'Dell', 3),
+('MS-LOGI-B100', 'Mouse Ottico USB', 'Mouse base con filo', 'B100', 'Logitech', 10),
+('DEV-ARD-UNO', 'Microcontrollore', 'Scheda per prototipazione elettronica', 'Uno R3', 'Arduino', 20),
+('VID-EPS-EB', 'Videoproiettore', 'Proiettore HDMI 1080p', 'EB-FH06', 'Epson', 2);
+
+-- =========================
+-- 4. POPOLAMENTO OGGETTI FISICI (Asset)
+-- =========================
+-- Stato: 1 = Disponibile, 2 = In Prestito, 3 = In Manutenzione, 4 = Rotto/Dismesso
+
+-- Laptop Dell (3 unità)
+INSERT INTO object_ (object_type_code, state, location) VALUES 
+('NB-DELL-XPS15', 1, 'Armadio A - Ripiano 1'), -- ID 1 (Disponibile)
+('NB-DELL-XPS15', 2, 'In uso esterno'),        -- ID 2 (In prestito)
+('NB-DELL-XPS15', 3, 'Laboratorio Riparazioni'); -- ID 3 (In manutenzione)
+
+-- Mouse (Alcuni esempi)
+INSERT INTO object_ (object_type_code, state, location) VALUES 
+('MS-LOGI-B100', 1, 'Cesta Accessori'), -- ID 4
+('MS-LOGI-B100', 2, 'In uso esterno'),  -- ID 5 (In prestito con il laptop 2)
+('MS-LOGI-B100', 1, 'Cesta Accessori'); -- ID 6
+
+-- Proiettore
+INSERT INTO object_ (object_type_code, state, location) VALUES 
+('VID-EPS-EB', 1, 'Armadio B'); -- ID 7
+
+-- =========================
+-- 5. POPOLAMENTO PRESTITI (Loans)
+-- =========================
+
+-- PRESTITO 1: Concluso (Restituito). Giulia Bianchi ha preso un Proiettore.
+INSERT INTO loans (start_date, end_date, return_date, client_id, notes, quantity, state) VALUES 
+('2023-10-01', '2023-10-02', '2023-10-02', 2, 'Restituito con cavo HDMI mancante', 1, 0); 
+-- ID Loan sarà 1. Client ID 2 è Giulia.
+
+-- PRESTITO 2: Attivo. Il Prof. Verdi ha un Laptop e un Mouse.
+INSERT INTO loans (start_date, end_date, return_date, client_id, notes, quantity, state) VALUES 
+(CURDATE(), DATE_ADD(CURDATE(), INTERVAL 7 DAY), NULL, 3, 'Prestito per conferenza', 2, 1);
+-- ID Loan sarà 2. Client ID 3 è Prof. Verdi.
+
+-- =========================
+-- 6. POPOLAMENTO DETTAGLIO PRESTITI (LoanedObjects)
+-- =========================
+
+-- Dettagli Prestito 1 (Giulia - Proiettore ID 7) - Nota: Ora è restituito, ma teniamo lo storico
+INSERT INTO loanedobjects (object_type_code, object_id, loan_id, damaged) VALUES 
+('VID-EPS-EB', 7, 1, 0);
+
+-- Dettagli Prestito 2 (Prof. Verdi - Laptop ID 2 e Mouse ID 5)
+INSERT INTO loanedobjects (object_type_code, object_id, loan_id, damaged) VALUES 
+('NB-DELL-XPS15', 2, 2, 0),
+('MS-LOGI-B100', 5, 2, 0);
+
+-- =========================
+-- 7. POPOLAMENTO MANUTENZIONI
+-- =========================
+
+-- Il Laptop ID 3 è rotto (Stato 3 in object_ table)
+INSERT INTO maintenance (object_id, description, start_date, end_date, type, technician_id, phone_number, cost) VALUES 
+(3, 'Schermo sfarfalla e pixel bruciati', DATE_SUB(CURDATE(), INTERVAL 2 DAY), NULL, 'Hardware', 2, '333-1234567', 0.00);
+-- ID Maintenance sarà 1. Technician ID 2 è Luca.
+
+-- =========================
+-- 8. POPOLAMENTO OPERAZIONI DI MANUTENZIONE
+-- =========================
+
+-- Operazione 1: Diagnostica
+INSERT INTO operations (maintenance_id, description, start_date, end_date, cost) VALUES 
+(1, 'Diagnostica iniziale ed stress test GPU', DATE_SUB(CURDATE(), INTERVAL 2 DAY), DATE_SUB(CURDATE(), INTERVAL 2 DAY), 20.00);
+
+-- Operazione 2: Ordine Pezzo
+INSERT INTO operations (maintenance_id, description, start_date, end_date, cost) VALUES 
+(1, 'Ordinato pannello LCD di ricambio', DATE_SUB(CURDATE(), INTERVAL 1 DAY), NULL, 150.00);
