@@ -59,32 +59,66 @@ class ClientsController {
      * GET /api/clients
      * Retrieves the list of all clients.
      */
+   /**
+     * Helper method: Transforms the Client object (with private data) into a visible Array.
+     * This is necessary because json_encode cannot access private properties directly.
+     */
+    private function mapToArray($client) {
+        // If it is already an array (e.g., from a mock), return it as is
+        if (is_array($client)) return $client;
+
+        // If it is an object, use public GETTERS to extract the data
+        return [
+            'id' => method_exists($client, 'getId') ? $client->getId() : null,
+            'name' => method_exists($client, 'getName') ? $client->getName() : null,
+            'surname' => method_exists($client, 'getSurname') ? $client->getSurname() : null,
+            'email' => method_exists($client, 'getEmail') ? $client->getEmail() : null,
+            'state' => method_exists($client, 'getState') ? $client->getState() : null,
+            // Handle loans (if present as a public property)
+            'loans' => !empty($client->loans) ? $client->loans : []
+        ];
+    }
+
+    /**
+     * GET /api/clients
+     * Retrieves the list of all clients and formats them for JSON output.
+     */
     public function getAll(Request $request) {
         try {
-            // Use ViewClientsCommand to get all clients
             $command = new ViewClientsCommand();
-            $clients = $this->mediator->send($command);
-            // Return successful JSON response
-            Response::success($clients);
+            $clientsObjects = $this->mediator->send($command);
+            
+            // Convert the list of Objects into a list of Arrays
+            $clientsArray = [];
+            if (is_array($clientsObjects)) {
+                foreach ($clientsObjects as $client) {
+                    $clientsArray[] = $this->mapToArray($client);
+                }
+            }
 
+            Response::success($clientsArray);
         } catch (Exception $e) {
-            // Handle errors using standardized Response
-            Response::error("Error retrieving clients: " . $e->getMessage(), "DB_ERROR", 500);
+            Response::error("Error: " . $e->getMessage(), "DB_ERROR", 500);
         }
     }
 
- // GET /api/clients/{id }
+    /**
+     * GET /api/clients/{id}
+     * Retrieves a single client by ID and formats it for JSON output.
+     */
     public function getById(Request $request, $id) {
         try {
-            // Use ViewSingleClientCommand to get client by ID
             $command = new ViewSingleClientCommand((int)$id);
-            $client = $this->mediator->send($command);
-            Response::success($client);
+            $clientObject = $this->mediator->send($command);
+            
+            // Convert the single Object into an Array
+            $clientArray = $this->mapToArray($clientObject);
+
+            Response::success($clientArray);
         } catch (Exception $e) {
             Response::error($e->getMessage(), "NOT_FOUND", 404);
         }
     }
-
         public function create(Request $request) {
             // Decode the JSON body from the request
             $data = $request->getBody();
