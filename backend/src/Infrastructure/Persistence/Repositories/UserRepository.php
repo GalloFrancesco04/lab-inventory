@@ -23,7 +23,7 @@ class UserRepository
 
         $stmt->execute([
             'email' => $user->getEmail(),
-            'pass'  => $user->getPassword(), //hashed Password
+            'pass'  => $user->getPass(), //hashed Password
             'role'  => $user->getRole() 
         ]);
 
