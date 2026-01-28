@@ -36,6 +36,7 @@ class ClientsView extends BaseView {
     this.clientDetailActive = this.getElement("client-detail-active");
     this.clientDetailTotal = this.getElement("client-detail-total");
     this.clientDetailLast = this.getElement("client-detail-last");
+    this.clientLoansHistory = this.getElement("client-loans-history");
     this.clientEditBtn = this.getElement("client-edit-btn");
     this.clientBlockBtn = this.getElement("client-block-btn");
 
@@ -332,7 +333,101 @@ class ClientsView extends BaseView {
       this.clientBlockBtn.style.display = "";
     }
 
+    this.renderClientLoans(clientId);
     this.openModal("client-detail-modal");
+  }
+
+  renderClientLoans(clientId) {
+    if (!this.clientLoansHistory) return;
+
+    let loans = [];
+    try {
+      loans = this.presenter.getLoansByClientId(clientId);
+    } catch (error) {
+      this.clientLoansHistory.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: var(--space-4);">Unable to load loans</p>`;
+      return;
+    }
+
+    if (!loans || loans.length === 0) {
+      this.clientLoansHistory.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: var(--space-4);">No loans</p>`;
+      return;
+    }
+
+    // Show last 5 loans
+    const recentLoans = loans.slice(-5).reverse();
+
+    this.clientLoansHistory.innerHTML = "";
+
+    recentLoans.forEach((loan) => {
+      const loanDiv = document.createElement("div");
+      loanDiv.style.cssText = `
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: var(--space-3);
+        background: rgba(17, 24, 39, 0.01);
+        margin-bottom: var(--space-2);
+      `;
+
+      const loanHeader = document.createElement("div");
+      loanHeader.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space-2);
+      `;
+
+      const loanId = document.createElement("span");
+      loanId.style.cssText = "font-weight: 700; color: var(--text);";
+      loanId.textContent = `Loan #${loan.id}`;
+
+      const statusBadge = document.createElement("span");
+      statusBadge.className =
+        loan.status === "closed" ? "badge badge-danger" : "badge badge-success";
+      statusBadge.textContent = loan.status === "closed" ? "Closed" : "Active";
+
+      loanHeader.appendChild(loanId);
+      loanHeader.appendChild(statusBadge);
+
+      const loanDetails = document.createElement("div");
+      loanDetails.style.cssText = `
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-2);
+        font-size: 0.9rem;
+      `;
+
+      const details = [
+        { label: "Start Date", value: loan.startDate || "-" },
+        { label: "Return Date", value: loan.endDate || "-" },
+        { label: "Items", value: loan.items?.length || loan.quantity || 0 },
+        {
+          label: "Return Status",
+          value: loan.returnDate ? "Returned" : "Pending",
+        },
+      ];
+
+      details.forEach(({ label, value }) => {
+        const detailRow = document.createElement("div");
+        detailRow.style.cssText =
+          "display: flex; justify-content: space-between;";
+
+        const labelEl = document.createElement("span");
+        labelEl.style.cssText = "color: var(--text-muted); font-size: 0.85rem;";
+        labelEl.textContent = label;
+
+        const valueEl = document.createElement("span");
+        valueEl.style.cssText = "color: var(--text); font-weight: 600;";
+        valueEl.textContent = value;
+
+        detailRow.appendChild(labelEl);
+        detailRow.appendChild(valueEl);
+        loanDetails.appendChild(detailRow);
+      });
+
+      loanDiv.appendChild(loanHeader);
+      loanDiv.appendChild(loanDetails);
+      this.clientLoansHistory.appendChild(loanDiv);
+    });
   }
 
   populateEditForm() {

@@ -76,6 +76,13 @@ export class ClientsPresenter extends BasePresenter {
     return deleted;
   }
 
+  getLoansByClientId(clientId) {
+    const client = this.db.getClientById(clientId);
+    if (!client) return [];
+
+    return this.db.getLoansByClientId(clientId);
+  }
+
   updateClient(id, payload) {
     const updates = {
       name: payload.firstName || "",
