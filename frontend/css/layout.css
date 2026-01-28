@@ -152,6 +152,11 @@
   text-align: right;
 }
 
+.main-table td .badge {
+  vertical-align: middle;
+  display: inline-block;
+}
+
 .table-row {
   cursor: pointer;
   transition: background-color 0.15s ease;

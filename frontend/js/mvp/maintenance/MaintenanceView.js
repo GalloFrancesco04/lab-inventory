@@ -203,10 +203,12 @@ class MaintenanceView extends BaseView {
       costCell.textContent = `€${entry.totalCost.toFixed(2)}`;
 
       const statusCell = document.createElement("td");
-      statusCell.textContent = entry.status || "-";
-      statusCell.style.fontWeight = "600";
-      statusCell.style.color =
-        entry.status === "closed" ? "#16a34a" : "#d97706";
+      const statusBadge = document.createElement("span");
+      statusBadge.className = entry.status === "closed" ? "badge badge-danger" : "badge badge-success";
+      statusBadge.textContent = entry.status === "closed" ? "closed" : "open";
+      statusBadge.style.whiteSpace = "nowrap";
+      statusCell.appendChild(statusBadge);
+      statusCell.style.textAlign = "right";
 
       tr.append(idCell, startCell);
       if (!hideEndDate) tr.append(endCell);
@@ -240,7 +242,9 @@ class MaintenanceView extends BaseView {
     if (this.statusBadge) {
       const isOpen = maintenance.status !== "closed";
       this.statusBadge.textContent = isOpen ? "Open" : "Closed";
-      this.statusBadge.className = isOpen ? "badge badge-success" : "badge badge-danger";
+      this.statusBadge.className = isOpen
+        ? "badge badge-success"
+        : "badge badge-danger";
     }
 
     const currentUser = this.presenter.getCurrentUser?.();
