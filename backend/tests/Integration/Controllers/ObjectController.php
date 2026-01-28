@@ -134,6 +134,6 @@ $controller->create(new MockRequest([
 // echo "Executing TEST: DELETE OBJECT...\n";
  //$controller->delete(new MockRequest([]), $targetId);
 
-// --- TEST 4: GET ALL ---
+// --- TEST 4: GET ALL ---*
 // echo "Executing TEST: GET ALL OBJECTS...\n";
 // $controller->getAll(new MockRequest([]));

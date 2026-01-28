@@ -121,7 +121,7 @@ $controller->create(new MockRequest([
     'name' => 'John', 'surname' => 'Doe', 'email' => 'john'.$randomId.'@test.com', 'state' => 1
 ]));
 
-// --- TEST 2: GET ALL (READ) ---
+// --- TEST 2: GET ALL (READ) ---*
 // echo "Executing TEST: GET ALL CLIENTS...\n";
 // $controller->getAll(new MockRequest([]));
 

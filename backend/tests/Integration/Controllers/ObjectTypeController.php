@@ -124,7 +124,7 @@ $controller->create(new MockRequest([
     'brand' => 'Brand-Z'
 ]));
 */
-// --- TEST 2: GET ALL ---
+// --- TEST 2: GET ALL ---*
  echo "Executing TEST: GET ALL TYPES...\n";
  $controller->getAll(new MockRequest([]));
 
