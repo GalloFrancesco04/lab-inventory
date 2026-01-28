@@ -1,6 +1,6 @@
 <?php
 // Command class to encapsulate data to authenticate the user
-class CreateClientCommand {
+class AuthUserCommand {
     public $email;
     public $pass;
 

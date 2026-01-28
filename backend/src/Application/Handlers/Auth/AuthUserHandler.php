@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/UserRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Security/SessionManager.php';
 require_once __DIR__ . '/../../Commands/Auth/AuthUserCommand.php';
 
 require_once __DIR__ . '/../../../../config/Database.php';
@@ -8,12 +9,14 @@ require_once __DIR__ . '/../../../../config/Database.php';
 class AuthUserHandler {
 
      private $userRepository;
+     private $session;
 
     public function __construct() {
 
         $db = new Database();
 
         $userRepository = new UserRepository($db->getConnection());
+        $session = new SessionManager();
     }
 
     public function handle(AuthUserCommand $command) {
