@@ -1,0 +1,23 @@
+classDiagram
+    class ToggleOutOfServiceCommand {
+        +int id
+    }
+
+    class ToggleOutOfServiceHandler {
+        +handle(ToggleOutOfServiceCommand command)
+    }
+
+    class ItemRepository {
+        +findById(int id)
+        +updateState(int id, int state)
+    }
+
+    class TransactionManager {
+        +begin()
+        +commit()
+        +rollback()
+    }
+
+    ToggleOutOfServiceHandler --> ToggleOutOfServiceCommand
+    ToggleOutOfServiceHandler --> ItemRepository
+    ToggleOutOfServiceHandler --> TransactionManager

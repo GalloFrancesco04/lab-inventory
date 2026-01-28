@@ -1,0 +1,25 @@
+classDiagram
+    class ViewSingleLoanCommand {
+        +int id
+    }
+
+    class ViewSingleLoanHandler {
+        +handle(ViewSingleLoanCommand command)
+    }
+
+    class LoanRepository {
+        +findById(int id)
+    }
+
+    class LoanedObjectRepository {
+        +getLoanObjects(int loanId)
+    }
+
+    class ClientRepository {
+        +findById(int id)
+    }
+
+    ViewSingleLoanHandler --> ViewSingleLoanCommand
+    ViewSingleLoanHandler --> LoanRepository
+    ViewSingleLoanHandler --> LoanedObjectRepository
+    ViewSingleLoanHandler --> ClientRepository

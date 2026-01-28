@@ -39,7 +39,7 @@ class ViewSingleObjectHandler {
         return $obj;
 
         }catch(Exception $ex) {
-            throw new Exception("Si e' verificato un errore durante il recupero del Prestito: " . $ex->getMessage(), 0, $ex);
+            throw new Exception("Si e' verificato un errore durante il recupero dell'Oggetto: " . $ex->getMessage(), 0, $ex);
         }
     }
 }

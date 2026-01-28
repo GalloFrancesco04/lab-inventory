@@ -1,0 +1,20 @@
+classDiagram
+    class ViewSingleObjectCommand {
+        +int id
+    }
+
+    class ViewSingleObjectHandler {
+        +handle(ViewSingleObjectCommand command)
+    }
+
+    class ItemRepository {
+        +findById(int id)
+    }
+
+    class MaintenanceRepository {
+        +getObjectMaintenances(int objectId)
+    }
+
+    ViewSingleObjectHandler --> ViewSingleObjectCommand
+    ViewSingleObjectHandler --> ItemRepository
+    ViewSingleObjectHandler --> MaintenanceRepository

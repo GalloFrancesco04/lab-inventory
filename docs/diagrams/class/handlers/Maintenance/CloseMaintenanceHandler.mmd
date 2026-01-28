@@ -1,0 +1,28 @@
+classDiagram
+    class CloseMaintenanceCommand {
+        +int maintenanceId
+        +float totalCost
+    }
+
+    class CloseMaintenanceHandler {
+        +handle(CloseMaintenanceCommand command)
+    }
+
+    class MaintenanceRepository {
+        +findById(int id)
+        +closeMaintenance(int id)
+    }
+
+    class ItemRepository {
+        +findById(int id)
+        +updateState(int id, int state)
+    }
+
+    class OperationsRepository {
+        +getMaintenanceOperations(int maintenanceId)
+    }
+
+    CloseMaintenanceHandler --> CloseMaintenanceCommand
+    CloseMaintenanceHandler --> MaintenanceRepository
+    CloseMaintenanceHandler --> ItemRepository
+    CloseMaintenanceHandler --> OperationsRepository

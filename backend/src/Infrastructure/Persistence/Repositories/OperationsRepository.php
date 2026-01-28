@@ -1,12 +1,11 @@
 <?php
 
-use PDO;
-use Application\Domain\Entities\Operation;
 use DateTime;
+use PDO;
 
 require_once __DIR__ . '/../../../Domain/Entities/Operation.php';
 
-class OperationRepository
+class OperationsRepository
 {
     private PDO $connection;
 
@@ -26,7 +25,7 @@ class OperationRepository
             'maintenance_id' => $operation->getMaintenanceId(),
             'description' => $operation->getDescription(),
             'start_date' => $operation->getStartDate()->format('Y-m-d'),
-            'end_date' => $operation->getEndDate()->format('Y-m-d'),
+            'end_date' => null,
             'cost' => $operation->getCost()
         ]);
 
@@ -133,13 +132,13 @@ class OperationRepository
         $startDate = new DateTime($row['start_date']);
         $endDate = $row['end_date'] ? new DateTime($row['end_date']) : null;
         $operation = new Operation(
+            (int)$row['id'],
             $row['maintenance_id'],
-            $row['description'],
             $startDate,
             $endDate,
+            $row['description'],
             (float)$row['cost'],
         );
-        $operation->setId((int)$row['id']);
 
         return $operation;
     }

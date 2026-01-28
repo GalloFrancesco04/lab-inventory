@@ -2,6 +2,7 @@
 
 require_once __DIR__.'/ItemState.php';
 require_once __DIR__.'/InMaintenanceState.php';
+require_once __DIR__.'/OutOfServiceState.php';
 
 class DamagedState implements ItemState {
     public function getStateCode(): int {
@@ -18,6 +19,7 @@ class DamagedState implements ItemState {
 
 
     public function handleOutOfService(InventoryItem $item): void {
+        $item->setState(new OutOfServiceState());
         return;
     }
 

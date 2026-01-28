@@ -1,0 +1,16 @@
+classDiagram
+    class UnblockClientCommand {
+        +int id
+    }
+
+    class UnblockClientHandler {
+        +handle(UnblockClientCommand command)
+    }
+
+    class ClientRepository {
+        +findById(int id)
+        +unblockClient(int id)
+    }
+
+    UnblockClientHandler --> UnblockClientCommand
+    UnblockClientHandler --> ClientRepository

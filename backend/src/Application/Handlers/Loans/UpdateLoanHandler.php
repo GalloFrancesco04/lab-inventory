@@ -68,7 +68,7 @@ class UpdateLoanHandler {
                         if($updatedObject->getId() == $currentLoanedObject->getObjectId() && $updatedObject->getObjectTypeCode() == $currentLoanedObject->getObjectTypeCode()) {
 
                             // i update the state of the loanedobject
-                            if($updatedObject->getState()->getStateCode() == 4) {
+                            if($updatedObject->getStateCode() == 4) {
                                 $this->loanedObjectRepository->markAsDamaged($loanToUpdate->getId(), $updatedObject->getId());
                             }
 
@@ -111,7 +111,7 @@ class UpdateLoanHandler {
                     if($updatedObject->getId() == $currentLoanedObject->getObjectId() && $updatedObject->getObjectTypeCode() == $currentLoanedObject->getObjectTypeCode()) {
 
                             // i update the state of the loanedobject
-                            if($updatedObject->getState()->getStateCode() == 4) {
+                            if($updatedObject->getStateCode() == 4) {
                                 $this->loanedObjectRepository->markAsDamaged($loanToUpdate->getId(), $updatedObject->getId());
                             }
 
