@@ -319,46 +319,26 @@ class MaintenanceView extends BaseView {
 
     operations.forEach((op, index) => {
       const card = document.createElement("div");
-      card.style.padding = "var(--space-4)";
+      card.style.padding = "var(--space-3)";
       card.style.background = "#f8f9fa";
       card.style.border = "1px solid #dee2e6";
       card.style.borderRadius = "var(--radius-sm)";
       card.style.boxShadow = "0 1px 3px rgba(0, 0, 0, 0.05)";
 
-      const headerRow = document.createElement("div");
-      headerRow.style.display = "flex";
-      headerRow.style.justifyContent = "space-between";
-      headerRow.style.alignItems = "center";
-      headerRow.style.marginBottom = "var(--space-2)";
+      // Container with header (Report title and Edit button)
+      const headerDiv = document.createElement("div");
+      headerDiv.style.display = "flex";
+      headerDiv.style.justifyContent = "space-between";
+      headerDiv.style.alignItems = "center";
+      headerDiv.style.marginBottom = "var(--space-2)";
 
-      // Labels row with DESCRIPTION and COST
-      const labelsRow = document.createElement("div");
-      labelsRow.style.display = "grid";
-      labelsRow.style.gridTemplateColumns = "1fr 1fr";
-      labelsRow.style.gap = "var(--space-3)";
-      labelsRow.style.marginBottom = "var(--space-1)";
-
-      const descLabel = document.createElement("div");
-      descLabel.textContent = "DESCRIPTION";
-      descLabel.style.fontSize = "0.75rem";
-      descLabel.style.fontWeight = "600";
-      descLabel.style.color = "var(--text-muted)";
-      descLabel.style.letterSpacing = "0.05em";
-
-      const costLabel = document.createElement("div");
-      costLabel.textContent = "COST";
-      costLabel.style.fontSize = "0.75rem";
-      costLabel.style.fontWeight = "600";
-      costLabel.style.color = "var(--text-muted)";
-      costLabel.style.letterSpacing = "0.05em";
-
-      labelsRow.appendChild(descLabel);
-      labelsRow.appendChild(costLabel);
-
-      const editContainer = document.createElement("div");
-      editContainer.style.display = "flex";
-      editContainer.style.justifyContent = "flex-end";
-      editContainer.style.marginBottom = "var(--space-2)";
+      const reportTitle = document.createElement("div");
+      reportTitle.textContent = "Report";
+      reportTitle.style.fontSize = "1rem";
+      reportTitle.style.fontWeight = "700";
+      reportTitle.style.color = "var(--text-primary)";
+      reportTitle.style.letterSpacing = "0";
+      headerDiv.appendChild(reportTitle);
 
       if (this.canEditOperations) {
         const editBtn = document.createElement("button");
@@ -368,41 +348,40 @@ class MaintenanceView extends BaseView {
           e.stopPropagation();
           this.openEditOperation(index);
         });
-        editContainer.appendChild(editBtn);
+        headerDiv.appendChild(editBtn);
       }
+
+      // Main grid: Left column (Description + Start Date) | Right column (Cost + End Date)
+      const mainGrid = document.createElement("div");
+      mainGrid.style.display = "grid";
+      mainGrid.style.gridTemplateColumns = "1fr 1fr";
+      mainGrid.style.gap = "var(--space-3)";
+
+      // Left column
+      const leftCol = document.createElement("div");
+      leftCol.style.display = "flex";
+      leftCol.style.flexDirection = "column";
+      leftCol.style.gap = "var(--space-3)";
+
+      // Description in left column
+      const descDiv = document.createElement("div");
+      const descLabel = document.createElement("div");
+      descLabel.textContent = "DESCRIPTION";
+      descLabel.style.fontSize = "0.75rem";
+      descLabel.style.fontWeight = "600";
+      descLabel.style.color = "var(--text-muted)";
+      descLabel.style.letterSpacing = "0.05em";
+      descLabel.style.marginBottom = "var(--space-1)";
 
       const descValue = document.createElement("div");
       descValue.textContent = op.desc;
       descValue.style.fontSize = "0.875rem";
       descValue.style.color = "var(--text-primary)";
 
-      const costValue = document.createElement("div");
-      costValue.textContent = `€${op.cost.toFixed(2)}`;
-      costValue.style.fontSize = "1.125rem";
-      costValue.style.fontWeight = "600";
-      costValue.style.color = "var(--primary)";
-
-      const descCostRow = document.createElement("div");
-      descCostRow.style.display = "grid";
-      descCostRow.style.gridTemplateColumns = "1fr 1fr";
-      descCostRow.style.gap = "var(--space-3)";
-      descCostRow.style.marginBottom = "var(--space-3)";
-
-      const descDiv = document.createElement("div");
+      descDiv.appendChild(descLabel);
       descDiv.appendChild(descValue);
 
-      const costDiv = document.createElement("div");
-      costDiv.appendChild(costValue);
-
-      descCostRow.appendChild(descDiv);
-      descCostRow.appendChild(costDiv);
-
-      // Create a container for dates side by side
-      const datesContainer = document.createElement("div");
-      datesContainer.style.display = "grid";
-      datesContainer.style.gridTemplateColumns = "1fr 1fr";
-      datesContainer.style.gap = "var(--space-3)";
-
+      // Start Date in left column
       const startDateDiv = document.createElement("div");
       const startLabel = document.createElement("div");
       startLabel.textContent = "START DATE";
@@ -420,6 +399,35 @@ class MaintenanceView extends BaseView {
       startDateDiv.appendChild(startLabel);
       startDateDiv.appendChild(startValue);
 
+      leftCol.appendChild(descDiv);
+      leftCol.appendChild(startDateDiv);
+
+      // Right column
+      const rightCol = document.createElement("div");
+      rightCol.style.display = "flex";
+      rightCol.style.flexDirection = "column";
+      rightCol.style.gap = "var(--space-3)";
+
+      // Cost in right column
+      const costDiv = document.createElement("div");
+      const costLabel = document.createElement("div");
+      costLabel.textContent = "COST";
+      costLabel.style.fontSize = "0.75rem";
+      costLabel.style.fontWeight = "600";
+      costLabel.style.color = "var(--text-muted)";
+      costLabel.style.letterSpacing = "0.05em";
+      costLabel.style.marginBottom = "var(--space-1)";
+
+      const costValue = document.createElement("div");
+      costValue.textContent = `€${op.cost.toFixed(2)}`;
+      costValue.style.fontSize = "1.125rem";
+      costValue.style.fontWeight = "600";
+      costValue.style.color = "var(--primary)";
+
+      costDiv.appendChild(costLabel);
+      costDiv.appendChild(costValue);
+
+      // End Date in right column
       const endDateDiv = document.createElement("div");
       const endLabel = document.createElement("div");
       endLabel.textContent = "END DATE";
@@ -437,15 +445,14 @@ class MaintenanceView extends BaseView {
       endDateDiv.appendChild(endLabel);
       endDateDiv.appendChild(endValue);
 
-      datesContainer.appendChild(startDateDiv);
-      datesContainer.appendChild(endDateDiv);
+      rightCol.appendChild(costDiv);
+      rightCol.appendChild(endDateDiv);
 
-      card.appendChild(labelsRow);
-      if (this.canEditOperations) {
-        card.appendChild(editContainer);
-      }
-      card.appendChild(descCostRow);
-      card.appendChild(datesContainer);
+      mainGrid.appendChild(leftCol);
+      mainGrid.appendChild(rightCol);
+
+      card.appendChild(headerDiv);
+      card.appendChild(mainGrid);
 
       this.operationsList.appendChild(card);
     });
