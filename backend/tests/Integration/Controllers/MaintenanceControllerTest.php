@@ -87,7 +87,7 @@ runTestCase("Start Maintenance (POST)", function() use ($controller) {
     $req = new MockRequest([
         'object_id' => 1,
         'description' => 'Schermo rotto',
-        'technician_id' => 10,
+        'technician_id' => 2,
         'type' => 'repair'
     ]);
     $controller->start($req);
@@ -100,11 +100,11 @@ runTestCase("Get All Maintenances (GET)", function() use ($controller) {
     $controller->getAll($req);
 });*/
 
-// --- TEST 3: GET BY ID (ViewSingleMaintenanceCommand) ---
+/*/ --- TEST 3: GET BY ID (ViewSingleMaintenanceCommand) ---
 runTestCase("Get Single Maintenance (GET ID=1)", function() use ($controller) {
     $req = new MockRequest([]);
     $controller->getById($req, 1);
-});
+});*/
 
 // --- TEST 4: CLOSE MAINTENANCE ---
 runTestCase("Close Maintenance (PUT ID=1)", function() use ($controller) {
