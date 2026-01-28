@@ -1,0 +1,17 @@
+classDiagram
+    class UpdateObjectCommand {
+        +int id
+        +string location
+    }
+
+    class UpdateObjectHandler {
+        +handle(UpdateObjectCommand command)
+    }
+
+    class ItemRepository {
+        +findById(int id)
+        +update(InventoryItem item)
+    }
+
+    UpdateObjectHandler --> UpdateObjectCommand
+    UpdateObjectHandler --> ItemRepository

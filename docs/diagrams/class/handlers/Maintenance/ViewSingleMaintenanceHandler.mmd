@@ -1,0 +1,35 @@
+classDiagram
+    class ViewSingleMaintenanceCommand {
+        +int id
+    }
+
+    class ViewSingleMaintenanceHandler {
+        +handle(ViewSingleMaintenanceCommand command)
+    }
+
+    class MaintenanceRepository {
+        +findById(int id)
+    }
+
+    class ItemRepository {
+        +findById(int id)
+    }
+
+    class ObjectTypeRepository {
+        +findByCode(string code)
+    }
+
+    class UserRepository {
+        +findUserById(int id)
+    }
+
+    class OperationsRepository {
+        +getAllMaintenanceOperations(int maintenanceId)
+    }
+
+    ViewSingleMaintenanceHandler --> ViewSingleMaintenanceCommand
+    ViewSingleMaintenanceHandler --> MaintenanceRepository
+    ViewSingleMaintenanceHandler --> ItemRepository
+    ViewSingleMaintenanceHandler --> ObjectTypeRepository
+    ViewSingleMaintenanceHandler --> UserRepository
+    ViewSingleMaintenanceHandler --> OperationsRepository

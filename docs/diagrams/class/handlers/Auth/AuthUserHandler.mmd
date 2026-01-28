@@ -1,0 +1,14 @@
+classDiagram
+    class AuthUserCommand {
+    }
+
+    class AuthUserHandler {
+        +handle(AuthUserCommand command)
+    }
+
+    class SessionManager {
+        +isLoggedIn()
+    }
+
+    AuthUserHandler --> AuthUserCommand
+    AuthUserHandler --> SessionManager

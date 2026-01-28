@@ -1,0 +1,19 @@
+classDiagram
+    class UpdateOperationCommand {
+        +int id
+        +string description
+        +DateTime end_date
+        +float cost
+    }
+
+    class UpdateOperationHandler {
+        +handle(UpdateOperationCommand command)
+    }
+
+    class OperationsRepository {
+        +getById(int id)
+        +update(Operation operation)
+    }
+
+    UpdateOperationHandler --> UpdateOperationCommand
+    UpdateOperationHandler --> OperationsRepository
