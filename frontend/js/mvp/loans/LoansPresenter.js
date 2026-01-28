@@ -2,11 +2,16 @@ import { BasePresenter } from "../core/BasePresenter.js";
 import { MockDatabase } from "../../utils/MockDatabase.js";
 
 export class LoansPresenter extends BasePresenter {
-  constructor(clientsPresenter = null, inventoryPresenter = null) {
+  constructor(
+    clientsPresenter = null,
+    inventoryPresenter = null,
+    mediator = null,
+  ) {
     super([]);
     this.db = MockDatabase.getInstance();
     this.clientsPresenter = clientsPresenter;
     this.inventoryPresenter = inventoryPresenter;
+    this.mediator = mediator; // For event emission
   }
 
   getLoans() {
@@ -106,6 +111,17 @@ export class LoansPresenter extends BasePresenter {
         } catch (error) {
           console.error(`Unable to update item ${item.id} status`, error);
         }
+      });
+    }
+
+    // Emit event for other modules to listen
+    if (this.mediator) {
+      this.mediator.emit("loan:created", {
+        loanId: newLoan.id,
+        clientId: clientObj.id,
+        items: items,
+        startDate: startDate,
+        endDate: endDate,
       });
     }
 
