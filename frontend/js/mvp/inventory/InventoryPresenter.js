@@ -2,9 +2,63 @@ import { BasePresenter } from "../core/BasePresenter.js";
 import { MockDatabase } from "../../utils/MockDatabase.js";
 
 export class InventoryPresenter extends BasePresenter {
-  constructor() {
+  constructor(mediator = null) {
     super([]);
     this.db = MockDatabase.getInstance();
+    this.mediator = mediator; // For listening to cross-module events
+
+    // Register event listeners for cross-module communication
+    if (this.mediator) {
+      this.registerEventListeners();
+    }
+  }
+
+  registerEventListeners() {
+    // Listen for loan creation to update item states
+    if (this.mediator) {
+      this.mediator.on("loan:created", ({ items }) => {
+        items.forEach((item) => {
+          try {
+            this.updateItem(item.id, { status: "loaned" });
+          } catch (error) {
+            console.error(
+              `Unable to update item ${item.id} on loan:created`,
+              error,
+            );
+          }
+        });
+      });
+
+      // Listen for loan closure to revert item states
+      this.mediator.on("loan:closed", ({ items, damagedItems }) => {
+        items.forEach((item) => {
+          try {
+            // Check if item is damaged
+            const isDamaged = damagedItems?.some((d) => d.id === item.id);
+            const newStatus = isDamaged ? "damaged" : "available";
+            this.updateItem(item.id, { status: newStatus });
+          } catch (error) {
+            console.error(
+              `Unable to update item ${item.id} on loan:closed`,
+              error,
+            );
+          }
+        });
+      });
+
+      // Listen for maintenance completion to revert item to available or damaged
+      this.mediator.on("maintenance:closed", ({ itemId, stillBroken }) => {
+        try {
+          const newStatus = stillBroken ? "damaged" : "available";
+          this.updateItem(itemId, { status: newStatus });
+        } catch (error) {
+          console.error(
+            `Unable to update item ${itemId} on maintenance:closed`,
+            error,
+          );
+        }
+      });
+    }
   }
 
   subscribe(callback) {
