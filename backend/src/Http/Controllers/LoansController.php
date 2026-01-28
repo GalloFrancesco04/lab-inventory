@@ -37,17 +37,41 @@ class LoansController {
         $this->mediator->register(ViewSingleLoanCommand::class, ViewSingleLoanHandler::class);
     }
 
+
+    // Utility to map loan entity to array
+    private function mapToArray($loan) {
+        if (is_array($loan)) return $loan;
+
+        return [
+            'id' => method_exists($loan, 'getId') ? $loan->getId() : null,
+            'client_id' => method_exists($loan, 'getClientId') ? $loan->getClientId() : null,
+            'start_date' => method_exists($loan, 'getStartDate') ? $loan->getStartDate() : null,
+            'end_date' => method_exists($loan, 'getEndDate') ? $loan->getEndDate() : null,
+            'state' => method_exists($loan, 'getState') ? $loan->getState() : null,
+            'note' => method_exists($loan, 'getNote') ? $loan->getNote() : null,
+            // Se l'entità ha un getter per gli item, usalo qui
+            'inventory_items' => method_exists($loan, 'getInventoryItems') ? $loan->getInventoryItems() : []
+        ];
+    }
+
     /**
      * GET /api/loans
      
      */
     public function getAll(Request $request) {
-        try {
-            // Use ViewLoansCommand to get all loans
+       try {
             $command = new ViewLoansCommand();
-            $loans = $this->mediator->send($command);
+            $loansObjects = $this->mediator->send($command);
             
-            Response::success($loans);
+            // Mapping manuale
+            $loansArray = [];
+            if (is_array($loansObjects)) {
+                foreach ($loansObjects as $loan) {
+                    $loansArray[] = $this->mapToArray($loan);
+                }
+            }
+            
+            Response::success($loansArray);
         } catch (Exception $e) {
             Response::error($e->getMessage(), "DB_ERROR", 500);
         }
@@ -58,15 +82,15 @@ class LoansController {
      
      */
     public function getById(Request $request, $id) {
-        try {
+       try {
             $command = new ViewSingleLoanCommand((int)$id);
-            $loan = $this->mediator->send($command);
+            $loanObject = $this->mediator->send($command);
 
-            // if loan not found, the handler throws an exception
-            // but if we reach here, the loan was found
-            Response::success($loan);
+            // Mapping manuale
+            $loanArray = $this->mapToArray($loanObject);
+
+            Response::success($loanArray);
         } catch (Exception $e) {
-            // if loan not found, the handler throws an exception
             Response::error($e->getMessage(), "NOT_FOUND", 404);
         }
     }
