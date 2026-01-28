@@ -1,21 +1,4 @@
-# Laboratory Equipment Inventory Management System - User Manual
-
-## Table of Contents
-
-1. [Overview](#overview)
-2. [User Roles](#user-roles)
-3. [Getting Started](#getting-started)
-4. [Main Features](#main-features)
-5. [Module Guide](#module-guide)
-6. [Common Tasks](#common-tasks)
-7. [Advanced Features](#advanced-features)
-8. [Troubleshooting](#troubleshooting)
-
----
-
-## Overview
-
-The **Laboratory Equipment Inventory Management System** is a comprehensive web-based application designed to manage laboratory equipment and resources. It enables administrators to track equipment, manage loans, monitor maintenance activities, and maintain client records.
+# User Manual
 
 ### Key Capabilities
 
@@ -119,10 +102,9 @@ All other modules (Loans, Inventory, Clients) are hidden from the Technician int
 
 ### Accessing the Application
 
-1. Run the docker container (docker compose up)
-2. Open your web browser
-3. Navigate to `http://localhost:8080/frontend`
-4. You will be presented with the **Login Page**
+1. Open your web browser
+2. Navigate to `http://localhost:8080/frontend`
+3. You will be presented with the **Login Page**
 
 ### Login
 
@@ -201,7 +183,7 @@ The Loans module allows you to create, manage, and track equipment loans.
    - **Mark Damaged Items** (optional):
      - Click the "Damaged Items" button
      - Select any items that were returned damaged
-     - These items will be marked as "broken" in inventory
+     - These items will be marked as "Damged" in inventory
    - Click **"Complete Return"** to finalize
 4. The loan status will change to "Completed"
 5. Inventory counts will be updated automatically
@@ -210,7 +192,7 @@ The Loans module allows you to create, manage, and track equipment loans.
 
 - **Maximum Items**: 5 items per loan
 - **Maximum Duration**: 30 days
-- **Restrictions**: Cannot loan items that are in "broken" or "in maintenance" status
+- **Restrictions**: Cannot loan items that are in "Damaged", "InMaintenance" or "Out Of Service" status
 - **Automatic Notifications**: Clients receive notifications 3 days before loan expiration
 - **Client Blocking**: Clients with overdue loans or damaged items cannot create new loans
 
@@ -386,7 +368,7 @@ Maintenance records are created when an item is sent to maintenance from the Inv
    - **Operations List**: Individual work performed
    - **Total Cost**: Cumulative maintenance cost
 
-#### Adding Operations to Maintenance
+#### Adding Operations to Maintenance (Technician Only)
 
 Operations are individual work items within a maintenance record.
 
@@ -401,13 +383,13 @@ Operations are individual work items within a maintenance record.
 5. Operations appear in the list within the maintenance record
 6. Total cost is calculated automatically
 
-#### Editing Operations
+#### Editing Operations (Technician Only)
 
 1. In maintenance detail, click on an operation to edit it
 2. Modify the details
 3. Save changes
 
-#### Completing Maintenance
+#### Completing Maintenance (Technician Only)
 
 1. Open the maintenance record detail modal
 2. Click **"Complete Maintenance"** button
@@ -426,40 +408,5 @@ Operations are individual work items within a maintenance record.
   - By Technician
   - By Date Range
   - By Equipment Type
-
----
-
-## Advanced Features
-
-### Smart Filtering
-
-All modules support combined filters:
-
-1. Click **"Filters"** button in any view
-2. Set multiple filter criteria:
-   - Status filters
-   - Date range filters
-   - Category/Type filters
-3. Click **"Apply Filters"** to view filtered results
-4. Click **"Clear Filters"** to reset
-
-### Search Across Modules
-
-- **Inventory Search**: Search by equipment name, code, or model
-- **Loans Search**: Search by client name or loan ID
-- **Clients Search**: Search by client name or email
-- **Maintenance Search**: Search by equipment name or technician
-
-Equipment cannot be loaned if in "Broken" or "In Maintenance" status.
-
-### Automatic System Rules
-
-- **Loan Duration**: Maximum 30 days
-- **Loan Items**: Maximum 5 items per loan
-- **Notifications**: Automatic notification 3 days before return due date
-- **Inventory Updates**: Automatic when:
-  - Loan is created (quantity decreases)
-  - Loan is returned (quantity increases)
-  - Items marked as damaged (status changes to "Broken")
 
 ---
