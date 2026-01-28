@@ -1,16 +1,16 @@
 <?php
 
 /**
- * OBJECTS CONTROLLER INTEGRATION TEST (FULL CRUD)
+ * OBJECTS CONTROLLER INTEGRATION TEST (FULL CRUD + MAINTENANCE)
  *
  * Description:
- * This script validates the full CRUD lifecycle for physical objects (Items).
- * It tracks individual assets, their serial numbers, and locations.
+ * This script validates the full lifecycle for physical objects.
+ * Updated to match the specific commands of the ObjectsController.
  *
  * Diagnostic Mode:
  * Identifies if Handlers, Commands, or Repositories are REAL or MOCKED.
  * * Note: 
- * Test one operation at a time due to exit() calls in the Controller.
+ * Test one operation at a time due to exit() calls in the Response class.
  */
 
 // 1. CONFIGURATION
@@ -20,21 +20,33 @@ ini_set('display_errors', '0');
 $baseSrc = __DIR__ . '/../../../src';
 
 // 2. DIAGNOSTIC REPORT & AUTO-FIX
+// Updated definition based on your Controller's usage
 $requiredFiles = [
     // CREATE
-    '/Application/Commands/Inventory/CreateObjectCommand.php' => 'class CreateObjectCommand { public function __construct($n,$d,$sn,$otc,$l,$s){} }',
+    '/Application/Commands/Inventory/CreateObjectCommand.php' => 'class CreateObjectCommand { public function __construct($otc,$l){} }',
     '/Application/Handlers/Inventory/CreateObjectHandler.php' => 'class CreateObjectHandler { public function handle($c){ return 1; } }',
+    
     // UPDATE
-    '/Application/Commands/Inventory/UpdateObjectCommand.php' => 'class UpdateObjectCommand { public function __construct($id,$n,$d,$sn,$otc,$l,$s){} }',
+    '/Application/Commands/Inventory/UpdateObjectCommand.php' => 'class UpdateObjectCommand { public function __construct($id,$l){} }',
     '/Application/Handlers/Inventory/UpdateObjectHandler.php' => 'class UpdateObjectHandler { public function handle($c){ return true; } }',
-    // DELETE
-    '/Application/Commands/Inventory/DeleteObjectCommand.php' => 'class DeleteObjectCommand { public function __construct($id){} }',
-    '/Application/Handlers/Inventory/DeleteObjectHandler.php' => 'class DeleteObjectHandler { public function handle($c){ return true; } }',
-    // READ
+    
+    // MAINTENANCE
+    '/Application/Commands/Inventory/SendToMaintenanceCommand.php' => 'class SendToMaintenanceCommand { public function __construct($oid,$d,$tid,$sd){} }',
+    '/Application/Handlers/Inventory/SendToMaintenanceHandler.php' => 'class SendToMaintenanceHandler { public function handle($c){ return true; } }',
+    
+    // READ OPERATIONS
     '/Application/Commands/Inventory/ViewObjectsCommand.php'  => 'class ViewObjectsCommand {}',
-    '/Application/Handlers/Inventory/ViewObjectsHandler.php'  => 'class ViewObjectsHandler { public function handle($c){ return [["id"=>1, "name"=>"Object Mock"]]; } }',
-    // REPOSITORY
-    '/Infrastructure/Persistence/Repositories/ItemRepository.php' => 'class ItemRepository { public function __construct($db){} }'
+    '/Application/Handlers/Inventory/ViewObjectsHandler.php'  => 'class ViewObjectsHandler { public function handle($c){ return [["id"=>1, "location"=>"Mock Loc"]]; } }',
+    
+    '/Application/Commands/Inventory/ViewSingleObjectCommand.php' => 'class ViewSingleObjectCommand { public function __construct($id){} }',
+    '/Application/Handlers/Inventory/ViewSingleObjectHandler.php' => 'class ViewSingleObjectHandler { public function handle($c){ return (object)["id"=>1, "location"=>"Mock Single"]; } }',
+    
+    '/Application/Commands/Inventory/ViewAvailableObjectsCommand.php' => 'class ViewAvailableObjectsCommand {}',
+    '/Application/Handlers/Inventory/ViewAvailableObjectsHandler.php' => 'class ViewAvailableObjectsHandler { public function handle($c){ return [["id"=>2, "status"=>1]]; } }',
+
+    // TOGGLE SERVICE
+    '/Application/Commands/Inventory/ToggleOutOfServiceCommand.php' => 'class ToggleOutOfServiceCommand { public function __construct($id){} }',
+    '/Application/Handlers/Inventory/ToggleOutOfServiceHandler.php' => 'class ToggleOutOfServiceHandler { public function handle($c){ return true; } }',
 ];
 
 $createdMocks = [];
@@ -71,14 +83,17 @@ register_shutdown_function(function() use ($createdMocks) {
     if (strpos($output, 'success') !== false || strpos($output, '"id"') !== false || strpos($output, '"data":') !== false) {
         echo "STATUS: [PASSED] Controller executed the requested operation.\n";
     } elseif (strpos($output, 'SQLSTATE') !== false) {
-        echo "STATUS: [PASSED LOGICALLY] Reached Database layer.\n";
+        echo "STATUS: [PASSED LOGICALLY] Reached Database layer (SQL Error is expected if DB is empty/locked).\n";
+    } elseif (empty($output)) {
+        echo "STATUS: [NO OUTPUT] Did you uncomment a test case?\n";
     } else {
         echo "STATUS: [FAILED] Unexpected response format.\n";
     }
     
-    echo "Response Snapshot: " . substr(trim($output), 0, 200) . "...\n";
+    echo "Response Snapshot: " . substr(trim($output), 0, 300) . "...\n";
     echo "\n" . str_repeat("-", 41) . "\n";
     
+    // Clean up mocks
     foreach ($createdMocks as $file) {
         if (file_exists($file)) unlink($file);
     }
@@ -105,35 +120,57 @@ class MockRequest extends Request {
 
 // 6. EXECUTION SECTION
 $controller = new ObjectsController();
-$randomSerial = 'SN-' . rand(1000, 9999);
-$targetId = 1; // Change this to an existing ID in your DB for real tests
+$targetId = 4; // ID to use for updates/gets (Make sure this exists in DB)
+$techId = 2;   // ID of a technician user
 
-/* --- TEST 1: CREATE ---
+// =================================================================
+// UNCOMMENT ONE BLOCK AT A TIME TO TEST
+// =================================================================
+
+/*/ --- TEST 1: CREATE OBJECT ---
 echo "Executing TEST: CREATE OBJECT...\n";
+// Params updated to match ObjectsController::create
 $controller->create(new MockRequest([
-    'name' => 'Monitor Dell',
-    'description' => '4K Display',
-    'serial_number' => $randomSerial,
-    'object_type_code' => 'TEST_T...', // Must exist in object_type table
-    'location' => 'Room 202',
-    'state' => 1
+    'object_type_code' => 'TEST_TYPE',   // Must exist in objecttype table
+    'location' => 'Armadio C - Ripiano 2'
 ])); */
 
-// --- TEST 2: UPDATE ---
-// echo "Executing TEST: UPDATE OBJECT...\n";
-// $controller->update(new MockRequest([
-//     'name' => 'Updated Monitor',
-//     'description' => 'New Description',
-//     'serial_number' => 'UPD-SN-001',
-//     'object_type_code' => 'TEST_T...',
-//     'location' => 'Storage',
-//     'state' => 0
-// ]), $targetId);
 
-// --- TEST 3: DELETE ---
-// echo "Executing TEST: DELETE OBJECT...\n";
- //$controller->delete(new MockRequest([]), $targetId);
+// --- TEST 2: UPDATE OBJECT ---
+/*/echo "Executing TEST: UPDATE OBJECT...\n";
+// Params updated to match ObjectsController::update (only location)
+$controller->update(new MockRequest([
+    'location' => 'Nuova Posizione: Laboratorio 3'
+]), $targetId); */
 
-// --- TEST 4: GET ALL ---*
-// echo "Executing TEST: GET ALL OBJECTS...\n";
-// $controller->getAll(new MockRequest([]));
+
+// --- TEST 3: SEND TO MAINTENANCE ---
+echo "Executing TEST: SEND TO MAINTENANCE...\n";
+$controller->sendMaintenance(new MockRequest([
+    'object_id' => $targetId,
+    'description' => 'Ventola rumorosa',
+    'technician_id' => $techId,
+    'start_date' => date('Y-m-d')
+]));
+
+
+
+/*/ --- TEST 4: GET ALL OBJECTS ---
+echo "Executing TEST: GET ALL OBJECTS...\n";
+$controller->getAll(new MockRequest([])); */
+
+
+ /*/--- TEST 5: GET SINGLE OBJECT ---
+echo "Executing TEST: GET BY ID ($targetId)...\n";
+$controller->getById(new MockRequest([]), $targetId);
+
+
+/* --- TEST 6: GET AVAILABLE OBJECTS ---
+echo "Executing TEST: GET AVAILABLE...\n";
+$controller->getAvailable(new MockRequest([]));
+*/
+
+/* --- TEST 7: TOGGLE OUT OF SERVICE ---
+echo "Executing TEST: TOGGLE STATUS ($targetId)...\n";
+$controller->toggleStatus(new MockRequest([]), $targetId);
+*/

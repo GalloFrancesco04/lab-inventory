@@ -31,9 +31,8 @@ $requiredFiles = [
     // UPDATE
     '/Application/Commands/Clients/UpdateClientCommand.php' => 'class UpdateClientCommand { public function __construct($id,$n,$s,$e,$st){} }',
     '/Application/Handlers/Clients/UpdateClientHandler.php' => 'class UpdateClientHandler { public function handle($c){ return true; } }',
-    // DELETE
-    '/Application/Commands/Clients/DeleteClientCommand.php' => 'class DeleteClientCommand { public function __construct($id){} }',
-    '/Application/Handlers/Clients/DeleteClientHandler.php' => 'class DeleteClientHandler { public function handle($c){ return true; } }',
+    
+    
     // READ (GET ALL)
     '/Application/Commands/Clients/ViewClientsCommand.php'  => 'class ViewClientsCommand {}',
     '/Application/Handlers/Clients/ViewClientsHandler.php'  => 'class ViewClientsHandler { public function handle($c){ return [["id"=>1, "name"=>"Mock"]]; } }',
@@ -115,20 +114,17 @@ class MockRequest extends Request {
 $controller = new ClientsController();
 $randomId = rand(1000, 9999);
 
-// --- TEST 1: CREATE ---
+/*/ --- TEST 1: CREATE --- (work)
 echo "Executing TEST: CREATE CLIENT...\n";
 $controller->create(new MockRequest([
-    'name' => 'John', 'surname' => 'Doe', 'email' => 'john'.$randomId.'@test.com', 'state' => 1
-]));
+    'name' => 'Johnn', 'surname' => 'Doee', 'email' => 'john'.$randomId.'@test.com', 'state' => 1
+])); */
 
 // --- TEST 2: GET ALL (READ) ---*
-// echo "Executing TEST: GET ALL CLIENTS...\n";
-// $controller->getAll(new MockRequest([]));
+ echo "Executing TEST: GET ALL CLIENTS...\n";
+ $controller->getAll(new MockRequest([]));
 
-// --- TEST 3: UPDATE ---
+// --- TEST 3: UPDATE --- (work)
 // echo "Executing TEST: UPDATE CLIENT...\n";
 // $controller->update(new MockRequest(['name' => 'Jane', 'surname' => 'Doe', 'email' => 'jane@test.com', 'state' => 1]), 1);
 
-// --- TEST 4: DELETE ---
-// echo "Executing TEST: DELETE CLIENT...\n";
-// $controller->delete(new MockRequest([]), 1);

@@ -4,7 +4,7 @@
  * OBJECT TYPES CONTROLLER INTEGRATION TEST (FULL CRUD)
  *
  * Description:
- * This script validates the full CRUD lifecycle (Create, Read, Update, Delete) 
+ * This script validates the full CRUD lifecycle (Create, Read, Update) 
  * of the ObjectTypesController. It ensures the Controller correctly manages 
  * object categories and definitions.
  *
@@ -31,14 +31,11 @@ $requiredFiles = [
     // UPDATE
     '/Application/Commands/ObjectTypes/UpdateObjectTypeCommand.php' => 'class UpdateObjectTypeCommand { public function __construct($c,$n,$d,$m,$b){} }',
     '/Application/Handlers/ObjectTypes/UpdateObjectTypeHandler.php' => 'class UpdateObjectTypeHandler { public function handle($c){ return true; } }',
-    // DELETE
-    '/Application/Commands/ObjectTypes/DeleteObjectTypeCommand.php' => 'class DeleteObjectTypeCommand { public function __construct($c){} }',
-    '/Application/Handlers/ObjectTypes/DeleteObjectTypeHandler.php' => 'class DeleteObjectTypeHandler { public function handle($c){ return true; } }',
     // READ (GET ALL & SINGLE)
     '/Application/Commands/ObjectTypes/ViewObjectTypesCommand.php'  => 'class ViewObjectTypesCommand {}',
     '/Application/Handlers/ObjectTypes/ViewObjectTypesHandler.php'  => 'class ViewObjectTypesHandler { public function handle($c){ return [["code"=>"T1", "name"=>"Mock Type"]]; } }',
     '/Application/Commands/ObjectTypes/ViewSingleObjectTypeCommand.php' => 'class ViewSingleObjectTypeCommand { public function __construct($c){} }',
-    '/Application/Handlers/ObjectTypes/ViewSingleObjectTypeHandler.php' => 'class ViewSingleObjectTypeHandler { public function handle($c){ return ["code"=>"T1"]; } }',
+    '/Application/Handlers/ObjectTypes/ViewSingleObjectTypeHandler.php' => 'class ViewSingleObjectTypeHandler { public function handle($c){ return ["code"=>"T1", "name"=>"Single Mock"]; } }',
     // REPOSITORY
     '/Infrastructure/Persistence/Repositories/ObjectTypeRepository.php' => 'class ObjectTypeRepository { public function __construct($db){} }'
 ];
@@ -77,12 +74,14 @@ register_shutdown_function(function() use ($createdMocks) {
     if (strpos($output, 'success') !== false || strpos($output, '"code"') !== false || strpos($output, '"data":') !== false) {
         echo "STATUS: [PASSED] Controller executed the requested operation.\n";
     } elseif (strpos($output, 'SQLSTATE') !== false) {
-        echo "STATUS: [PASSED LOGICALLY] Controller reached the Database.\n";
+        echo "STATUS: [PASSED LOGICALLY] Controller reached the Database (SQL Error is expected if DB is empty/locked).\n";
+    } elseif (empty($output)) {
+        echo "STATUS: [NO OUTPUT] Did you uncomment a test case?\n";
     } else {
         echo "STATUS: [FAILED] Unexpected or empty response.\n";
     }
     
-    echo "Response Snapshot: " . substr(trim($output), 0, 200) . "...\n";
+    echo "Response Snapshot: " . substr(trim($output), 0, 300) . "...\n";
     echo "\n" . str_repeat("-", 41) . "\n";
     
     foreach ($createdMocks as $file) {
@@ -112,26 +111,39 @@ class MockRequest extends Request {
 // 6. EXECUTION SECTION
 // -----------------------------------------------------------------------------
 $controller = new ObjectTypesController();
-$randomType = 'TYPE_' . rand(100, 999);
+// Code to be used for testing Create/Update/GetSingle
+$targetCode = 'INTEGRATION_8098'; 
+
+// =================================================================
+// UNCOMMENT ONE BLOCK AT A TIME TO TEST
+// =================================================================
 
 /* --- TEST 1: CREATE ---
 echo "Executing TEST: CREATE OBJECT TYPE...\n";
 $controller->create(new MockRequest([
-    'code' => $randomType, 
+    'code' => $targetCode, 
     'name' => 'Test Category', 
-    'description' => 'Integration test', 
+    'description' => 'Integration test description', 
     'model' => 'Model-X', 
     'brand' => 'Brand-Z'
 ]));
 */
-// --- TEST 2: GET ALL ---*
- echo "Executing TEST: GET ALL TYPES...\n";
- $controller->getAll(new MockRequest([]));
 
-// --- TEST 3: UPDATE ---
-// echo "Executing TEST: UPDATE TYPE...\n";
-// $controller->update(new MockRequest(['name' => 'Updated Category', 'description' => 'Updated', 'model' => 'M1', 'brand' => 'B1']), $randomType);
+/* --- TEST 2: GET ALL ---
+echo "Executing TEST: GET ALL TYPES...\n";
+$controller->getAll(new MockRequest([]));
+*/
 
-// --- TEST 4: DELETE ---
-// echo "Executing TEST: DELETE TYPE...\n";
-// $controller->delete(new MockRequest([]), $randomType);
+/* --- TEST 3: UPDATE ---
+echo "Executing TEST: UPDATE TYPE...\n";
+$controller->update(new MockRequest([
+    'name' => 'Updated Category Name', 
+    'description' => 'Updated Desc', 
+    'model' => 'M1-Updated', 
+    'brand' => 'B1-Updated'
+]), $targetCode);
+*/
+
+//* --- TEST 4: GET BY CODE (SINGLE) ---
+echo "Executing TEST: GET BY CODE ($targetCode)...\n";
+$controller->getByCode(new MockRequest([]), $targetCode);

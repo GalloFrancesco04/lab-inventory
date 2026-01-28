@@ -113,8 +113,8 @@ try {
 // Simulates a user trying to log in with email and password.
 runAuthTestCase("Login User (Standard Flow)", function() use ($controller) {
     $requestData = [
-        'email' => 'admin@example.com',
-        'password' => 'secret123'
+        'email' => 'admin@lab.it',
+        'password' => 'sha256_hash_della_password_admin'
     ];
     
     $req = new TestAuthRequest($requestData);

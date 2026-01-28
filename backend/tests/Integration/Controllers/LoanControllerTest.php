@@ -105,7 +105,7 @@ class MockRequest extends Request {
 
 // 6. EXECUTION SECTION
 $controller = new LoansController();
-$loanId = 1; // Existing ID for Update/Delete tests
+$loanId = 2; // Existing ID for Update/Delete tests
 
 /*/ --- TEST 1: CREATE LOAN ---
 echo "Executing TEST: CREATE LOAN...\n";
@@ -127,10 +127,10 @@ echo "Executing TEST: UPDATE LOAN...\n";
      'state' => 2 // Example: State changed to 'Returned'
 ]), $loanId); */
 
-// --- TEST 3: DELETE LOAN ---*
-// echo "Executing TEST: DELETE LOAN...\n";
-// $controller->close(new MockRequest([]), $loanId);
+// --- TEST 3: CLOSE LOAN ---*
+echo "Executing TEST: CLOSE LOAN...\n";
+$controller->close(new MockRequest([]), $loanId);
 
 // --- TEST 4: GET ALL LOANS ---*
-// echo "Executing TEST: GET ALL LOANS...\n";
- //$controller->getAll(new MockRequest([]));
+ echo "Executing TEST: GET ALL LOANS...\n";
+ $controller->getAll(new MockRequest([]));
