@@ -21,7 +21,7 @@ class ItemRepository
 
         $stmt->execute([
             'object_type_code' => $item->getObjectTypeCode(),
-            'state'  => $item->getState()->getStateCode(),
+            'state'  => $item->getStateCode(),
             'location'  => $item->getLocation()
         ]);
 

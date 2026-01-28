@@ -61,7 +61,7 @@ class CloseMaintenanceHandler {
             // I want to get the object and make its status
             $object = $this->itemRepository->findById($maintenance->getObjectId());
             $object->available();
-            $this->itemRepository->updateState($object->getId(), $object->getState()->getStateCode());
+            $this->itemRepository->updateState($object->getId(), $object->getStateCode());
 
             // I update the quantity of available objects
             $objectType = $this->objectTypeRepository->findByCode($object->getObjectTypeCode());
