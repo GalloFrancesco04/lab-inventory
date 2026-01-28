@@ -3,15 +3,15 @@
 require_once __DIR__ . '/../Response.php';
 require_once __DIR__ . '/../../Application/Mediator/Mediator.php';
 require_once __DIR__ . '/../../Http/Request.php';
+// --- COMMANDS  ---
 require_once __DIR__ . '/../../Application/Commands/Auth/AuthUserCommand.php';
-require_once __DIR__ . '/../../Application/Handlers/Auth/LoginHandler.php';
-require_once __DIR__ . '/../../Application/Handlers/Auth/LoginUserCommand.php';
-require_once __DIR__ . '/../../Application/Handlers/Auth/AuthUserHandler.php';
-
+require_once __DIR__ . '/../../Application/Commands/Auth/LoginUserCommand.php';  // CORRETTO: Era puntato su Handlers
 require_once __DIR__ . '/../../Application/Commands/Auth/LogoutUserCommand.php';
 
+// --- HANDLERS  ---
+require_once __DIR__ . '/../../Application/Handlers/Auth/AuthUserHandler.php';
+require_once __DIR__ . '/../../Application/Handlers/Auth/LoginUserHandler.php'; // CORRETTO: Aggiunto 'User' se il file si chiama così
 require_once __DIR__ . '/../../Application/Handlers/Auth/LogoutUserHandler.php';
-
 
 class AuthController {
     private $mediator;
