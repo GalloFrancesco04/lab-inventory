@@ -378,13 +378,13 @@ class InventoryView extends BaseView {
       // Damaged items can be sent to maintenance or changed to outofservice only
       if (currentItem && currentItem.status !== newStatus) {
         const allowedTransitions = {
-          "available": ["outofservice"],
-          "outofservice": ["available"],
-          "damaged": ["outofservice"], // Damaged items can only go to outofservice
+          available: ["outofservice"],
+          outofservice: ["available"],
+          damaged: ["outofservice"], // Damaged items can only go to outofservice
         };
-        
+
         const allowedNewStatuses = allowedTransitions[currentItem.status] || [];
-        
+
         if (!allowedNewStatuses.includes(newStatus)) {
           if (currentItem.status === "damaged") {
             this.mediator.toaster.error(
@@ -631,7 +631,7 @@ class InventoryView extends BaseView {
     technicians.forEach((tech) => {
       const option = document.createElement("option");
       option.value = tech.id;
-      option.textContent = tech.name;
+      option.textContent = tech.email;
       this.maintenanceTechnicianSelect.appendChild(option);
     });
   }

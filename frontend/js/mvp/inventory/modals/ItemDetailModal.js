@@ -135,7 +135,9 @@ export class ItemDetailModal {
     const canPerformActions = status === "available" || status === "damaged";
     this.isMaintenanceDisabled = !canPerformActions;
     this.isEditDisabled = !canPerformActions;
-    this.disabledReason = canPerformActions ? "" : this.getDisabledReason(status);
+    this.disabledReason = canPerformActions
+      ? ""
+      : this.getDisabledReason(status);
 
     this.applyButtonState(
       this.sendToMaintenanceBtn,
