@@ -25,12 +25,11 @@ require_once __DIR__ . '/../../Application/Handlers/ObjectTypes/ViewSingleObject
 class ObjectTypesController {
 
     private $mediator;
-    private $conn;
+   
 
 
     public function __construct() {
-        $db = new Database();
-        $this->conn = $db->getConnection();
+      
         $this->mediator = new Mediator();
 
         // register commands and their handlers
@@ -64,7 +63,7 @@ class ObjectTypesController {
             $command = new ViewObjectTypesCommand();
             $typesObjects = $this->mediator->send($command);
             
-            // Mapping manuale
+            // Mapping 
             $typesArray = [];
             if (is_array($typesObjects)) {
                 foreach ($typesObjects as $type) {
