@@ -12,12 +12,15 @@ DB_USER
 DB_PASSWORD
 DB_NAME
 ```
+The first time you run the project use
 
-To run the container use
+`docker compose up --build -d `
+
+For regular startup, you can simply use:
 
 `docker compose up -d `
 
-To access the application go to http://localhost:8080/
+To access the application go to http://localhost:8080/frontend
 
 # Contribute
 

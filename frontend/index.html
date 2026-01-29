@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Main Page</title>
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/utilities.css">
+    <script type="module" src="js/app.js"></script>
+</head>
+<body class="page">
+    <!-- Login View -->
+    <div class="view" id="login-view" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--surface-primary);">
+        <div class="modal-content" style="max-width: 400px; width: 100%;">
+            <div class="modal-header">
+                <h2 class="modal-title">Login</h2>
+            </div>
+            <form class="form" id="login-form">
+                <div class="form-group">
+                    <label for="login-username">Email</label>
+                    <input type="email" id="login-username" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <div style="position: relative;">
+                        <input type="password" id="login-password" required placeholder="Enter your password" style="padding-right: 2.5rem !important;">
+                        <button type="button" id="toggle-password" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0; line-height: 1; display: flex; align-items: center;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: var(--space-3) var(--space-4); font-size: 1rem; text-align: center; justify-content: center; display: flex; align-items: center;">Login</button>
+                </div>
+            </form>
+            <div id="login-error" style="margin-top: var(--space-4); padding: var(--space-3); border-radius: var(--radius-md); background: #fee; color: #c00; display: none;"></div>
+        </div>
+    </div>
+
+    <nav class="navbar" id="main-navbar" style="display: none;">
+        <div style="display: flex; gap: var(--space-2);">
+            <button class="btn btn-ghost" data-route="#/loans">Loans</button>
+            <button class="btn btn-ghost" data-route="#/inventory">Inventory</button>
+            <button class="btn btn-ghost" data-route="#/clients">Clients</button>
+            <button class="btn btn-ghost" data-route="#/maintenance">Maintenance</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: var(--space-4); margin-left: auto;">
+            <span id="user-name" style="color: var(--text-primary); font-weight: 500;"></span>
+            <button class="btn btn-ghost" id="logout-btn">Logout</button>
+        </div>
+    </nav>
+    <section class="toolbar" id="main-toolbar" style="display: none;">
+        <button class="btn btn-primary" id="new-loan-btn">New Loan</button>
+        <button class="btn btn-primary hidden" id="new-item-btn">New Item</button>
+        <button class="btn btn-primary hidden" id="new-client-btn">New Client</button>
+        
+        <div class="search-filters-container">
+            <form class="search-bar" id="search-form">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="search-input" placeholder="Search" aria-label="Search">
+                <button type="submit" class="btn btn-ghost" id="search-btn">Search</button>
+            </form>
+            
+            <button class="btn btn-ghost btn-filters" id="filters-btn">
+                Filters
+                <span class="filter-badge hidden" id="filter-badge">0</span>
+            </button>
+            
+            <!-- Inline Filters Panel -->
+            <div class="filters-inline hidden" id="filters-panel">
+                <div class="filters-content" id="filters-content">
+                    <!-- Filters will be dynamically inserted here -->
+                </div>
+                <div class="filters-inline-actions">
+                    <button class="btn btn-ghost btn-sm" id="clear-filters-btn">Clear</button>
+                    <button class="btn btn-primary btn-sm" id="apply-filters-btn">Apply</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="main-area" id="main-content" style="display: none;">
+        <!-- Loans View -->
+        <div class="view table-container" id="loans-view">
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th data-sortable data-sort-key="id">Loan ID</th>
+                        <th data-sortable data-sort-key="client">Client</th>
+                        <th data-sortable data-sort-key="items">Items</th>
+                        <th data-sortable data-sort-key="startDate">Start Date</th>
+                        <th data-sortable data-sort-key="endDate">End Date</th>
+                        <th data-sortable data-sort-key="actualReturnDate">Return Date</th>
+                        <th data-sortable data-sort-key="status">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="loans-tbody"></tbody>
+            </table>
+        </div>
+        <!-- Inventory View -->
+        <div class="view table-container hidden" id="inventory-view">
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th data-sortable data-sort-key="code">Code</th>
+                        <th data-sortable data-sort-key="name">Name</th>
+                        <th data-sortable data-sort-key="description">Description</th>
+                        <th data-sortable data-sort-key="brand">Brand</th>
+                        <th data-sortable data-sort-key="model">Model</th>
+                        <th data-sortable data-sort-key="quantity">Quantity</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-tbody"></tbody>
+            </table>
+        </div>
+        <!-- Clients View -->
+        <div class="view table-container hidden" id="clients-view">
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th data-sortable data-sort-key="id">Client ID</th>
+                        <th data-sortable data-sort-key="name">Client</th>
+                        <th data-sortable data-sort-key="email">Email</th>
+                        <th data-sortable data-sort-key="activeLoans">Active Loans</th>
+                        <th data-sortable data-sort-key="totalLoans">Total Loans</th>
+                        <th data-sortable data-sort-key="lastLoan">Last Loan</th>
+                    </tr>
+                </thead>
+                <tbody id="clients-tbody"></tbody>
+            </table>
+        </div>
+
+        <!-- Maintenance View -->
+        <div class="view table-container hidden" id="maintenance-view">
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th data-sortable data-sort-key="id">ID</th>
+                        <th data-sortable data-sort-key="startDate">Start Date</th>
+                        <th data-sortable data-sort-key="endDate">End Date</th>
+                        <th data-sortable data-sort-key="objectName">Object</th>
+                        <th data-sortable data-sort-key="tech">Technician</th>
+                        <th data-sortable data-sort-key="desc">Description</th>
+                        <th data-sortable data-sort-key="cost">Total Cost</th>
+                        <th data-sortable data-sort-key="status">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="maintenance-tbody"></tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- New Loan Modal -->
+    <div class="modal-overlay" id="new-loan-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Create New Loan</h2>
+                <button class="modal-close" id="new-loan-close" aria-label="Close modal">&times;</button>
+            </div>
+            <form class="form" id="new-loan-form">
+                <div class="form-group">
+                    <label for="loan-client">Client</label>
+                    <div style="display: flex; gap: 8px; align-items: flex-start;">
+                        <select id="loan-client" required style="flex: 1;">
+                            <option value="">Select a client</option>
+                        </select>
+                        <button type="button" id="loan-new-client-btn" class="btn btn-ghost" style="padding: 8px 12px; white-space: nowrap;">+ New Client</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="loan-items-select">Items (max 5)</label>
+                    <div style="position: relative;">
+                        <button type="button" id="loan-items-select" class="select-button" style="width: 100%; text-align: left; appearance: none; background: white; border: 1px solid #ccc; border-radius: 4px; padding: 8px 12px; cursor: pointer; font-size: 14px; display: flex; justify-content: space-between; align-items: center;">
+                            Select items
+                            <span style="color: #999; font-size: 12px; margin-left: 8px;">▼</span>
+                        </button>
+                        <div id="loan-items-panel" style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 100; background: white; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 4px; max-height: 300px; overflow-y: auto; flex-direction: column;">
+                            <input type="text" id="loan-items-search" placeholder="Search items..." style="position: sticky; top: 0; padding: 10px 12px; border: none; border-bottom: 1px solid #f0f0f0; background: white; font-size: 14px; z-index: 10;" />
+                        </div>
+                    </div>
+                    <div id="loan-items-selected" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px;"></div>
+                </div>
+                <div class="form-group">
+                    <label for="loan-date">Return Date</label>
+                    <input type="date" id="loan-date" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="cancel-loan-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Loan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loan Detail Modal -->
+    <div class="modal-overlay" id="loan-detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Loan Details</h2>
+                <button class="modal-close" aria-label="Close modal" id="loan-detail-close">&times;</button>
+            </div>
+            <div class="detail-card">
+                <div class="detail-header">
+                    <h3 class="section-title" id="detail-loan-title">Loan #</h3>
+                    <span class="badge badge-neutral" id="detail-loan-status">-</span>
+                </div>
+                <div class="detail-meta">
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Client</span>
+                        <span class="detail-meta-value" id="detail-loan-client">-</span>
+                    </div>
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Start Date</span>
+                        <span class="detail-meta-value" id="detail-loan-start">-</span>
+                    </div>
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">End Date</span>
+                        <span class="detail-meta-value" id="detail-loan-end">-</span>
+                    </div>
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Return Date</span>
+                        <span class="detail-meta-value" id="detail-loan-return">-</span>
+                    </div>
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Loan ID</span>
+                        <span class="detail-meta-value" id="detail-loan-id">-</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="detail-meta-label" style="display: block; margin-bottom: var(--space-2); font-weight: 600;">Loaned Items</span>
+                    <div class="loaned-items-list" id="detail-loan-items">
+                        <div class="loaned-item-card">
+                            <span class="loaned-item-name">-</span>
+                            <span class="loaned-item-meta">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="detail-loan-notes" class="detail-notes" style="display: none;">
+                    <span class="detail-meta-label" style="display: block; margin-bottom: var(--space-2); font-weight: 600;">Close Notes</span>
+                    <div class="note-box"></div>
+                </div>
+                <div class="detail-actions">
+                    <button class="btn btn-primary" id="detail-close-loan">Close Loan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Close Loan Notes Modal -->
+    <div class="modal-overlay" id="close-loan-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Close Loan</h2>
+                <button class="modal-close" aria-label="Close modal" id="close-loan-notes-close">&times;</button>
+            </div>
+            <form class="form" id="close-loan-form">
+                <p style="margin: 0; color: var(--text-muted);">Add closing notes and mark items status.</p>
+                <div class="form-group">
+                    <label for="close-loan-notes">Notes</label>
+                    <textarea id="close-loan-notes" rows="3" placeholder="Add notes about returned items (e.g., conditions, accessories missing)"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="close-loan-damaged-trigger">Mark returned items as damaged</label>
+                    <div class="multi-select" id="close-loan-damaged">
+                        <button type="button" class="multi-select-trigger" id="close-loan-damaged-trigger">Select damaged items (optional)</button>
+                        <div class="multi-select-menu" id="close-loan-damaged-menu"></div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="close-loan-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Confirm Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Item Modal -->
+    <div class="modal-overlay" id="new-item-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">New Object Type</h2>
+                <button class="modal-close" aria-label="Close modal" id="new-item-close">&times;</button>
+            </div>
+            <form class="form" id="new-item-form">
+                <div class="form-group">
+                    <label for="new-item-name">Type Name <span style="color: var(--danger);">*</span></label>
+                    <input type="text" id="new-item-name" required placeholder="e.g. Computer, Tablet, Peripherals">
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="new-item-description">Description</label>
+                    <textarea id="new-item-description" rows="2" placeholder="e.g. Computers and laptops"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="new-item-brand">Brand</label>
+                    <input type="text" id="new-item-brand" placeholder="e.g. HP, Dell, Apple">
+                </div>
+                <div class="form-group">
+                    <label for="new-item-model">Model</label>
+                    <input type="text" id="new-item-model" placeholder="e.g. Pavilion 15, Latitude 5400">
+                </div>
+                <div class="form-group">
+                    <label for="new-item-quantity">Initial Quantity <span style="color: var(--danger);">*</span></label>
+                    <input type="number" id="new-item-quantity" required min="0" value="0" placeholder="0">
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="new-item-location">Location</label>
+                    <input type="text" id="new-item-location" placeholder="e.g. Lab A, Storage, Lab B">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="new-item-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Type</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Item Detail Modal (Inventory) -->
+    <div class="modal-overlay" id="item-detail-modal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2 class="modal-title" id="item-modal-title">Item Details</h2>
+                <button class="modal-close" aria-label="Close modal" id="item-detail-close">&times;</button>
+            </div>
+            <div class="detail-card">
+                <div class="item-detail-top item-detail-grid">
+                    <div class="item-image item-image-box">
+                        <span id="item-image-fallback">IMG</span>
+                    </div>
+                    <div class="item-info item-info-stack">
+                        <div class="item-info-col">
+                            <div><strong>Name:</strong> <span id="item-name">-</span></div>
+                            <div><strong>Type:</strong> <span id="item-type">-</span></div>
+                            <div><strong>Status:</strong> <span id="item-status" class="badge">-</span></div>
+                            <div><strong>ID:</strong> <span id="item-id">-</span></div>
+                            <div><strong>Location:</strong> <span id="item-location">-</span></div>
+                        </div>
+                        <div class="item-info-col">
+                            <div class="item-meta-secondary"><strong>Brand:</strong> <span id="item-brand">-</span></div>
+                            <div class="item-meta-secondary"><strong>Model:</strong> <span id="item-model">-</span></div>
+                            <div class="item-meta-secondary"><strong>Notes:</strong> <span id="item-note">-</span></div>
+                        </div>
+                        <div class="item-info-action" style="display: flex; gap: var(--space-2); flex-wrap: wrap; grid-column: 1 / -1;">
+                            <button class="btn btn-primary" id="edit-item-btn">Edit Item</button>
+                            <button class="btn btn-secondary" id="send-to-maintenance-btn">Send to Maintenance</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="item-maint-list">
+                    <h3 class="section-title">Maintenance History</h3>
+                    <div class="maintenance-list-container">
+                        <div id="item-maintenance-tbody"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Object List Modal (to show instances of an ObjectType) -->
+    <div class="modal-overlay" id="object-list-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: var(--space-2); flex: 1;">
+                    <h2 class="modal-title">Object Instances</h2>
+                    <button class="btn btn-primary btn-sm" id="new-instance-btn" style="margin-left: auto;">+ New Instance</button>
+                </div>
+                <button class="modal-close" aria-label="Close modal" id="object-list-close">&times;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Instance Modal -->
+    <div class="modal-overlay" id="new-instance-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">New Instance</h2>
+                <button class="modal-close" aria-label="Close modal" id="new-instance-close">&times;</button>
+            </div>
+            <form class="form" id="new-instance-form">
+                <div class="form-group">
+                    <label for="new-instance-location">Location <span style="color: var(--danger);">*</span></label>
+                    <input type="text" id="new-instance-location" placeholder="e.g. Lab A, Storage, Lab B" required>
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="new-instance-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Instance</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Item Modal -->
+    <div class="modal-overlay" id="edit-item-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Item</h2>
+                <button class="modal-close" aria-label="Close modal" id="edit-item-close">&times;</button>
+            </div>
+            <form class="form" id="edit-item-form">
+                <div class="form-group">
+                    <label for="edit-item-name">Name <span style="color: var(--danger);">*</span></label>
+                    <input type="text" id="edit-item-name" placeholder="Enter item name" required>
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="edit-item-brand">Brand</label>
+                    <input type="text" id="edit-item-brand" placeholder="e.g. HP, Dell">
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="edit-item-model">Model</label>
+                    <input type="text" id="edit-item-model" placeholder="e.g. Pavilion 15, Latitude 5400">
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="edit-item-location">Location <span style="color: var(--danger);">*</span></label>
+                    <input type="text" id="edit-item-location" placeholder="Enter location" required>
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="edit-item-status">Status <span style="color: var(--danger);">*</span></label>
+                    <select id="edit-item-status" required>
+                        <option value="">Select status</option>
+                        <option value="available">Available</option>
+                        <option value="outofservice">Out of Service</option>
+                    </select>
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="edit-item-note">Notes</label>
+                    <textarea id="edit-item-note" rows="3" placeholder="Optional notes about this item"></textarea>
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="edit-item-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Send to Maintenance Modal -->
+    <div class="modal-overlay" id="send-to-maintenance-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Send to Maintenance</h2>
+                <button class="modal-close" aria-label="Close modal" id="send-to-maintenance-close">&times;</button>
+            </div>
+            <form class="form" id="send-to-maintenance-form">
+                <div class="form-group">
+                    <label for="maintenance-desc">Problem Description</label>
+                    <textarea id="maintenance-desc" rows="3" required placeholder="Describe the issue or maintenance needed"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="maintenance-technician">Assign to Technician</label>
+                    <select id="maintenance-technician" required>
+                        <option value="">Select a technician...</option>
+                        <option value="M. Rossi">M. Rossi</option>
+                        <option value="S. Bianchi">S. Bianchi</option>
+                        <option value="A. Neri">A. Neri</option>
+                        <option value="R. Verdi">R. Verdi</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="send-to-maintenance-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send to Maintenance</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Client Modal -->
+    <div class="modal-overlay" id="new-client-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">New Client</h2>
+                <button class="modal-close" aria-label="Close modal" id="new-client-close">&times;</button>
+            </div>
+            <form class="form" id="new-client-form">
+                <div class="form-group">
+                    <label for="new-client-first">First Name</label>
+                    <input type="text" id="new-client-first" required placeholder="First name">
+                </div>
+                <div class="form-group">
+                    <label for="new-client-last">Last Name <span style="color: var(--danger);">*</span></label>
+                    <input type="text" id="new-client-last" placeholder="Last name" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-client-email">Email</label>
+                    <input type="email" id="new-client-email" required placeholder="name@example.com">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="new-client-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Client</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Object Type Modal -->
+    <div class="modal-overlay" id="new-type-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">New Object Type</h2>
+                <button class="modal-close" aria-label="Close modal" id="new-type-close">&times;</button>
+            </div>
+            <form class="form" id="new-type-form">
+                <div class="form-group">
+                    <label for="new-type-name">Type Name</label>
+                    <input type="text" id="new-type-name" required placeholder="e.g. Laptop, Monitor">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="new-type-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Type</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Client Detail Modal -->
+    <div class="modal-overlay" id="client-detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="client-detail-title">Client Details</h2>
+                <button class="modal-close" aria-label="Close modal" id="client-detail-close">&times;</button>
+            </div>
+            <div class="detail-card">
+                <div class="detail-meta">
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Client ID</span>
+                        <span class="detail-meta-value" id="client-detail-id">-</span>
+                    </div>
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Email</span>
+                        <span class="detail-meta-value" id="client-detail-email">-</span>
+                    </div>
+                </div>
+                <div class="detail-meta">
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Status</span>
+                        <span class="detail-meta-value" id="client-detail-status">Active</span>
+                    </div>
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Last Loan</span>
+                        <span class="detail-meta-value" id="client-detail-last">-</span>
+                    </div>
+                </div>
+                <div class="detail-meta">
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Active Loans</span>
+                        <span class="detail-meta-value" id="client-detail-active">-</span>
+                    </div>
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Total Loans</span>
+                        <span class="detail-meta-value" id="client-detail-total">-</span>
+                    </div>
+                </div>
+                <div class="detail-actions" style="margin-top: var(--space-4); display: flex; gap: var(--space-2);">
+                    <button class="btn btn-primary" id="client-edit-btn">Edit Client</button>
+                    <button class="btn btn-danger" id="client-block-btn">Block Client</button>
+                </div>
+                <div style="margin-top: var(--space-4); border-top: 1px solid var(--border); padding-top: var(--space-4);">
+                    <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: var(--space-3); color: var(--text);">Loan History</h3>
+                    <div id="client-loans-history" style="max-height: 320px; overflow-y: auto;">
+                        <p style="color: var(--text-muted); text-align: center; padding: var(--space-4);">No loans</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Client Modal -->
+    <div class="modal-overlay" id="edit-client-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Client</h2>
+                <button class="modal-close" aria-label="Close modal" id="edit-client-close">&times;</button>
+            </div>
+            <form class="form" id="edit-client-form">
+                <div class="form-group">
+                    <label for="edit-client-first">First Name <span style="color: var(--danger);">*</span></label>
+                    <input type="text" id="edit-client-first" placeholder="Enter first name" required>
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="edit-client-last">Last Name <span style="color: var(--danger);">*</span></label>
+                    <input type="text" id="edit-client-last" placeholder="Enter last name" required>
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="edit-client-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Block Client Modal -->
+    <div class="modal-overlay" id="block-client-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Block Client</h2>
+                <button class="modal-close" aria-label="Close modal" id="block-client-close">&times;</button>
+            </div>
+            <form class="form" id="block-client-form">
+                <p style="margin: 0; color: var(--text-muted);">Block client temporarily from making new loans.</p>
+                <div class="form-group">
+                    <label for="block-days">Block Duration (days)</label>
+                    <input type="number" id="block-days" min="1" max="365" value="30" required>
+                </div>
+                <div class="form-group">
+                    <label for="block-reason">Reason</label>
+                    <textarea id="block-reason" rows="3" placeholder="Optional reason for blocking"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="block-client-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Block Client</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Maintenance Detail Modal -->
+    <div class="modal-overlay" id="maintenance-detail-modal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2 class="modal-title" id="maintenance-modal-title">Maintenance #1001</h2>
+                <button class="modal-close" aria-label="Close modal" id="maintenance-detail-close">&times;</button>
+            </div>
+            <div class="modal-body" style="display: flex; flex-direction: column; gap: var(--space-2); max-height: 70vh; overflow: hidden;">
+                <div class="detail-card" style="flex-shrink: 0; padding: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); padding-left: var(--space-2);">
+                        <h3 class="section-title" style="margin: 0;">Maintenance Info</h3>
+                        <button type="button" class="btn btn-danger btn-sm" id="maintenance-close-btn" style="display: none; background: var(--danger); border-color: var(--danger);">Close Maintenance</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); row-gap: var(--space-2); padding-left: var(--space-2);">
+                        <div>
+                            <label class="detail-label">Maintenance ID</label>
+                            <div class="detail-value" id="maintenance-detail-id">-</div>
+                        </div>
+                        <div>
+                            <label class="detail-label">Item</label>
+                            <div class="detail-value" id="maintenance-detail-item">-</div>
+                        </div>
+                        <div>
+                            <label class="detail-label">Start Date</label>
+                            <div class="detail-value" id="maintenance-detail-start">-</div>
+                        </div>
+                        <div>
+                            <label class="detail-label">End Date</label>
+                            <div class="detail-value" id="maintenance-detail-end">-</div>
+                        </div>
+                        <div>
+                            <label class="detail-label">Technician</label>
+                            <div class="detail-value" id="maintenance-detail-tech">-</div>
+                            <div class="detail-value" style="font-size: 0.9rem; color: var(--text-muted); margin-top: var(--space-1);" id="maintenance-detail-phone">-</div>
+                        </div>
+                        <div>
+                            <label class="detail-label">Total Cost</label>
+                            <div style="display: flex; align-items: center; gap: var(--space-2);">
+                                <div class="detail-value" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);" id="maintenance-detail-total">€0.00</div>
+                                <span class="badge badge-neutral" id="maintenance-status-badge" style="white-space: nowrap;">Open</span>
+                            </div>
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <label class="detail-label">Description</label>
+                            <div class="detail-value" id="maintenance-detail-desc">-</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; min-height: 0; flex: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3);">
+                        <h3 class="section-title" style="margin: 0;">Operations</h3>
+                        <button type="button" class="btn btn-primary btn-sm" id="add-operation-btn">+ Add Operation</button>
+                    </div>
+                    <div id="operations-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-2); padding-right: var(--space-2);">
+                    </div>
+                </div>
+
+                <div style="margin-top: var(--space-4); border-top: 1px solid var(--border); padding-top: var(--space-4);" id="item-maintenance-history-section">
+                    <h3 class="section-title" style="margin-bottom: var(--space-3);">Item Maintenance History</h3>
+                    <div id="item-maintenance-history" style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-2); padding-right: var(--space-2);">
+                        <p style="color: var(--text-muted); text-align: center; padding: var(--space-4);">No history</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Operation Modal -->
+    <div class="modal-overlay" id="add-operation-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Operation</h2>
+                <button class="modal-close" aria-label="Close modal" id="add-operation-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-operation-form">
+                    <div class="form-group">
+                        <label for="operation-desc" class="form-label">Description</label>
+                        <textarea id="operation-desc" class="form-input" rows="3" required placeholder="Enter operation description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="operation-cost" class="form-label">Cost (€)</label>
+                        <input type="number" id="operation-cost" class="form-input" step="0.01" min="0" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="operation-start" class="form-label">Start Date</label>
+                        <input type="date" id="operation-start" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="operation-end" class="form-label">End Date</label>
+                        <input type="date" id="operation-end" class="form-input" required>
+                    </div>
+                    <div class="modal-actions" style="margin-top: var(--space-4);">
+                        <button type="button" class="btn btn-secondary" id="add-operation-cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Operation</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Close Maintenance Confirmation Modal -->
+    <div class="modal-overlay" id="maintenance-close-confirm-modal">
+        <div class="modal-content" style="max-width: 420px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Close Maintenance</h2>
+                <button class="modal-close" aria-label="Close modal" id="maintenance-close-confirm-close">&times;</button>
+            </div>
+            <div class="modal-body" style="display: flex; flex-direction: column; gap: var(--space-3);">
+                <div class="form-group">
+                    <label for="maintenance-close-notes" class="form-label">Work summary</label>
+                    <textarea id="maintenance-close-notes" class="form-input" rows="3" required placeholder="Describe what was done"></textarea>
+                </div>
+
+                <label style="display: inline-flex; align-items: center; gap: var(--space-2); cursor: pointer;">
+                    <input type="checkbox" id="maintenance-close-still-broken" style="width: auto;">
+                    <span>Mark item as still broken / out of service</span>
+                </label>
+
+                <div class="modal-actions" style="margin-top: var(--space-2);">
+                    <button type="button" class="btn btn-secondary" id="maintenance-close-confirm-cancel">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="maintenance-close-confirm-accept" style="background: var(--danger); border-color: var(--danger);">Confirm Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
