@@ -1,7 +1,5 @@
 <?php
 
-use PDO;
-use Application\Domain\Entities\InventoryItem;
 
 require_once __DIR__ . '/../../../Domain/Entities/InventoryItem.php';
 
@@ -14,7 +12,7 @@ class ItemRepository
         $this->connection = $connection;
     }
 
-    public function create(InventoryItem $item): void
+    public function create(InventoryItem $item): int
     {
         $stmt = $this->connection->prepare("
             INSERT INTO object_ (object_type_code, state, location)
@@ -23,12 +21,13 @@ class ItemRepository
 
         $stmt->execute([
             'object_type_code' => $item->getObjectTypeCode(),
-            'state'  => $item->getState(),
+            'state'  => $item->getStateCode(),
             'location'  => $item->getLocation()
         ]);
 
         //Set the generated ID to the Item entity
         $item->setId((int) $this->connection->lastInsertId());
+        return $item->getId();
     }
     
     public function MarkObjectAsAvailable(int $id): void
@@ -112,7 +111,7 @@ class ItemRepository
         ]);
     }
 
-    public function updateLocation(int $id, string $newLocation): void
+    public function updateLocation(int $id, ?string $newLocation): void
     {
         $stmt = $this->connection->prepare("
             UPDATE object_ 
@@ -142,6 +141,20 @@ class ItemRepository
     public function getAll(): array
     {
         $stmt = $this->connection->prepare("SELECT * FROM object_");
+        $stmt->execute();
+
+        $items = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $items[] = $this->mapRowToItem($row);
+        }
+
+        return $items;
+    }
+
+
+    public function getAllAvailableItems(): array
+    {
+        $stmt = $this->connection->prepare("SELECT * FROM object_ WHERE state = 1");
         $stmt->execute();
 
         $items = [];
@@ -225,12 +238,11 @@ class ItemRepository
     private function mapRowToItem(array $row): InventoryItem
     {
         $item = new InventoryItem(
+            (int) $row['id'],
             $row['object_type_code'],
             $row['state'],
             $row['location']
         );
-
-        $item->setId((int) $row['id']);
 
         return $item;
     }

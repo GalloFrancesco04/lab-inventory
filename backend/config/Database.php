@@ -31,9 +31,9 @@ class Database {
             
             error_log("Connection error: " . $exception->getMessage());
             
-            // Use the JsonResponse class to return a structured error
-            require_once __DIR__ . '/../utils/JsonResponse.php';
-            JsonResponse::error("Database connection failed", "DB_CONNECTION_ERROR", 500);
+            // Use the Response class to return a structured error
+            require_once __DIR__ . '/../src/Http/Response.php';
+            Response::error("Database connection failed", "DB_CONNECTION_ERROR", 500);
         }
 
 

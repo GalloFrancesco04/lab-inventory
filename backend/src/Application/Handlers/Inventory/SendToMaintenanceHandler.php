@@ -1,50 +1,90 @@
 <?php
-// Handler class to process the SendToMaintenanceCommand
 require_once __DIR__ . '/../../../../config/Database.php';
-require_once __DIR__ . '/../../Commands/Inventory/SendToMaintenanceCommand.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ItemRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/UserRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/MaintenanceRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Connection/TransactionManager.php';
 
-// Handler class to process the SendToMaintenanceCommand
+require_once __DIR__ . '/../../Commands/Inventory/SendToMaintenanceCommand.php';
+require_once __DIR__ . '/../../../Domain/Entities/Maintenance.php';
+
+
+
 class SendToMaintenanceHandler {
-    private $conn;
+    private $itemRepository;
+    private $userRepository;
+    private $maintenanceRepository;
+    private $transaction;
 
     public function __construct() {
         $db = new Database();
-        $this->conn = $db->getConnection();
+        $connection = $db->getConnection();
+        
+        $this->itemRepository = new ItemRepository($connection);
+        $this->userRepository = new UserRepository($connection);
+        $this->maintenanceRepository = new MaintenanceRepository($connection);
+
+        $this->transaction = new TransactionManager($connection);
     }
+
+
     //  Method to handle the command and send the object to maintenance
     public function handle(SendToMaintenanceCommand $command) {
         
-        if ($command->id <= 0 || $command->technician_id <= 0) {
-            throw new Exception("ID Oggetto o ID Tecnico non validi.");
-        }
-
         try {
+    
+            if(empty($command->object_id) || empty($command->technician_id))   {
+                throw new Exception("L'id dell'Oggetto e del Tecnico non possono essere vuoti");
+            }
+
+            $start_date = new DateTime('now');
+
+            $end_date = null;
+
+            $technician = $this->userRepository->findTechnicianById($command->technician_id);
+
+            if(empty($technician)) {
+                throw new Exception("Non e' stato trovato alcun Tecnico con l'id specificato");
+            }
+
+            $object = $this->itemRepository->findById($command->object_id);
+
+            if(empty($object)) {
+                throw new Exception("Non e' stato trovato alcun Oggetto con l'id specificato");
+            }
+
+            $this->transaction->begin();
+
             
-            $this->conn->beginTransaction();
+            $object->maintenance();
 
-            //  Update object state to 'in maintenance' (assuming state code 3)
-            $sqlObj = "UPDATE object_ SET state = 3 WHERE id = :id";
-            $stmtObj = $this->conn->prepare($sqlObj);
-            $stmtObj->execute([':id' => $command->id]);
+            $this->itemRepository->updateState($object->getId(), $object->getStateCode());
 
-            //  Insert maintenance record
-            $sqlMaint = "INSERT INTO maintenance (object_id, description, start_date, technician_id) 
-                         VALUES (:obj_id, :desc, CURDATE(), :tech_id)";
+            // i pass the entire maintenance object, for creation
+    
+            $maintenanceToCreate = new Maintenance(
+                null, 
+                $object->getId(),
+                $command->description,
+                $start_date,
+                $end_date,
+                $command->type,
+                $command->technician_id,
+                null,
+                0
+             );
+
+            $createdMaintenanceId = $this->maintenanceRepository->create($maintenanceToCreate);
+
+            $this->transaction->commit();
+
+            return $createdMaintenanceId;
+
+        } catch (Exception $ex) {
             
-            $stmtMaint = $this->conn->prepare($sqlMaint);
-            $stmtMaint->execute([
-                ':obj_id'  => $command->id,
-                ':desc'    => $command->note,
-                ':tech_id' => $command->technician_id 
-            ]);
+            $this->transaction->rollback();
+            throw new Exception("Si e' verificato un errore nell'invio dell'Oggetto in Manutenzione: " . $ex->getMessage(), 0, $ex);
 
-            $this->conn->commit();
-            return true;
-
-        } catch (Exception $e) {
-            $this->conn->rollBack();
-           
-            throw $e; 
         }
     }
 }

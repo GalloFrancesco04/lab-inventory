@@ -1,7 +1,9 @@
 <?php
 
+require_once __DIR__ . '/../../../Domain/Entities/Client.php';
+
 use PDO;
-use Application\Domain\Entities\Client;
+
 
 require_once __DIR__ . '/../../../Domain/Entities/Client.php';
 
@@ -15,7 +17,7 @@ class ClientRepository
     }
 
     //Create a new Client in the database
-    public function create(Client $client): void
+    public function create(Client $client): int
     {
         $stmt = $this->connection->prepare("
         INSERT INTO client (email, name, surname, state)
@@ -29,6 +31,7 @@ class ClientRepository
 
         //Set the generated ID to the Client entity
         $client->setId((int) $this->connection->lastInsertId());
+        return $client->getId();
     }
 
     //Update client's information
@@ -36,12 +39,11 @@ class ClientRepository
     {
         $stmt = $this->connection->prepare("
             UPDATE client 
-            SET email = :email, name = :name, surname = :surname
+            SET name = :name, surname = :surname
             WHERE id = :id
             ");
 
         $stmt->execute([
-            'email' => $client->getEmail(),
             'name'  => $client->getName(),
             'surname' => $client->getSurname(),
             'id'    => $client->getId()
@@ -145,13 +147,13 @@ class ClientRepository
 
     private function mapRowToClient(array $row): Client
     {
-        $client = new Client(
-            $row['email'],
-            $row['name'],
-            $row['surname'],
-            $row['state']
-        );
+        $client = new Client();
+
         $client->setId((int) $row['id']);
+        $client->setEmail($row['email']);
+        $client->setName($row['name']);
+        $client->setSurname($row['surname']);
+        $client->setState($row['state']);
         return $client;
     }
 }

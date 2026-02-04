@@ -2,16 +2,16 @@
 
 
 class SendToMaintenanceCommand {
-    public int $id;             
-    public string $note;        
-    public int $technician_id;  
+    public $object_id;             
+    public $description;
+    public $technician_id;  
+    public $type;
 
-    // Constructor to initialize all properties
-    public function __construct(array $data) {
-        $this->id = (int)($data['id'] ?? 0);
-        $this->note = $data['note'] ?? '';
-        
-        //if technician_id is not provided, set to 0 (as default)
-        $this->technician_id = (int)($data['technician_id'] ?? 0);
+    public function __construct($object_id, $description, $technician_id, $type) {
+        $this->object_id = $object_id;
+        $this->description = $description;
+        $this->technician_id = $technician_id;
+        $this->type = $type;
+
     }
 }

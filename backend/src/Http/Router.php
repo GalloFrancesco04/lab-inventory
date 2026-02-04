@@ -19,7 +19,7 @@ class Router {
     }
 
     // Dispatch the request to the appropriate handler
-    public function dispatch($requestMethod, $RequestUri){
+    public function dispatch($requestMethod, $RequestUri, Request $request){
 
         $parsedUrl= parse_url($RequestUri);
         $path=$parsedUrl['path'];
@@ -36,13 +36,21 @@ class Router {
                         // Handler is a controller class and method
                     $controllerName= $route['handler'][0];
                     $actionName= $route['handler'][1];
-
-                    $controller=new $controllerName();
-
-                    // Call the controller action with extracted parameters
-                    call_user_func_array([$controller, $actionName], $matches);
+                    
+                    if (class_exists($controllerName)){
+                        // Instantiate controller
+                        $controller=new $controllerName();
+                        // Prepare parameters: first the Request object, then the extracted path parameters
+                        $params = array_merge([$request], $matches);
+                        // Call the controller action with extracted parameters
+                        call_user_func_array([$controller, $actionName], $params);
 
                     return;
+                    }
+
+                    
+
+                    
                 }
             }
         }

@@ -1,0 +1,20 @@
+/* Base reset */
+* {
+  box-sizing: border-box;
+}
+
+/* Body & Typography */
+body {
+  font-family: var(--font-main);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+}
+
+/* Links */
+a {
+  color: var(--primary);
+  text-decoration: none;
+}

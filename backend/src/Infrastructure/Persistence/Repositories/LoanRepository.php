@@ -1,7 +1,7 @@
 <?php 
 
-use PDO;
-use Application\Domain\Entities\Loan;
+require_once __DIR__ . '/../../../Domain/Entities/Loan.php';
+
 use DateTime;
 
 require_once __DIR__ . '/../../../Domain/Entities/Loan.php';
@@ -15,18 +15,18 @@ class LoanRepository{
         $this->connection = $connection;
     }
 
-    public function create(Loan $loan): void
+    public function create(Loan $loan): int
     {
         $stmt = $this->connection->prepare("
-            INSERT INTO loans (startDate, endDate, returnDate, clientId, notes, quantity, state)
-            VALUES (:startDate, :endDate, :returnDate, :clientId, :notes, :quantity, :state)
+            INSERT INTO loans (start_date, end_date, return_date, client_id, notes, quantity, state)
+            VALUES (:start_date, :end_date, :return_date, :client_id, :notes, :quantity, :state)
         ");
 
         $stmt->execute([
-            'startDate' => $loan->getStartDate()->format('Y-m-d'),
-            'endDate' => $loan->getEndDate()->format('Y-m-d'),
-            'returnDate' => $loan->getReturnDate()->format('Y-m-d'),
-            'clientId' => $loan->getClientId(),
+            'start_date' => $loan->getStartDate()->format('Y-m-d'),
+            'end_date' => $loan->getEndDate()->format('Y-m-d'),
+            'return_date' => $loan->getReturnDate() ? $loan->getReturnDate()->format('Y-m-d') : null,
+            'client_id' => $loan->getClientId(),
             'notes' => $loan->getNotes(),
             'quantity' => $loan->getQuantity(),
             'state' => $loan->getState()
@@ -34,18 +34,19 @@ class LoanRepository{
 
         //Set the generated ID to the Loan entity
         $loan->setId((int) $this->connection->lastInsertId());
+        return $loan->getId();
     }
 
-    public function closeLoan(int $loanId, DateTime $returnDate): void
+    public function closeLoan(int $loanId, DateTime $return_date): void
     {
         $stmt = $this->connection->prepare("
             UPDATE loans 
-            SET state = false, returnDate = :returnDate
+            SET state = false, return_date = :return_date
             WHERE id = :loanId
         ");
 
         $stmt->execute([
-            'returnDate' => $returnDate->format('Y-m-d'),
+            'return_date' => $return_date->format('Y-m-d'),
             'loanId' => $loanId
         ]);
     }
@@ -60,21 +61,36 @@ class LoanRepository{
 
         $stmt->execute([
             'notes' => $notes,
-            'loanId' => $loanId
+            'id' => $loanId
         ]);
     }
 
-    public function updateQuantity(int $loanId, int $quantity): void
+        public function update(Loan $loan): void
     {
         $stmt = $this->connection->prepare("
             UPDATE loans 
-            SET quantity = :quantity
+            SET notes = :notes, quantity = :quantity
             WHERE id = :loanId
         ");
 
         $stmt->execute([
+            'notes' => $loan->getNotes(),
+            'quantity' => $loan->getQuantity(),
+            'loanId' => $loan->getId()
+        ]);
+    }
+
+    public function updateQuantity(int $id, int $quantity): void
+    {
+        $stmt = $this->connection->prepare("
+            UPDATE loans 
+            SET quantity = :quantity
+            WHERE id = :id
+        ");
+
+        $stmt->execute([
             'quantity' => $quantity,
-            'loanId' => $loanId
+            'id' => $id
         ]);
     }
 
@@ -144,14 +160,34 @@ class LoanRepository{
         return (int) $stmt->fetchColumn();        
     }
 
-    public function getAllLoansOfClient(int $clientId): array
+    public function getAllLoansOfClient(int $client_id): array
     {
         $stmt = $this->connection->prepare("
-            SELECT * FROM loans WHERE clientId = :clientId
+            SELECT * FROM loans WHERE client_id = :client_id
         ");
 
         $stmt->execute([
-            'clientId' => $clientId
+            'client_id' => $client_id
+        ]);
+
+        $loans = [];
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $loans[] = $this->mapRowToLoan($row);
+        }
+
+        return $loans;
+    }
+
+
+    public function getAllLoansOfUser(int $userId): array
+    {
+        $stmt = $this->connection->prepare("
+            SELECT * FROM loans WHERE userId = :userId
+        ");
+
+        $stmt->execute([
+            'userId' => $userId
         ]);
 
         $loans = [];
@@ -243,21 +279,21 @@ class LoanRepository{
 
     private function mapRowToLoan(array $row): Loan
     {
-        $startDate = new DateTime($row['startDate']);
-        $endDate = new DateTime($row['endDate']);
-        $returnDate =(!empty($row['returnDate'])) ? new DateTime($row['returnDate']) : null;
+        $start_date = new DateTime($row['start_date']);
+        $end_date = new DateTime($row['end_date']);
+        $return_date =(!empty($row['return_date'])) ? new DateTime($row['return_date']) : null;
 
         $Loan = new Loan(
-            $startDate,
-            $endDate,
-            $returnDate,
-            $row['clientId'],
+            $row['id'],
+            $start_date,
+            $end_date,
+            $return_date,
+            $row['client_id'],
             $row['notes'],
             (int)$row['quantity'],
             (bool)$row['state'],
         );
 
-        $Loan->setId((int) $row['id']);
         return $Loan;
     }
 }

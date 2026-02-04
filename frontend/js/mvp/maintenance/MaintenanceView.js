@@ -1,0 +1,724 @@
+import { BaseView } from "../core/BaseView.js";
+import {
+  VALIDATION_ERRORS,
+  SUCCESS_MESSAGES,
+  ERROR_MESSAGES,
+} from "../../utils/Messages.js";
+
+class MaintenanceView extends BaseView {
+  constructor(presenter, mediator) {
+    super(presenter, mediator);
+    this.initializeView({
+      viewSelector: "#maintenance-view",
+      searchViewName: "maintenance",
+      renderMethod: "render",
+    });
+  }
+
+  setupElements() {
+    this.tbody = this.getElement("maintenance-tbody");
+    this.endDateHeader = this.getElement("maintenance-view")?.querySelector(
+      'th[data-sort-key="endDate"]',
+    );
+    this.statusHeader = this.getElement("maintenance-view")?.querySelector(
+      'th[data-sort-key="status"]',
+    );
+
+    // Detail modal elements
+    this.detailModalTitle = this.getElement("maintenance-modal-title");
+    this.detailId = this.getElement("maintenance-detail-id");
+    this.detailStart = this.getElement("maintenance-detail-start");
+    this.detailEnd = this.getElement("maintenance-detail-end");
+    this.detailItem = this.getElement("maintenance-detail-item");
+    this.detailTech = this.getElement("maintenance-detail-tech");
+    this.detailDesc = this.getElement("maintenance-detail-desc");
+    this.detailTotal = this.getElement("maintenance-detail-total");
+    this.statusBadge = this.getElement("maintenance-status-badge");
+    this.operationsList = this.getElement("operations-list");
+    this.itemMaintenanceHistory = this.getElement("item-maintenance-history");
+    this.itemMaintenanceHistorySection = this.getElement(
+      "item-maintenance-history-section",
+    );
+    this.addOperationBtn = this.getElement("add-operation-btn");
+    this.closeMaintenanceBtn = this.getElement("maintenance-close-btn");
+    this.closeConfirmAccept = this.getElement(
+      "maintenance-close-confirm-accept",
+    );
+    this.closeConfirmCancel = this.getElement(
+      "maintenance-close-confirm-cancel",
+    );
+    this.closeConfirmClose = this.getElement("maintenance-close-confirm-close");
+    this.closeNotesInput = this.getElement("maintenance-close-notes");
+    this.closeStillBrokenCheckbox = this.getElement(
+      "maintenance-close-still-broken",
+    );
+
+    // Add operation form elements
+    this.operationForm = this.getElement("add-operation-form");
+    this.operationDescInput = this.getElement("operation-desc");
+    this.operationCostInput = this.getElement("operation-cost");
+    this.operationStartInput = this.getElement("operation-start");
+    this.operationEndInput = this.getElement("operation-end");
+    this.addOperationCancelBtn = this.getElement("add-operation-cancel");
+
+    this.isEditingOperation = false;
+    this.currentOperationIndex = null;
+    this.currentMaintenance = null;
+
+    this.currentMaintenanceId = null;
+    this.canEditOperations = false;
+  }
+
+  setupModals() {
+    this.registerModals({
+      "maintenance-detail-modal": {
+        closeButtons: ["maintenance-detail-close"],
+      },
+      "add-operation-modal": {
+        closeButtons: ["add-operation-close"],
+      },
+      "maintenance-close-confirm-modal": {
+        options: {
+          onOpen: () => {
+            if (this.closeNotesInput) this.closeNotesInput.value = "";
+            if (this.closeStillBrokenCheckbox)
+              this.closeStillBrokenCheckbox.checked = false;
+          },
+        },
+      },
+    });
+  }
+
+  setupEventListeners() {
+    this.addOperationBtn?.addEventListener("click", () => {
+      this.addOperation();
+    });
+
+    this.closeMaintenanceBtn?.addEventListener("click", () => {
+      this.openModal("maintenance-close-confirm-modal");
+    });
+
+    this.closeConfirmAccept?.addEventListener("click", () => {
+      this.handleCloseMaintenance();
+    });
+
+    const closeConfirm = () =>
+      this.closeModal("maintenance-close-confirm-modal");
+    this.closeConfirmCancel?.addEventListener("click", closeConfirm);
+    this.closeConfirmClose?.addEventListener("click", closeConfirm);
+
+    this.addOperationCancelBtn?.addEventListener("click", () => {
+      this.closeModal("add-operation-modal");
+    });
+
+    this.operationForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      this.handleSubmitOperation();
+    });
+  }
+
+  getFilteredHistory() {
+    const history = this.presenter.getMaintenanceHistory();
+
+    // Apply search filter
+    const searchFiltered = this.applyFilter(
+      history,
+      (entry) => [
+        entry.date,
+        entry.itemName,
+        entry.type,
+        entry.tech || "",
+        entry.desc || "",
+      ],
+      this.searchQuery,
+    );
+
+    // Apply advanced filters
+    return this.applyAdvancedFilters(searchFiltered);
+  }
+
+  getSortedHistory() {
+    const history = this.getFilteredHistory();
+    return this.applySorting(history, {
+      date: (entry) => entry.date,
+      objectName: (entry) => entry.itemName.toLowerCase(),
+      type: (entry) => entry.type.toLowerCase(),
+      tech: (entry) => (entry.tech || "").toLowerCase(),
+      desc: (entry) => (entry.desc || "").toLowerCase(),
+      status: (entry) => (entry.status || "").toLowerCase(),
+    });
+  }
+
+  render() {
+    if (!this.tbody) return;
+    this.tbody.innerHTML = "";
+
+    const currentUser = this.presenter.getCurrentUser?.();
+    const hideEndDate = currentUser && currentUser.role === "technician";
+    const hideStatus = currentUser && currentUser.role === "technician";
+
+    if (this.endDateHeader) {
+      this.endDateHeader.style.display = hideEndDate ? "none" : "table-cell";
+    }
+    if (this.statusHeader) {
+      this.statusHeader.style.display = hideStatus ? "none" : "table-cell";
+    }
+
+    const history = this.getSortedHistory();
+
+    if (history.length === 0) {
+      const tr = document.createElement("tr");
+      const totalColumns = 8;
+      const hiddenCount = (hideEndDate ? 1 : 0) + (hideStatus ? 1 : 0);
+      const colspan = totalColumns - hiddenCount;
+      tr.innerHTML = `<td colspan="${colspan}" style="text-align: center; color: var(--text-muted);">No maintenance records</td>`;
+      this.tbody.appendChild(tr);
+      return;
+    }
+
+    history.forEach((entry) => {
+      const tr = document.createElement("tr");
+      tr.className = "table-row";
+      tr.dataset.maintenanceId = entry.id;
+
+      const idCell = document.createElement("td");
+      idCell.textContent = entry.id;
+
+      const startCell = document.createElement("td");
+      startCell.textContent = entry.startDate;
+
+      const endCell = document.createElement("td");
+      endCell.textContent = entry.endDate;
+      if (hideEndDate) endCell.style.display = "none";
+
+      const itemCell = document.createElement("td");
+      itemCell.textContent = entry.itemName;
+
+      const techCell = document.createElement("td");
+      techCell.textContent = entry.tech || "-";
+
+      const descCell = document.createElement("td");
+      descCell.textContent = entry.desc || "-";
+
+      const costCell = document.createElement("td");
+      costCell.style.fontWeight = "600";
+      costCell.style.color = "var(--primary)";
+      costCell.style.textAlign = "right";
+      costCell.textContent = `€${entry.totalCost.toFixed(2)}`;
+
+      const statusCell = document.createElement("td");
+      const statusBadge = document.createElement("span");
+      statusBadge.className =
+        entry.status === "closed"
+          ? "badge badge-danger"
+          : "badge badge-success";
+      statusBadge.textContent = entry.status === "closed" ? "closed" : "open";
+      statusBadge.style.whiteSpace = "nowrap";
+      statusCell.appendChild(statusBadge);
+      statusCell.style.textAlign = "right";
+
+      tr.append(idCell, startCell);
+      if (!hideEndDate) tr.append(endCell);
+      tr.append(itemCell, techCell, descCell, costCell);
+      if (!hideStatus) tr.append(statusCell);
+      tr.addEventListener("click", () => this.showMaintenanceDetails(entry.id));
+      this.tbody.appendChild(tr);
+    });
+  }
+
+  showMaintenanceDetails(id) {
+    const maintenance = this.presenter.getMaintenanceById(id);
+    if (!maintenance) return;
+
+    this.currentMaintenanceId = id;
+    this.detailModalTitle.textContent = `Maintenance #${id}`;
+    this.detailId.textContent = id;
+    this.detailStart.textContent = maintenance.startDate;
+    this.detailEnd.textContent = maintenance.endDate || "-";
+    this.detailItem.textContent = maintenance.itemName;
+
+    this.detailTech.textContent = maintenance.tech || "-";
+    const detailPhone = this.getElement("maintenance-detail-phone");
+    if (detailPhone) {
+      detailPhone.textContent = maintenance.phoneNumber || "-";
+    }
+    this.detailDesc.textContent = maintenance.desc || "-";
+    this.detailTotal.textContent = `€${maintenance.totalCost.toFixed(2)}`;
+
+    // Update status badge
+    if (this.statusBadge) {
+      const isOpen = maintenance.status !== "closed";
+      this.statusBadge.textContent = isOpen ? "Open" : "Closed";
+      this.statusBadge.className = isOpen
+        ? "badge badge-success"
+        : "badge badge-danger";
+    }
+
+    const currentUser = this.presenter.getCurrentUser?.();
+    const canTechnicianEdit =
+      currentUser &&
+      currentUser.role === "technician" &&
+      currentUser.email === maintenance.tech &&
+      maintenance.status !== "closed";
+
+    this.canEditOperations = canTechnicianEdit;
+
+    if (this.closeMaintenanceBtn) {
+      this.closeMaintenanceBtn.style.display = canTechnicianEdit
+        ? "inline-flex"
+        : "none";
+    }
+
+    if (this.addOperationBtn) {
+      // Only the assigned technician on an open maintenance can add operations
+      this.addOperationBtn.style.display = canTechnicianEdit
+        ? "inline-flex"
+        : "none";
+    }
+
+    this.renderOperations(maintenance.operations || []);
+
+    // Only show maintenance history to technicians
+    if (this.presenter.isTechnician()) {
+      if (this.itemMaintenanceHistorySection) {
+        this.itemMaintenanceHistorySection.style.display = "block";
+      }
+      this.renderItemMaintenanceHistory(maintenance.itemId);
+    } else if (this.itemMaintenanceHistorySection) {
+      this.itemMaintenanceHistorySection.style.display = "none";
+    }
+
+    this.openModal("maintenance-detail-modal");
+  }
+
+  renderItemMaintenanceHistory(objectId) {
+    if (!this.itemMaintenanceHistory || !objectId) return;
+
+    let itemMaintenances = [];
+    try {
+      itemMaintenances = this.presenter.getMaintenancesByObjectId(objectId);
+    } catch (error) {
+      this.itemMaintenanceHistory.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: var(--space-4);">Unable to load history</p>`;
+      return;
+    }
+
+    // Filter out the current maintenance and sort by date descending
+    const otherMaintenances = itemMaintenances
+      .filter((m) => m.id !== this.currentMaintenanceId)
+      .sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+
+    if (otherMaintenances.length === 0) {
+      this.itemMaintenanceHistory.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: var(--space-4);">No previous maintenance</p>`;
+      return;
+    }
+
+    this.itemMaintenanceHistory.innerHTML = "";
+
+    otherMaintenances.forEach((maint) => {
+      const maintDiv = document.createElement("div");
+      maintDiv.style.cssText = `
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: var(--space-3);
+        background: rgba(17, 24, 39, 0.01);
+        cursor: pointer;
+        transition: background-color 0.2s;
+      `;
+
+      maintDiv.onmouseover = () => {
+        maintDiv.style.backgroundColor = "rgba(17, 24, 39, 0.05)";
+      };
+      maintDiv.onmouseout = () => {
+        maintDiv.style.backgroundColor = "rgba(17, 24, 39, 0.01)";
+      };
+
+      const maintHeader = document.createElement("div");
+      maintHeader.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space-2);
+      `;
+
+      const maintId = document.createElement("span");
+      maintId.style.cssText = "font-weight: 700; color: var(--text);";
+      maintId.textContent = `Maintenance #${maint.id}`;
+
+      maintHeader.appendChild(maintId);
+
+      const maintDetails = document.createElement("div");
+      maintDetails.style.cssText = `
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-2);
+        font-size: 0.9rem;
+      `;
+
+      const details = [
+        { label: "Technician", value: maint.tech || "-" },
+        { label: "Cost", value: `€${maint.totalCost?.toFixed(2) || "0.00"}` },
+        { label: "Start Date", value: maint.startDate || "-" },
+        { label: "End Date", value: maint.endDate || "-" },
+      ];
+
+      details.forEach(({ label, value }) => {
+        const detailRow = document.createElement("div");
+        detailRow.style.cssText =
+          "display: flex; justify-content: space-between;";
+
+        const labelEl = document.createElement("span");
+        labelEl.style.cssText = "color: var(--text-muted); font-size: 0.85rem;";
+        labelEl.textContent = label;
+
+        const valueEl = document.createElement("span");
+        valueEl.style.cssText = "color: var(--text); font-weight: 600;";
+        valueEl.textContent = value;
+
+        detailRow.appendChild(labelEl);
+        detailRow.appendChild(valueEl);
+        maintDetails.appendChild(detailRow);
+      });
+
+      maintDiv.appendChild(maintHeader);
+      maintDiv.appendChild(maintDetails);
+
+      // Add click handler to view history maintenance details
+      maintDiv.addEventListener("click", () => {
+        this.currentMaintenanceId = maint.id;
+        this.showMaintenanceDetails(maint.id);
+      });
+
+      this.itemMaintenanceHistory.appendChild(maintDiv);
+    });
+  }
+
+  handleCloseMaintenance() {
+    if (!this.currentMaintenanceId) return;
+    const maintenance = this.presenter.getMaintenanceById(
+      this.currentMaintenanceId,
+    );
+    if (!maintenance || maintenance.status === "closed") return;
+
+    const closeOptions = {
+      notes: this.closeNotesInput?.value.trim() || "",
+      stillBroken: Boolean(this.closeStillBrokenCheckbox?.checked),
+    };
+
+    if (!closeOptions.notes) {
+      this.mediator?.toaster?.error(VALIDATION_ERRORS.REQUIRED);
+      this.closeNotesInput?.focus();
+      return;
+    }
+
+    const success = this.presenter.closeMaintenance(
+      this.currentMaintenanceId,
+      closeOptions,
+    );
+    if (success) {
+      const updated = this.presenter.getMaintenanceById(
+        this.currentMaintenanceId,
+      );
+      if (updated) {
+        this.detailEnd.textContent = updated.endDate || "-";
+      }
+      if (this.closeMaintenanceBtn) {
+        this.closeMaintenanceBtn.style.display = "none";
+      }
+      this.closeModal("maintenance-close-confirm-modal");
+      this.closeModal("maintenance-detail-modal");
+      this.render();
+      this.mediator?.toaster?.success(SUCCESS_MESSAGES.MAINTENANCE_CLOSED);
+    } else {
+      this.closeModal("maintenance-close-confirm-modal");
+      this.mediator?.toaster?.error(ERROR_MESSAGES.MAINTENANCE_FAILED);
+    }
+  }
+
+  renderOperations(operations) {
+    if (!this.operationsList) return;
+    this.operationsList.innerHTML = "";
+
+    if (operations.length === 0) {
+      const empty = document.createElement("div");
+      empty.style.padding = "var(--space-4)";
+      empty.style.textAlign = "center";
+      empty.style.color = "var(--text-muted)";
+      empty.textContent = "No operations recorded yet";
+      this.operationsList.appendChild(empty);
+      return;
+    }
+
+    operations.forEach((op, index) => {
+      const card = document.createElement("div");
+      card.style.padding = "var(--space-4)";
+      card.style.background = "#f8f9fa";
+      card.style.border = "1px solid #dee2e6";
+      card.style.borderRadius = "var(--radius-sm)";
+      card.style.boxShadow = "0 1px 3px rgba(0, 0, 0, 0.05)";
+
+      // Container with header (Report title and Edit button)
+      const headerDiv = document.createElement("div");
+      headerDiv.style.display = "flex";
+      headerDiv.style.justifyContent = "space-between";
+      headerDiv.style.alignItems = "center";
+      headerDiv.style.marginBottom = "var(--space-2)";
+
+      const reportTitle = document.createElement("div");
+      reportTitle.textContent = "Report";
+      reportTitle.style.fontSize = "1rem";
+      reportTitle.style.fontWeight = "700";
+      reportTitle.style.color = "var(--text-primary)";
+      reportTitle.style.letterSpacing = "0";
+      headerDiv.appendChild(reportTitle);
+
+      if (this.canEditOperations) {
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.className = "btn btn-secondary btn-sm";
+        editBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.openEditOperation(index);
+        });
+        headerDiv.appendChild(editBtn);
+      }
+
+      // Main grid: Left column (Description + Start Date) | Right column (Cost + End Date)
+      const mainGrid = document.createElement("div");
+      mainGrid.style.display = "grid";
+      mainGrid.style.gridTemplateColumns = "1fr 1fr";
+      mainGrid.style.gap = "var(--space-3)";
+
+      // Left column
+      const leftCol = document.createElement("div");
+      leftCol.style.display = "flex";
+      leftCol.style.flexDirection = "column";
+      leftCol.style.gap = "var(--space-3)";
+
+      // Description in left column
+      const descDiv = document.createElement("div");
+      const descLabel = document.createElement("div");
+      descLabel.textContent = "DESCRIPTION";
+      descLabel.style.fontSize = "0.75rem";
+      descLabel.style.fontWeight = "600";
+      descLabel.style.color = "var(--text-muted)";
+      descLabel.style.letterSpacing = "0.05em";
+      descLabel.style.marginBottom = "var(--space-1)";
+
+      const descValue = document.createElement("div");
+      descValue.textContent = op.desc;
+      descValue.style.fontSize = "0.875rem";
+      descValue.style.color = "var(--text-primary)";
+
+      descDiv.appendChild(descLabel);
+      descDiv.appendChild(descValue);
+
+      // Start Date in left column
+      const startDateDiv = document.createElement("div");
+      const startLabel = document.createElement("div");
+      startLabel.textContent = "START DATE";
+      startLabel.style.fontSize = "0.75rem";
+      startLabel.style.fontWeight = "600";
+      startLabel.style.color = "var(--text-muted)";
+      startLabel.style.marginBottom = "var(--space-1)";
+      startLabel.style.letterSpacing = "0.05em";
+
+      const startValue = document.createElement("div");
+      startValue.textContent = op.startDate || "-";
+      startValue.style.fontSize = "0.875rem";
+      startValue.style.color = "var(--text-primary)";
+
+      startDateDiv.appendChild(startLabel);
+      startDateDiv.appendChild(startValue);
+
+      leftCol.appendChild(descDiv);
+      leftCol.appendChild(startDateDiv);
+
+      // Right column
+      const rightCol = document.createElement("div");
+      rightCol.style.display = "flex";
+      rightCol.style.flexDirection = "column";
+      rightCol.style.gap = "var(--space-3)";
+
+      // Cost in right column
+      const costDiv = document.createElement("div");
+      const costLabel = document.createElement("div");
+      costLabel.textContent = "COST";
+      costLabel.style.fontSize = "0.75rem";
+      costLabel.style.fontWeight = "600";
+      costLabel.style.color = "var(--text-muted)";
+      costLabel.style.letterSpacing = "0.05em";
+      costLabel.style.marginBottom = "var(--space-1)";
+
+      const costValue = document.createElement("div");
+      costValue.textContent = `€${op.cost.toFixed(2)}`;
+      costValue.style.fontSize = "1.125rem";
+      costValue.style.fontWeight = "600";
+      costValue.style.color = "var(--primary)";
+
+      costDiv.appendChild(costLabel);
+      costDiv.appendChild(costValue);
+
+      // End Date in right column
+      const endDateDiv = document.createElement("div");
+      const endLabel = document.createElement("div");
+      endLabel.textContent = "END DATE";
+      endLabel.style.fontSize = "0.75rem";
+      endLabel.style.fontWeight = "600";
+      endLabel.style.color = "var(--text-muted)";
+      endLabel.style.marginBottom = "var(--space-1)";
+      endLabel.style.letterSpacing = "0.05em";
+
+      const endValue = document.createElement("div");
+      endValue.textContent = op.endDate || "-";
+      endValue.style.fontSize = "0.875rem";
+      endValue.style.color = "var(--text-primary)";
+
+      endDateDiv.appendChild(endLabel);
+      endDateDiv.appendChild(endValue);
+
+      rightCol.appendChild(costDiv);
+      rightCol.appendChild(endDateDiv);
+
+      mainGrid.appendChild(leftCol);
+      mainGrid.appendChild(rightCol);
+
+      card.appendChild(headerDiv);
+      card.appendChild(mainGrid);
+
+      this.operationsList.appendChild(card);
+    });
+  }
+
+  addOperation() {
+    if (!this.currentMaintenanceId) {
+      this.mediator.toaster.error(ERROR_MESSAGES.NO_MAINTENANCE_SELECTED);
+      return;
+    }
+
+    // Reset form
+    this.operationForm.reset();
+    this.isEditingOperation = false;
+    this.currentOperationIndex = null;
+
+    // Set default dates to maintenance dates
+    const maintenance = this.presenter.getMaintenanceById(
+      this.currentMaintenanceId,
+    );
+    if (maintenance) {
+      // Convert DD/MM/YYYY to YYYY-MM-DD for input[type="date"]
+      const formatDateForInput = (dateStr) => {
+        const [day, month, year] = dateStr.split("/");
+        return `${year}-${month}-${day}`;
+      };
+
+      this.operationStartInput.value = formatDateForInput(
+        maintenance.startDate,
+      );
+      const effectiveEndDate = maintenance.endDate || maintenance.startDate;
+      this.operationEndInput.value = formatDateForInput(effectiveEndDate);
+    }
+
+    this.openModal("add-operation-modal");
+  }
+
+  openEditOperation(index) {
+    if (!this.canEditOperations || !this.currentMaintenanceId) return;
+
+    const maintenance = this.presenter.getMaintenanceById(
+      this.currentMaintenanceId,
+    );
+    if (
+      !maintenance ||
+      !maintenance.operations ||
+      !maintenance.operations[index]
+    )
+      return;
+
+    const op = maintenance.operations[index];
+    this.isEditingOperation = true;
+    this.currentOperationIndex = index;
+
+    this.operationDescInput.value = op.desc || "";
+    this.operationCostInput.value = typeof op.cost === "number" ? op.cost : "";
+
+    const formatDateForInput = (dateStr) => {
+      if (!dateStr) return "";
+      const [day, month, year] = dateStr.split("/");
+      return `${year}-${month}-${day}`;
+    };
+
+    this.operationStartInput.value = formatDateForInput(op.startDate);
+    this.operationEndInput.value = formatDateForInput(
+      op.endDate || op.startDate,
+    );
+
+    this.openModal("add-operation-modal");
+  }
+
+  handleSubmitOperation() {
+    const desc = this.operationDescInput.value.trim();
+    const cost = parseFloat(this.operationCostInput.value);
+    const startDate = this.operationStartInput.value;
+    const endDate = this.operationEndInput.value;
+
+    if (!desc || Number.isNaN(cost) || !startDate || !endDate) {
+      this.mediator.toaster.error(VALIDATION_ERRORS.FIX_ERRORS);
+      return;
+    }
+
+    const formatDateForDisplay = (dateStr) => {
+      const [year, month, day] = dateStr.split("-");
+      return `${day}/${month}/${year}`;
+    };
+
+    const operationPayload = {
+      desc,
+      cost,
+      startDate: formatDateForDisplay(startDate),
+      endDate: formatDateForDisplay(endDate),
+    };
+
+    let success = false;
+    if (this.isEditingOperation && this.currentOperationIndex !== null) {
+      success = this.presenter.updateOperation(
+        this.currentMaintenanceId,
+        this.currentOperationIndex,
+        operationPayload,
+      );
+    } else {
+      success = this.presenter.addOperation(
+        this.currentMaintenanceId,
+        operationPayload,
+      );
+    }
+
+    if (success) {
+      this.closeModal("add-operation-modal");
+      this.mediator.toaster.success(
+        this.isEditingOperation
+          ? SUCCESS_MESSAGES.OPERATION_UPDATED
+          : SUCCESS_MESSAGES.OPERATION_ADDED,
+      );
+
+      const maintenance = this.presenter.getMaintenanceById(
+        this.currentMaintenanceId,
+      );
+      if (maintenance) {
+        this.detailTotal.textContent = `€${maintenance.totalCost.toFixed(2)}`;
+        this.renderOperations(maintenance.operations || []);
+      }
+
+      this.render();
+    } else {
+      this.mediator.toaster.error(
+        this.isEditingOperation
+          ? "Failed to update operation"
+          : "Failed to add operation",
+      );
+    }
+  }
+}
+
+export function initMaintenanceView(presenter, mediator) {
+  return new MaintenanceView(presenter, mediator);
+}

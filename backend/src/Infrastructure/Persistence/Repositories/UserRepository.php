@@ -1,7 +1,6 @@
 <?php
 
 use PDO;
-use Application\Domain\Entities\User;
 
 require_once __DIR__ . '/../../../Domain/Entities/User.php';
 
@@ -24,7 +23,7 @@ class UserRepository
 
         $stmt->execute([
             'email' => $user->getEmail(),
-            'pass'  => $user->getPassword(), //hashed Password
+            'pass'  => $user->getPass(), //hashed Password
             'role'  => $user->getRole() 
         ]);
 
@@ -112,15 +111,27 @@ class UserRepository
         return null; // Technician not found
     }
 
+    public function getAllTechnicians() : array {
+        $stmt = $this->connection->prepare("SELECT * FROM user WHERE role = 2");
+        $stmt->execute();
+        
+        $technicians = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $technicians[] = $this->mapRowToUser($row);
+        }
+
+        return $technicians;
+    }
+
     //Convert a database row to a User entity
     private function mapRowToUser(array $row): User
     {
         $user = new User(
+            $row['id'],
             $row['email'], 
             $row['pass'], 
             $row['role']
         );
-        $user->setId((int) $row['id']);
         return $user;
     }
 
