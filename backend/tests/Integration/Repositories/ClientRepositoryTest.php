@@ -1,17 +1,16 @@
 <?php
 
-// PERCORSO CORRETTO (Senza 'src')
-// Risaliamo di 3 livelli: Repositories -> Integration -> tests -> ROOT
-require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ClientRepository.php';
+require_once __DIR__ . '/../../../src/Infrastructure/Persistence/Repositories/ClientRepository.php';
+require_once __DIR__ . '/../../../src/Domain/Entities/Client.php';
+
 
 echo "===== Inizio Test Integrazione: ClientRepository =====\n";
 
 // --- CONFIGURAZIONE DATABASE ---
-// ATTENZIONE: Inserisci qui i dati del tuo container Docker
-$host = '127.0.0.1'; // Usa '127.0.0.1' se lanci il test dal Mac, oppure 'db' se lo lanci da dentro Docker
-$dbname = 'inventory'; 
+$host = '127.0.0.1'; 
+$dbname = 'laboratorio_inventario'; 
 $user = 'root';    
-$pass = 'root'; // <--- Controlla se la password è corretta (a volte è vuota o diversa)
+$pass = 'root';
 $port = '3306';
 
 try {
@@ -22,23 +21,22 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);
 
-    // 2. AVVIO TRANSAZIONE (Il trucco per non sporcare il DB)
+    // 2. AVVIO TRANSAZIONE (per non sporcare il DB)
     $pdo->beginTransaction();
     echo "🔌 Connessione DB riuscita. Transazione avviata (i dati verranno rimossi alla fine).\n";
 
     $repo = new ClientRepository($pdo);
     
     // Dati di prova univoci
-    $timestamp = time();
-    $email = "test.manuale.$timestamp@example.com"; 
-    $nome = 'MarioTest';
-    $cognome = 'RossiTest';
+    $email = "MR@test.it";
+    $nome = "Mario";
+    $cognome = "Rossi";
 
     // --- TEST 1: Creazione (Create) ---
     echo "Test 1: Creazione Client... ";
     
-    // Istanziamo l'entità (Assicurati che i parametri costruttore siano in quest'ordine: email, nome, cognome, stato)
-    $client = new \Application\Domain\Entities\Client($email, $nome, $cognome, 1);
+    // Istanziamo l'entità
+    $client = new Client(null,$email, $nome, $cognome);
     
     $repo->create($client);
     $newId = $client->getId();
@@ -48,6 +46,8 @@ try {
     } else {
         throw new Exception("Errore: L'ID non è stato generato dopo la create().");
     }
+
+    // echo "client ID = " . $client->getId() . ", email = " . $client->getEmail() . ", name = " . $client->getName() . ", surname = " . $client->getSurname() . ", state = " . $client->getState() . "\n";
 
     // --- TEST 2: Lettura (FindById) ---
     echo "Test 2: Ricerca per ID... ";
@@ -60,6 +60,8 @@ try {
         echo "❌ FAIL (Client non trovato o dati non corrispondenti)\n";
     }
 
+    // echo "client ID = " . $foundClient->getId() . ", email = " . $foundClient->getEmail() . ", name = " . $foundClient->getName() . ", surname = " . $foundClient->getSurname() . ", state = " . $foundClient->getState() . "\n";
+    
     // --- TEST 3: Aggiornamento (Update) ---
     echo "Test 3: Aggiornamento dati... ";
     $client->setName("LuigiUpdated");
@@ -74,22 +76,25 @@ try {
         echo "❌ FAIL (Il nome nel DB è ancora: " . $updatedClient->getName() . ")\n";
     }
 
+    // echo "client ID = " . $updatedClient->getId() . ", email = " . $updatedClient->getEmail() . ", name = " . $updatedClient->getName() . ", surname = " . $updatedClient->getSurname() . ", state = " . $updatedClient->getState() . "\n";
+
     // --- TEST 4: Blocco Utente (Block) ---
     echo "Test 4: Blocco utente (state = 0)... ";
     $repo->blockClient($newId);
     
     $blockedClient = $repo->findById($newId);
     
-    // Nota: A volte PDO restituisce gli interi come stringhe o boolean come int, quindi facciamo un cast a (int)
+
     if ((int)$blockedClient->getState() === 0) { 
         echo "✅ PASS\n";
     } else {
         echo "❌ FAIL (Stato attuale: " . $blockedClient->getState() . ")\n";
     }
 
+    // echo "client ID = " . $blockedClient->getId() . ", email = " . $blockedClient->getEmail() . ", name = " . $blockedClient->getName() . ", surname = " . $blockedClient->getSurname() . ", state = " . $blockedClient->getState() . "\n";
+
 } catch (PDOException $e) {
     echo "\n⚠️ ERRORE CONNESSIONE DB: " . $e->getMessage() . "\n";
-    echo "Suggerimento: Verifica user/password in cima al file e che il container DB sia acceso.\n";
 } catch (Exception $e) {
     echo "\n⚠️ ERRORE LOGICO: " . $e->getMessage() . "\n";
 } finally {
