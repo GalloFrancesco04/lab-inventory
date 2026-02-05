@@ -61,7 +61,7 @@ class LoanRepository{
 
         $stmt->execute([
             'notes' => $notes,
-            'id' => $loanId
+            'loanId' => $loanId
         ]);
     }
 
