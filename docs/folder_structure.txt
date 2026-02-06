@@ -80,7 +80,18 @@ INGSW-2526-T14/
 │   │   └── Infrastructure/
 │   │       ├── Persistence/
 │   │       │   ├── Connection/
+│   │       │   |   └──TansactionManager.php
+│   │       │   |
 │   │       │   └── Repositories/
+|   |       |       ├──UserRepository.php
+|   |       |       ├──ClientRepository.php
+|   |       |       ├──ObjectTypeRepository.php
+|   |       |       ├──ItemRepository.php
+|   |       |       ├──LoanRepository.php
+|   |       |       ├──LoanedObjectRepository.php
+|   |       |       ├──MaintenanceRepository.php
+|   |       |       └──OperationRepository.php
+|   |       |
 │   │       └── Security/
 │   │           ├── PasswordHasher.php
 │   │           └── SessionManager.php
@@ -98,14 +109,24 @@ INGSW-2526-T14/
 │       │       └── Users/
 │       │
 │       └── Integration/
-│           └── Controllers/
-│               ├── AuthControllerTest.php
-│               ├── ClientControllerTest.php
-│               ├── LoanControllerTest.php
-│               ├── MaintenanceControllerTest.php
-│               ├── ObjectControllerTest.php
-│               ├── ObjectTypeControllerTest.php
-│               └── OperationControllerTest.php
+│           ├── Controllers/
+│           |   ├── AuthControllerTest.php
+│           |   ├── ClientControllerTest.php
+│           |   ├── LoanControllerTest.php
+│           |   ├── MaintenanceControllerTest.php
+│           |   ├── ObjectControllerTest.php
+│           |   ├── ObjectTypeControllerTest.php
+│           |   └── OperationControllerTest.php
+|           |
+|           └──Repositories/
+|              ├──UserRepositoryTest.php
+|              ├──ClientRepositoryTest.php
+|              ├──ObjectTypeRepositoryTest.php
+|              ├──ItemRepositoryTest.php
+|              ├──LoanedObjectRepositoryTest.php
+|              ├──LoanRepositoryTest.php
+|              ├──MaintenanceRepositoryTest.php
+|              └── OperationRepositoryTest.php
 │
 └── frontend/
     ├── index.html
