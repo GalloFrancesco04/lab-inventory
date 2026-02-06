@@ -232,9 +232,9 @@ class MaintenanceRepository
 
         $objects = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $objects[] = new Items(
-                $row['object_type_code'],
+            $objects[] = new InventoryItem(
                 (int)$row['id'],
+                $row['object_type_code'],
                 $row['state'],
                 $row['location']
             );

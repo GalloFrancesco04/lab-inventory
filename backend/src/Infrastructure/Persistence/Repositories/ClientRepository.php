@@ -2,10 +2,7 @@
 
 require_once __DIR__ . '/../../../Domain/Entities/Client.php';
 
-use PDO;
-
-
-require_once __DIR__ . '/../../../Domain/Entities/Client.php';
+// use PDO;
 
 class ClientRepository
 {
@@ -147,13 +144,16 @@ class ClientRepository
 
     private function mapRowToClient(array $row): Client
     {
-        $client = new Client();
+        $client = new Client(
+            (int) $row['id'],
+            $row['email'],
+            $row['name'],
+            $row['surname'],
+            (int) $row['state']
+        );
 
-        $client->setId((int) $row['id']);
-        $client->setEmail($row['email']);
-        $client->setName($row['name']);
-        $client->setSurname($row['surname']);
-        $client->setState($row['state']);
+        // $client->setId((int) $row['id']);
+        
         return $client;
     }
 }
