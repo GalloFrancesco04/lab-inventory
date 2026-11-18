@@ -3,6 +3,7 @@ import { FormValidator } from "../../utils/Validators.js";
 export class NewItemForm {
   constructor({
     form,
+    codeInput,
     nameInput,
     descriptionInput,
     brandInput,
@@ -13,6 +14,7 @@ export class NewItemForm {
     onCreate,
   }) {
     this.form = form;
+    this.codeInput = codeInput;
     this.nameInput = nameInput;
     this.descriptionInput = descriptionInput;
     this.brandInput = brandInput;
@@ -39,6 +41,7 @@ export class NewItemForm {
   validate() {
     this.validator.clearAll();
 
+    const codeOk = this.validator.required(this.codeInput, "Code is required");
     const nameOk = this.validator.required(
       this.nameInput,
       "Type name is required",
@@ -61,7 +64,7 @@ export class NewItemForm {
       }
     }
 
-    if (!nameOk || !quantityOk || !quantityValueOk) {
+    if (!codeOk || !nameOk || !quantityOk || !quantityValueOk) {
       this.validator.displayErrors();
       if (this.toaster) this.toaster.error("Fix the highlighted errors");
       this.validator.focusFirstError();
@@ -75,12 +78,9 @@ export class NewItemForm {
     e.preventDefault();
     if (!this.validate()) return;
 
-    const typeName = this.nameInput?.value?.trim() || "";
-    const code = typeName.substring(0, 4).toUpperCase().padEnd(4, "X");
-
     const typeData = {
-      name: typeName,
-      code: code,
+      name: this.nameInput?.value?.trim() || "",
+      code: this.codeInput?.value?.trim().toUpperCase() || "",
       description: this.descriptionInput?.value?.trim() || "",
       brand: this.brandInput?.value?.trim() || "",
       model: this.modelInput?.value?.trim() || "",

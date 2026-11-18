@@ -51,13 +51,13 @@ export class InventoryPresenter extends BasePresenter {
 
     return {
       id: object.id,
+      typeCode: object.objectTypeCode,
       name: objectType ? objectType.name : "Unknown",
       type: objectType ? objectType.name : "Unknown",
       brand: objectType ? objectType.brand : "Unknown",
       model: objectType ? objectType.model : "Unknown",
       status: stateToStatus(object.state),
       location: object.location,
-      imageUrl: null,
       maintenance: maintenance,
     };
   }

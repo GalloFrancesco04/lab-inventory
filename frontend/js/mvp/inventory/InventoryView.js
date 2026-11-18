@@ -1,4 +1,5 @@
 import { BaseView } from "../core/BaseView.js";
+import { formatDate } from "../../utils/Transformers.js";
 import { FormValidator } from "../../utils/Validators.js";
 import { ItemDetailModal } from "./modals/ItemDetailModal.js";
 import { ObjectListModal } from "./modals/ObjectListModal.js";
@@ -27,6 +28,7 @@ class InventoryView extends BaseView {
   setupElements() {
     // New Item Modal
     this.newItemForm = this.getElement("new-item-form");
+    this.newItemCode = this.getElement("new-item-code");
     this.newItemName = this.getElement("new-item-name");
     this.newItemDescription = this.getElement("new-item-description");
     this.newItemBrand = this.getElement("new-item-brand");
@@ -35,15 +37,12 @@ class InventoryView extends BaseView {
     this.newItemLocation = this.getElement("new-item-location");
     this.newItemNote = this.getElement("new-item-description");
     this.newItemBtn = this.getElement("new-item-btn");
-    this.newTypeBtn = this.getElement("new-type-btn");
 
     // New Instance Modal
     this.newInstanceForm = this.getElement("new-instance-form");
     this.newInstanceLocation = this.getElement("new-instance-location");
 
     // New Type Modal
-    this.newTypeForm = this.getElement("new-type-form");
-    this.newTypeName = this.getElement("new-type-name");
 
     // Detail Modal
     this.itemTitle = this.getElement("item-modal-title");
@@ -54,7 +53,6 @@ class InventoryView extends BaseView {
     this.itemLocation = this.getElement("item-location");
     this.itemBrand = this.getElement("item-brand");
     this.itemModel = this.getElement("item-model");
-    this.itemNote = this.getElement("item-note");
     this.maintTbody = this.getElement("item-maintenance-tbody");
 
     // Edit Item Modal
@@ -64,7 +62,6 @@ class InventoryView extends BaseView {
     this.editItemModel = this.getElement("edit-item-model");
     this.editItemLocation = this.getElement("edit-item-location");
     this.editItemStatus = this.getElement("edit-item-status");
-    this.editItemNote = this.getElement("edit-item-note");
     this.editItemBtn = this.getElement("edit-item-btn");
 
     // Buttons
@@ -96,6 +93,7 @@ class InventoryView extends BaseView {
 
     this.newItemFormHandler = new NewItemForm({
       form: this.newItemForm,
+      codeInput: this.newItemCode,
       nameInput: this.newItemName,
       descriptionInput: this.newItemNote,
       brandInput: this.newItemBrand,
@@ -113,7 +111,7 @@ class InventoryView extends BaseView {
             this.closeModal("new-item-modal");
             return true;
           }
-          this.mediator.toaster.error("Unable to add type");
+          this.mediator.toaster.error("A type with this code already exists");
           return false;
         } catch (error) {
           this.handleError("Unable to add type", error);
@@ -134,7 +132,6 @@ class InventoryView extends BaseView {
         location: this.itemLocation,
         brand: this.itemBrand,
         model: this.itemModel,
-        note: this.itemNote,
       },
       renderMaintenance: (list) => this.renderMaintenance(list),
       sendToMaintenanceBtn: this.sendToMaintBtn,
@@ -181,21 +178,11 @@ class InventoryView extends BaseView {
       "new-item-modal": {
         options: {
           onOpen: () => {
-            this.populateObjectTypes();
             this.newItemFormHandler?.reset();
           },
           onClose: () => this.newItemFormHandler?.reset(),
         },
         closeButtons: ["new-item-close", "new-item-cancel"],
-      },
-      "new-type-modal": {
-        options: {
-          onOpen: () => {
-            this.newTypeForm?.reset();
-          },
-          onClose: () => this.newTypeForm?.reset(),
-        },
-        closeButtons: ["new-type-close", "new-type-cancel"],
       },
       "item-detail-modal": {
         closeButtons: ["item-detail-close"],
@@ -239,68 +226,10 @@ class InventoryView extends BaseView {
     });
   }
 
-  populateObjectTypes() {
-    let types = [];
-    try {
-      types = this.presenter.getItemTypes();
-    } catch (error) {
-      this.handleError("Unable to load item types", error);
-      return;
-    }
-    this.newItemType.innerHTML = '<option value="">Select a type...</option>';
-    types.forEach((type) => {
-      const option = document.createElement("option");
-      option.value = type.name;
-      option.textContent = type.name;
-      this.newItemType.appendChild(option);
-    });
-  }
-
   setupEventListeners() {
     // New Item Button
     this.newItemBtn?.addEventListener("click", () => {
       this.openModal("new-item-modal");
-    });
-
-    // New Type Button
-    this.newTypeBtn?.addEventListener("click", () => {
-      this.openModal("new-type-modal");
-    });
-
-    // New Type Form
-    this.newTypeForm?.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const typeName = this.newTypeName?.value?.trim();
-
-      if (!typeName) {
-        this.mediator.toaster.error("Type name is required");
-        return;
-      }
-
-      try {
-        const code = typeName.substring(0, 4).toUpperCase().padEnd(4, "X");
-        const typeData = {
-          name: typeName,
-          code: code,
-          description: "",
-          brand: "Various",
-          model: "Various",
-          quantity: 0,
-        };
-        const newType = await this.presenter.addObjectType(typeData);
-        if (newType) {
-          this.mediator.toaster.success(
-            `Type "${newType.name}" created successfully`,
-          );
-          this.closeModal("new-type-modal");
-          this.populateObjectTypes();
-          this.newItemType.value = newType.name;
-        } else {
-          this.mediator.toaster.error("Type already exists or invalid name");
-        }
-      } catch (error) {
-        this.handleError("Unable to create type", error);
-      }
     });
 
     // Event delegation for table rows
@@ -387,19 +316,12 @@ class InventoryView extends BaseView {
         }
       }
 
+      // Name, brand and model belong to the item type and are read-only here
       const payload = {
-        name: this.editItemName?.value?.trim() || "",
-        brand: this.editItemBrand?.value?.trim() || "",
-        model: this.editItemModel?.value?.trim() || "",
         location: this.editItemLocation?.value?.trim() || "",
         status: newStatus,
-        note: this.editItemNote?.value?.trim() || "",
       };
 
-      const nameOk = this.editItemValidator.required(
-        this.editItemName,
-        VALIDATION_ERRORS.REQUIRED,
-      );
       const locationOk = this.editItemValidator.required(
         this.editItemLocation,
         VALIDATION_ERRORS.REQUIRED,
@@ -409,7 +331,7 @@ class InventoryView extends BaseView {
         VALIDATION_ERRORS.REQUIRED,
       );
 
-      if (!nameOk || !locationOk || !statusOk) {
+      if (!locationOk || !statusOk) {
         this.editItemValidator.displayErrors();
         this.mediator.toaster.error(VALIDATION_ERRORS.FIX_ERRORS);
         this.editItemValidator.focusFirstError();
@@ -427,44 +349,43 @@ class InventoryView extends BaseView {
     });
   }
 
-  getFilteredItems() {
-    let items = [];
-    try {
-      items = this.presenter.getItems();
-    } catch (error) {
-      this.handleError("Unable to load items", error);
-      return [];
+  // The table lists item types; status and location filters keep the types
+  // that have at least one unit matching them
+  getVisibleTypes() {
+    const { status, type, location } = this.activeFilters || {};
+    let types = this.presenter.getItemTypes();
+
+    if (status || location) {
+      const matchingCodes = new Set(
+        this.presenter
+          .getItems()
+          .filter(
+            (item) =>
+              (!status || item.status === status) &&
+              (!location ||
+                item.location?.toLowerCase().includes(location.toLowerCase())),
+          )
+          .map((item) => item.typeCode),
+      );
+      types = types.filter((t) => matchingCodes.has(t.code));
+    }
+    if (type) {
+      types = types.filter((t) => t.code === type);
     }
 
-    // Apply search filter
-    const searchFiltered = this.applyFilter(
-      items,
-      (item) => [
-        item.id,
-        item.name,
-        item.type,
-        item.brand,
-        item.model,
-        item.status,
-        item.location,
-      ],
+    types = this.applyFilter(
+      types,
+      (t) => [t.code, t.name, t.description, t.brand, t.model],
       this.searchQuery,
     );
 
-    // Apply advanced filters
-    return this.applyAdvancedFilters(searchFiltered);
-  }
-
-  getSortedItems() {
-    const items = this.getFilteredItems();
-    return this.applySorting(items, {
-      id: (item) => item.id,
-      name: (item) => item.name.toLowerCase(),
-      type: (item) => item.type.toLowerCase(),
-      brand: (item) => (item.brand || "").toLowerCase(),
-      model: (item) => (item.model || "").toLowerCase(),
-      status: (item) => item.status.toLowerCase(),
-      location: (item) => item.location.toLowerCase(),
+    return this.applySorting(types, {
+      code: (t) => t.code.toLowerCase(),
+      name: (t) => t.name.toLowerCase(),
+      description: (t) => (t.description || "").toLowerCase(),
+      brand: (t) => (t.brand || "").toLowerCase(),
+      model: (t) => (t.model || "").toLowerCase(),
+      quantity: (t) => t.quantity,
     });
   }
 
@@ -474,7 +395,7 @@ class InventoryView extends BaseView {
     tbody.innerHTML = "";
     let types = [];
     try {
-      types = this.presenter.getItemTypes();
+      types = this.getVisibleTypes();
     } catch (error) {
       this.handleError("Unable to load item types", error);
       return;
@@ -539,7 +460,7 @@ class InventoryView extends BaseView {
       div.innerHTML = `
         <div class="maint-row">
           <div class="maint-label">Date</div>
-          <div class="maint-value">${m.startDate || "-"}</div>
+          <div class="maint-value">${formatDate(m.startDate)}</div>
         </div>
         <div class="maint-row">
           <div class="maint-label">Technician</div>
@@ -576,7 +497,6 @@ class InventoryView extends BaseView {
     if (this.editItemLocation)
       this.editItemLocation.value = item.location || "";
     if (this.editItemStatus) this.editItemStatus.value = item.status || "";
-    if (this.editItemNote) this.editItemNote.value = item.note || "";
   }
 
   openItemModal(itemId) {

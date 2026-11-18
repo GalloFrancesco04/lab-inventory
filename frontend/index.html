@@ -290,6 +290,11 @@
             </div>
             <form class="form" id="new-item-form">
                 <div class="form-group">
+                    <label for="new-item-code">Code <span style="color: var(--danger);">*</span></label>
+                    <input type="text" id="new-item-code" required pattern="[A-Za-z0-9_-]+" title="Letters, numbers, - and _ only" placeholder="e.g. NB-DELL-XPS15">
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-group">
                     <label for="new-item-name">Type Name <span style="color: var(--danger);">*</span></label>
                     <input type="text" id="new-item-name" required placeholder="e.g. Computer, Tablet, Peripherals">
                     <span class="form-error"></span>
@@ -332,9 +337,6 @@
             </div>
             <div class="detail-card">
                 <div class="item-detail-top item-detail-grid">
-                    <div class="item-image item-image-box">
-                        <span id="item-image-fallback">IMG</span>
-                    </div>
                     <div class="item-info item-info-stack">
                         <div class="item-info-col">
                             <div><strong>Name:</strong> <span id="item-name">-</span></div>
@@ -346,7 +348,6 @@
                         <div class="item-info-col">
                             <div class="item-meta-secondary"><strong>Brand:</strong> <span id="item-brand">-</span></div>
                             <div class="item-meta-secondary"><strong>Model:</strong> <span id="item-model">-</span></div>
-                            <div class="item-meta-secondary"><strong>Notes:</strong> <span id="item-note">-</span></div>
                         </div>
                         <div class="item-info-action" style="display: flex; gap: var(--space-2); flex-wrap: wrap; grid-column: 1 / -1;">
                             <button class="btn btn-primary" id="edit-item-btn">Edit Item</button>
@@ -407,18 +408,18 @@
             </div>
             <form class="form" id="edit-item-form">
                 <div class="form-group">
-                    <label for="edit-item-name">Name <span style="color: var(--danger);">*</span></label>
-                    <input type="text" id="edit-item-name" placeholder="Enter item name" required>
+                    <label for="edit-item-name">Name</label>
+                    <input type="text" id="edit-item-name" readonly>
                     <span class="form-error"></span>
                 </div>
                 <div class="form-group">
                     <label for="edit-item-brand">Brand</label>
-                    <input type="text" id="edit-item-brand" placeholder="e.g. HP, Dell">
+                    <input type="text" id="edit-item-brand" readonly>
                     <span class="form-error"></span>
                 </div>
                 <div class="form-group">
                     <label for="edit-item-model">Model</label>
-                    <input type="text" id="edit-item-model" placeholder="e.g. Pavilion 15, Latitude 5400">
+                    <input type="text" id="edit-item-model" readonly>
                     <span class="form-error"></span>
                 </div>
                 <div class="form-group">
@@ -431,13 +432,11 @@
                     <select id="edit-item-status" required>
                         <option value="">Select status</option>
                         <option value="available">Available</option>
+                        <option value="loaned" disabled>Loaned</option>
+                        <option value="maintenance" disabled>In Maintenance</option>
+                        <option value="damaged" disabled>Damaged</option>
                         <option value="outofservice">Out of Service</option>
                     </select>
-                    <span class="form-error"></span>
-                </div>
-                <div class="form-group">
-                    <label for="edit-item-note">Notes</label>
-                    <textarea id="edit-item-note" rows="3" placeholder="Optional notes about this item"></textarea>
                     <span class="form-error"></span>
                 </div>
                 <div class="form-actions">
@@ -507,26 +506,6 @@
     </div>
 
     <!-- New Object Type Modal -->
-    <div class="modal-overlay" id="new-type-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">New Object Type</h2>
-                <button class="modal-close" aria-label="Close modal" id="new-type-close">&times;</button>
-            </div>
-            <form class="form" id="new-type-form">
-                <div class="form-group">
-                    <label for="new-type-name">Type Name</label>
-                    <input type="text" id="new-type-name" required placeholder="e.g. Laptop, Monitor">
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-ghost" id="new-type-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create Type</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Client Detail Modal -->
     <div class="modal-overlay" id="client-detail-modal">
         <div class="modal-content">
             <div class="modal-header">
