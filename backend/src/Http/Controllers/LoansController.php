@@ -90,6 +90,9 @@ class LoansController {
        try {
             $command = new ViewSingleLoanCommand((int)$id);
             $loanObject = $this->mediator->send($command);
+            if (empty($loanObject)) {
+                Response::error("Not found", "NOT_FOUND", 404);
+            }
 
             // Mapping manuale
             $loanArray = $this->mapToArray($loanObject);
@@ -118,14 +121,14 @@ class LoansController {
             $objectInstances = [];
 
             foreach ($rawItems as $itemData) {
-                // retrieve id, quantity, state
+                // retrieve id, object type code, state
                 $itemId = is_array($itemData) ? ($itemData['id'] ?? null) : $itemData;
-                $quantity = is_array($itemData) ? ($itemData['quantity'] ?? 1) : 1;
+                $typeCode = is_array($itemData) ? ($itemData['object_type_code'] ?? '') : '';
                 $state = is_array($itemData) ? ($itemData['state'] ?? '1') : '1';
                 $state=(int)$state;
                 // Create InventoryItem instance
                 // Not using null coalescing here to ensure id is set
-                $item = new InventoryItem($itemId, $quantity, $state);
+                $item = new InventoryItem($itemId, $typeCode, $state);
                 
                 $objectInstances[] = $item;
             }
@@ -161,12 +164,12 @@ class LoansController {
             // Create InventoryItem instances
             foreach ($rawItems as $itemData) {
                 $itemId = is_array($itemData) ? ($itemData['id'] ?? null) : $itemData;
-                $quantity = is_array($itemData) ? ($itemData['quantity'] ?? 1) : 1;
+                $typeCode = is_array($itemData) ? ($itemData['object_type_code'] ?? '') : '';
                 $state = is_array($itemData) ? ($itemData['state'] ?? '1') : '1';
                 $state = (int)$state;
 
                 // Create InventoryItem instance
-                $item = new InventoryItem($itemId, $quantity, $state);
+                $item = new InventoryItem($itemId, $typeCode, $state);
                 
                 $objectInstances[] = $item;
             }

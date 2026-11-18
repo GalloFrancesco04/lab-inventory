@@ -87,6 +87,9 @@ class MaintenanceController {
         try {
             $command = new ViewSingleMaintenanceCommand((int)$id);
             $logObject = $this->mediator->send($command);
+            if (empty($logObject)) {
+                Response::error("Not found", "NOT_FOUND", 404);
+            }
             
             $logArray = $this->mapToArray($logObject);
             Response::success($logArray);

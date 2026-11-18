@@ -125,6 +125,9 @@ class ObjectsController {
         try {
             $command = new ViewSingleObjectCommand((int)$id);
             $obj = $this->mediator->send($command);
+            if (empty($obj)) {
+                Response::error("Not found", "NOT_FOUND", 404);
+            }
             
             // Mapping manuale
             $mappedObj = $this->mapToArray($obj);

@@ -6,7 +6,7 @@ class Router {
     public function add($method,$path,$handler){
 
         // Convert path with parameters to regex
-       $pathRegex = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([a-zA-Z0-9_]+)', $path);
+       $pathRegex = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([^/]+)', $path);
         
         // Add start and end delimiters
         $pathRegex = '#^' . $pathRegex . '$#';

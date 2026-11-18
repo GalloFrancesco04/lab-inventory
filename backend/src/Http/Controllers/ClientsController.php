@@ -110,6 +110,9 @@ class ClientsController {
         try {
             $command = new ViewSingleClientCommand((int)$id);
             $clientObject = $this->mediator->send($command);
+            if (empty($clientObject)) {
+                Response::error("Not found", "NOT_FOUND", 404);
+            }
             
             // Convert the single Object into an Array
             $clientArray = $this->mapToArray($clientObject);
