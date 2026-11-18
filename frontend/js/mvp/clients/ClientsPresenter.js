@@ -69,6 +69,12 @@ export class ClientsPresenter extends BasePresenter {
     };
   }
 
+  async deleteClient(id) {
+    await request("DELETE", `/clients/${id}`);
+    await this.db.load();
+    this.notifyListeners();
+  }
+
   async setBlocked(id, blocked) {
     await request("POST", "/clients/toggle-block", {
       id,
