@@ -35,8 +35,8 @@ export class BaseView {
     }
 
     // Setup filter callback if filterManager provided
-    if (this.mediator?.filterManager) {
-      this.mediator.filterManager.onApply((filters) =>
+    if (searchViewName && this.mediator?.filterManager) {
+      this.mediator.filterManager.onApply(searchViewName, (filters) =>
         this.handleFilters(filters),
       );
     }
