@@ -60,6 +60,15 @@ class ClientRepository
         ]);
     }
 
+    public function delete(int $id) :void
+    {
+        $stmt = $this->connection->prepare("DELETE FROM client WHERE id = :id");
+
+        $stmt->execute([
+            'id'    => $id
+        ]);
+    }
+
     public function unblockClient(int $id) :void
     {
         $stmt = $this->connection->prepare("

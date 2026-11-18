@@ -49,6 +49,7 @@ $router->add('GET',    '/api/clients',              ['ClientsController', 'getAl
 $router->add('GET', '/api/clients/{id}',            ['ClientsController', 'getById']);
 $router->add('POST',   '/api/clients',              ['ClientsController', 'create']);
 $router->add('PUT',    '/api/clients/{id}',         ['ClientsController', 'update']);
+$router->add('DELETE', '/api/clients/{id}',         ['ClientsController', 'delete']);
 $router->add('POST',   '/api/clients/toggle-block', ['ClientsController', 'toggleBlock']);
 
 // Object Types Routes
