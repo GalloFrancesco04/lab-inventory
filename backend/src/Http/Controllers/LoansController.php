@@ -45,12 +45,17 @@ class LoansController {
         return [
             'id' => method_exists($loan, 'getId') ? $loan->getId() : null,
             'client_id' => method_exists($loan, 'getClientId') ? $loan->getClientId() : null,
-            'start_date' => method_exists($loan, 'getStartDate') ? $loan->getStartDate() : null,
-            'end_date' => method_exists($loan, 'getEndDate') ? $loan->getEndDate() : null,
-            'state' => method_exists($loan, 'getState') ? $loan->getState() : null,
-            'note' => method_exists($loan, 'getNote') ? $loan->getNote() : null,
-            // Se l'entità ha un getter per gli item, usalo qui
-            'inventory_items' => method_exists($loan, 'getInventoryItems') ? $loan->getInventoryItems() : []
+            'start_date' => $loan->getStartDate()->format('Y-m-d'),
+            'end_date' => $loan->getEndDate()->format('Y-m-d'),
+            'return_date' => $loan->getReturnDate()?->format('Y-m-d'),
+            'state' => $loan->getState(),
+            'note' => $loan->getNotes(),
+            'quantity' => $loan->getQuantity(),
+            'loaned_objects' => array_map(fn($lo) => [
+                'object_id' => $lo->getObjectId(),
+                'object_type_code' => $lo->getObjectTypeCode(),
+                'damaged' => $lo->isDamaged(),
+            ], $loan->loanedObjects ?? [])
         ];
     }
 

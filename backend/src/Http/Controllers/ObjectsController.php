@@ -57,7 +57,7 @@ class ObjectsController {
             'id' => method_exists($obj, 'getId') ? $obj->getId() : null,
             'object_type_code' => method_exists($obj, 'getTypeCode') ? $obj->getTypeCode() : (method_exists($obj, 'getObjectTypeCode') ? $obj->getObjectTypeCode() : null),
             'location' => method_exists($obj, 'getLocation') ? $obj->getLocation() : null,
-            'status' => method_exists($obj, 'getStatus') ? $obj->getStatus() : null,
+            'state' => $obj->getStateCode(),
             // Additional fields can be added here as needed
         ];
     }

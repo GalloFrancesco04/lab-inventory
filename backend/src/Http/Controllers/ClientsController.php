@@ -75,7 +75,7 @@ class ClientsController {
             'email' => method_exists($client, 'getEmail') ? $client->getEmail() : null,
             'state' => method_exists($client, 'getState') ? $client->getState() : null,
             // Handle loans (if present as a public property)
-            'loans' => !empty($client->loans) ? $client->loans : []
+            'loans' => array_map(fn($loan) => $loan->getId(), $client->loans ?? [])
         ];
     }
 

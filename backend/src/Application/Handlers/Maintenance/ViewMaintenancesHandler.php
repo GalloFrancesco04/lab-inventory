@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ItemRe
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/ObjectTypeRepository.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/MaintenanceRepository.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/UserRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/OperationsRepository.php';
 require_once __DIR__ . '/../../../../config/Database.php';
 
 require_once __DIR__ . '/../../Commands/Maintenance/ViewMaintenancesCommand.php';
@@ -14,6 +15,7 @@ class ViewMaintenancesHandler {
     private $objectTypeRepository;
     private $maintenanceRepository;
     private $userRepository;
+    private $operationsRepository;
 
     public function __construct() {
         $db = new Database();
@@ -23,6 +25,7 @@ class ViewMaintenancesHandler {
         $this->objectTypeRepository = new ObjectTypeRepository($connection);
         $this->maintenanceRepository = new MaintenanceRepository($connection);
         $this->userRepository = new UserRepository($connection);
+        $this->operationsRepository = new OperationsRepository($connection);
     }
 
     public function handle(ViewMaintenancesCommand $command) {
@@ -45,6 +48,8 @@ class ViewMaintenancesHandler {
                 $object = $this->itemRepository->findById($maintenance->getObjectId());
                 $objectType = $this->objectTypeRepository->findByCode($object->getObjectTypeCode());
                 $maintenance->objectName = $objectType->getName();
+
+                $maintenance->operations = $this->operationsRepository->getAllMaintenanceOperations($maintenance->getId());
             }
 
             return $maintenances;
