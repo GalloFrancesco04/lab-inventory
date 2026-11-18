@@ -114,7 +114,7 @@ try {
 runAuthTestCase("Login User (Standard Flow)", function() use ($controller) {
     $requestData = [
         'email' => 'admin@lab.it',
-        'password' => 'sha256_hash_della_password_admin'
+        'password' => 'admin123'
     ];
     
     $req = new TestAuthRequest($requestData);

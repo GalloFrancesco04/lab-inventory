@@ -36,7 +36,7 @@ class AddOperationHandler {
             $operation = new Operation(
                 null,
                 $maintenance->getId(),
-                new DateTime($command->start_date),
+                $command->start_date,
                 null,
                 $command->description,
                 $command->cost
