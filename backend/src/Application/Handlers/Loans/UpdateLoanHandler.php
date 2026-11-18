@@ -53,6 +53,13 @@ class UpdateLoanHandler {
             }
                 
             $loanToUpdate->setNotes($command->notes);
+
+            // every object sent must exist, whichever branch below handles it
+            foreach($command->objects as $object) {
+                if(empty($this->itemRepository->findById($object->getId()))) {
+                    throw new Exception("Non esiste un oggetto con l'id specificato");
+                }
+            }
             
             // here I have laidated the fileds and updated the notes (locally)
             
