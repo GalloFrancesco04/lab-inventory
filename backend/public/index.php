@@ -99,5 +99,13 @@ $router->add('PUT', '/api/operations/{id}', ['OperationsController', 'update']);
 $method = $request->getMethod();
 $uri = $request->getPath();
 
+// Every route except authentication requires a logged-in user
+if (!in_array($uri, ['/api/login', '/api/logout', '/api/auth/status'])) {
+    require_once __DIR__ . '/../src/Infrastructure/Security/SessionManager.php';
+    if (!(new SessionManager())->isLoggedIn()) {
+        Response::error("Login required", "UNAUTHORIZED", 401);
+    }
+}
+
 // Dispatch Request with Request Object
 $router->dispatch($method, $uri, $request);
