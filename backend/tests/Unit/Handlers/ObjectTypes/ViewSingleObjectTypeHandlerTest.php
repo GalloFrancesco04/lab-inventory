@@ -9,7 +9,7 @@ $mediator->register('ViewSingleObjectTypeCommand', 'ViewSingleObjectTypeHandler'
 echo "=== TEST: VIEW SINGLE OBJECT TYPE ===\n\n";
 
 // ID di un tipo di oggetto che sai essere presente nel DB
-$targetId = 'TEST-1769453675'; 
+$targetId = 'NB-DELL-XPS15'; 
 
 try {
     echo "Recupero dettagli per ID $targetId... ";

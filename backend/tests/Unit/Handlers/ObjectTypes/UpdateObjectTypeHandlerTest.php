@@ -13,7 +13,7 @@ $mediator->register('UpdateObjectTypeCommand', 'UpdateObjectTypeHandler');
 echo "========== UNIT TEST: UPDATE OBJECT TYPE (SOLO ANAGRAFICA) ==========\n\n";
 
 // ID di un tipo di oggetto esistente nel tuo DB
-$existingTypeId = 'MIN-1769453675'; 
+$existingTypeId = 'DEV-ARD-UNO'; 
 
 /**
  * TEST 1: Aggiornamento Anagrafica (Successo)

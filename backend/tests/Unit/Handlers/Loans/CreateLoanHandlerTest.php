@@ -19,8 +19,8 @@ echo "=== AVVIO TEST DI SISTEMA ===\n\n";
 //  */
 try {
     echo "Esecuzione Test Loan... ";
-    $item = new InventoryItem(1, 'LAPTOP', 1, 'location');
-    $item2 = new InventoryItem(2, 'SERVER', 1, 'location');
+    $item = new InventoryItem(1, 'NB-DELL-XPS15', 1, 'location');
+    $item2 = new InventoryItem(4, 'MS-LOGI-B100', 1, 'location');
 
     $items = [
         $item,
@@ -125,7 +125,7 @@ try {
 try {
     echo "Test 8: Tentativo prestito con object_id inesistente... ";
 
-    $item = new InventoryItem(99999, 'SERVER', 1, 'location');
+    $item = new InventoryItem(99999, 'NB-DELL-XPS15', 1, 'location');
 
     $items = [
         $item
@@ -145,8 +145,8 @@ try {
  */
 try {
     echo "Test 9: Verifica coerenza Type Code / Object ID... ";
-    // Esempio: Dico che è un LAPTOP ma l'ID punta a un MONITOR
-    $item = new InventoryItem(2, 'LAPTOP', 1, 'location');
+    // Esempio: Dico che è un laptop ma l'ID punta a un mouse
+    $item = new InventoryItem(6, 'NB-DELL-XPS15', 1, 'location');
 
     $items = [
        $item
@@ -165,7 +165,7 @@ try {
  */
 try {
     echo "Test 10: Verifica atomicità su lista oggetti... ";
-    $item = new InventoryItem(2, 'SERVER', 1, 'location');
+    $item = new InventoryItem(6, 'MS-LOGI-B100', 1, 'location');
 
     $item2 = new InventoryItem(-3, 'MONITOR', 1, 'location');
 

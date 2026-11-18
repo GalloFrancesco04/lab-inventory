@@ -10,7 +10,7 @@ echo "========== TEST: AGGIORNAMENTO OPERAZIONE DI MANUTENZIONE ==========\n\n";
 
 try {
     // 1. Dati per l'aggiornamento
-    $operationId = 3;                         // ID dell'operazione esistente da modificare
+    $operationId = 2;                         // ID dell'operazione esistente da modificare
     $newDescription = "Sostituzione completata e collaudo finale effettuato";
     $newEndDate = new DateTime();             // Impostiamo la data di fine a "ora"
     $newCost = 55.00;                         // Aggiorniamo il costo (es. inclusi materiali extra)

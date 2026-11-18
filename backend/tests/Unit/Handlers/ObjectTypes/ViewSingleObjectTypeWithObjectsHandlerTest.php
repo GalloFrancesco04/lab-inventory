@@ -10,7 +10,7 @@ $mediator->register('ViewSingleObjectTypeWithObjectsCommand', 'ViewSingleObjectT
 echo "========== TEST: VIEW OBJECT TYPE & ASSOCIATED PHYSICAL OBJECTS ==========\n\n";
 
 try {
-    $targetCode = "LAPTOP"; // Sostituisci con un codice esistente nel tuo DB
+    $targetCode = "NB-DELL-XPS15"; // Sostituisci con un codice esistente nel tuo DB
     echo "Recupero dettagli per il tipo: [$targetCode]... ";
     
     $command = new ViewSingleObjectTypeWithObjectsCommand($targetCode);

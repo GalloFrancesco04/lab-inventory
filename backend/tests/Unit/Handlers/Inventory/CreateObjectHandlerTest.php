@@ -13,7 +13,7 @@ echo "========== UNIT TEST: CREATE PHYSICAL OBJECT ==========\n\n";
  * Assicurati che 'LAPTOP-PRO' (o un altro codice) esista nella tabella object_types
  */
 try {
-    $typeCode = "LAPTOP"; // Sostituisci con un codice esistente nel tuo DB
+    $typeCode = "NB-DELL-XPS15"; // Sostituisci con un codice esistente nel tuo DB
     $location = "Ufficio Milano - Piano 1";
 
     echo "Test 1: Creazione esemplare per tipo '$typeCode'... ";
@@ -51,7 +51,7 @@ try {
 try {
     echo "Test 3: Creazione senza specificare la location... ";
     
-    $noLocationCmd = new CreateObjectCommand("LAPTOP", null);
+    $noLocationCmd = new CreateObjectCommand("NB-DELL-XPS15", null);
     $id = $mediator->send($noLocationCmd);
     
     echo "✅ SUCCESSO! ID: $id (Location lasciata null/default).\n";
