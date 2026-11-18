@@ -28,7 +28,7 @@ The Administrator has full access to all features of the system and is responsib
 | **Inventory Module**          |       ✅ Full       |
 | **Clients Module**            |       ✅ Full       |
 | **Maintenance Module**        | ✅ Full (view only) |
-| Create/Edit/Delete Items      |       ✅ Yes        |
+| Create/Edit Items             |       ✅ Yes        |
 | Create/Edit Loans             |       ✅ Yes        |
 | Create/Edit Clients           |       ✅ Yes        |
 | Manage Equipment Status       |       ✅ Yes        |
@@ -39,7 +39,7 @@ The Administrator has full access to all features of the system and is responsib
 
 - **Equipment Management**: Add new equipment types and instances, modify equipment details, manage equipment status
 - **Loan Management**: Create loans for clients, process returns, mark items as damaged, block clients if needed
-- **Client Management**: Register new clients, update client information, block/unblock clients
+- **Client Management**: Register new clients, update client information, block/unblock and delete clients
 - **Maintenance Oversight**: Monitor all maintenance activities, review completed work
 - **System Monitoring**: Track loan history, maintenance costs, equipment availability
 
@@ -141,25 +141,22 @@ The Loans module allows you to create, manage, and track equipment loans.
   - **Start Date**: When the loan began
   - **Expected Return**: When the equipment should be returned
   - **Actual Return**: When the equipment was actually returned (if applicable)
-  - **Status Badge**: Current status of the loan (Active, Completed, Overdue, Cancelled)
+  - **Status Badge**: Current status of the loan (Active, Closed)
 
 #### Creating a New Loan
 
 1. Click the **"New Loan"** button (appears in toolbar when in Loans view)
 2. In the modal that appears:
    - **Select Client**: Choose from the dropdown list of existing clients
-   - **Add New Client** (optional): Click the green "+" button to add a new client on the fly
+   - **Add New Client** (optional): Click the "+ New Client" button to add a new client on the fly
      - Enter First Name and Last Name
      - Enter Email address
      - Click "Create Client"
    - **Select Items**:
-     - Click the "Select Items" button to open the item picker
+     - Click the "Items" field to open the item picker (only available items are listed)
      - Search for items by name
-     - Click items to add them (maximum 5 items per loan)
-     - Click "Confirm" to finalize selection
-   - **Set Loan Start Date**: Select when the loan begins
-   - **Set Expected Return Date**: Select when the equipment should be returned (max 30 days from start)
-   - **Add Notes** (optional): Add any additional information about the loan
+     - Tick the items to add them (maximum 5 items per loan)
+   - **Set Return Date**: Select when the equipment should be returned (max 30 days; the loan starts today)
 3. Click **"Create Loan"** to save
 
 #### Managing Active Loans
@@ -176,30 +173,28 @@ The Loans module allows you to create, manage, and track equipment loans.
 1. Open the loan detail modal (click on the loan)
 2. Click the **"Close Loan"** button
 3. In the close loan dialog:
-   - **Add Return Notes** (optional): Document the return condition
+   - **Notes** (optional): Document the return condition
    - **Mark Damaged Items** (optional):
-     - Click the "Damaged Items" button
+     - Open "Mark returned items as damaged"
      - Select any items that were returned damaged
-     - These items will be marked as "Damged" in inventory
-   - Click **"Complete Return"** to finalize
-4. The loan status will change to "Completed"
-5. Inventory counts will be updated automatically
+     - These items will be marked as "Damaged" in inventory
+   - Click **"Confirm Close"** to finalize
+4. The loan status will change to "Closed" and the return date is set to today
+5. Returned items become available again (damaged ones become "Damaged")
 
 #### Loan Constraints
 
 - **Maximum Items**: 5 items per loan
 - **Maximum Duration**: 30 days
 - **Restrictions**: Cannot loan items that are in "Damaged", "InMaintenance" or "Out Of Service" status
-- **Automatic Notifications**: Clients receive notifications 3 days before loan expiration
-- **Client Blocking**: Clients with overdue loans or damaged items cannot create new loans
+- **Client Blocking**: Blocked clients cannot create new loans
 
 #### Search & Filtering
 
 - **Search Bar**: Find loans by client name or loan ID
 - **Filters** (click Filters button):
-  - By Status (Active, Completed, Overdue, Cancelled)
+  - By Status (Active, Closed)
   - By Client
-  - By Item Type
   - By Date Range
 
 ---
@@ -210,38 +205,38 @@ The Inventory module manages all laboratory equipment and equipment types.
 
 #### Main View
 
-- **Inventory Table**: Displays all equipment with:
+- **Inventory Table**: Displays all equipment types with:
+  - **Code**: Unique code of the type
   - **Name**: Equipment name
-  - **Type**: Category of equipment
-  - **Status**: Current status (Available, On Loan, In Maintenance, Broken, Out of Service)
-  - **Quantity**: Number of units available
-  - **Location**: Physical location in the lab
+  - **Description**: Additional details
   - **Brand/Model**: Equipment specifications
+  - **Quantity**: Number of units currently available
+- Click a type to see its units, each with its ID, location and status (Available, Loaned, In Maintenance, Damaged, Out of Service)
 
 #### Adding a New Equipment Type
 
 1. Click **"New Item"** button in the toolbar
 2. Fill in the equipment type information:
-   - **Name**: Name of the equipment type (e.g., "Laptop", "Monitor")
-   - **Type**: Category (PC, Component, Peripheral, Other)
+   - **Code**: Unique code (letters, numbers, - and _), e.g. "NB-DELL-XPS15"
+   - **Type Name**: Name of the equipment type (e.g., "Laptop", "Monitor")
+   - **Description**: Additional details
    - **Brand**: Manufacturer name
    - **Model**: Model number
-   - **Quantity**: How many units to create
-   - **Location**: Where it's stored/located
-   - **Description**: Additional details
+   - **Initial Quantity**: How many units to create
+   - **Location**: Where the new units are stored
 3. Click **"Create Type"**
 
 #### Adding Instances of Equipment Type
 
 1. Find an equipment type in the inventory table
-2. Click on it to open the detail modal
-3. In the detail view, click **"Add New Instance"**
-4. Select the location for this specific unit
+2. Click on it to open the list of its units
+3. Click **"+ New Instance"**
+4. Enter the location for this specific unit
 5. Click **"Create Instance"**
 
 #### Viewing Equipment Details
 
-1. Click on any item in the inventory table
+1. Click on an equipment type, then on one of its units
 2. The **Item Detail Modal** opens showing:
    - Equipment ID and basic information
    - Current status and location
@@ -255,30 +250,27 @@ The Inventory module manages all laboratory equipment and equipment types.
 
 1. Open item detail modal (click on item)
 2. Click **"Edit Item"** button
-3. Modify any of the following:
-   - Name
-   - Brand/Model
+3. Modify:
    - Location
-   - Status (Available, On Loan, In Maintenance, Broken, Out of Service)
-   - Notes
+   - Status: a "Damaged" unit can be retired as "Out of Service"; the other statuses change through loans and maintenance
+   - Name, brand and model belong to the equipment type and are shown read-only
 4. Click **"Save Changes"**
 
 #### Equipment Status Explained
 
 - **Available**: Equipment is ready to be loaned
-- **On Loan**: Equipment is currently being used by a client
+- **Loaned**: Equipment is currently being used by a client
 - **In Maintenance**: Equipment is being serviced and unavailable
-- **Broken**: Equipment is non-functional and cannot be loaned
+- **Damaged**: Equipment is non-functional and cannot be loaned
 - **Out of Service**: Equipment is retired or permanently unavailable
 
 #### Search & Filtering
 
-- **Search Bar**: Find equipment by name, code, or model
+- **Search Bar**: Find equipment types by code, name, description, brand or model
 - **Filters** (click Filters button):
-  - By Status
+  - By Status (types with at least one unit in that status)
   - By Type
-  - By Quantity Available
-  - By Location
+  - By Location (types with at least one unit there)
 
 ---
 
@@ -291,8 +283,9 @@ The Clients module manages all laboratory clients.
 - **Clients Table**: Lists all registered clients with:
   - **Name**: Full name of the client
   - **Email**: Contact email address
-  - **Active Loans**: Number of current active loans
-  - **Status**: Blocked or Active
+  - **Active Loans / Total Loans**: Number of current and all loans
+  - **Last Loan**: Date of the most recent loan
+  - Blocked clients are marked with a "Blocked" badge
 
 #### Adding a New Client
 
@@ -307,24 +300,22 @@ The Clients module manages all laboratory clients.
 
 1. Click on any client row to see:
    - Client information
-   - List of all loans (active and completed)
+   - List of all loans (active and closed)
    - Loan history with dates and items
 
 #### Managing Clients
 
 You can:
 
-- **Edit Information**: Modify client details (name, email)
-- **Block/Unblock Client**: Prevent a client from creating new loans
-  - Useful when client has damaged items or overdue loans
-  - Client can be automatically unblocked after a specified date
+- **Edit Information**: Modify the client's first and last name
+- **Block/Unblock Client**: Prevent a client from creating new loans until they are unblocked
+- **Delete Client**: Permanently remove a client; clients with loans cannot be deleted
 
 #### Search & Filtering
 
 - **Search Bar**: Find clients by name or email
 - **Filters** (click Filters button):
   - By Status (Active, Blocked)
-  - By Number of Loans
 
 ---
 
@@ -337,7 +328,7 @@ The Maintenance module tracks all equipment maintenance activities.
 - **Maintenance Table**: Shows all maintenance records with:
   - **Maintenance ID**: Unique identifier
   - **Equipment**: Name of equipment being serviced
-  - **Status**: Pending, In Progress, Completed
+  - **Status**: Open, Closed
   - **Technician**: Person responsible for maintenance
   - **Start Date**: When work began
   - **End Date**: When work was completed
@@ -382,28 +373,25 @@ Operations are individual work items within a maintenance record.
 
 #### Editing Operations (Technician Only)
 
-1. In maintenance detail, click on an operation to edit it
-2. Modify the details
+1. In maintenance detail, click **"Edit"** on an operation
+2. Modify the description, cost or end date (the start date cannot be changed)
 3. Save changes
 
 #### Completing Maintenance (Technician Only)
 
 1. Open the maintenance record detail modal
-2. Click **"Complete Maintenance"** button
+2. Click **"Close Maintenance"** button
 3. In the confirmation dialog:
-   - **Add Notes** (optional): Final notes about the maintenance
-   - **Check "Still Broken"** if: Equipment was inspected but found to still be non-functional
-     - If unchecked: Equipment status automatically changes to "Available"
-     - If checked: Equipment remains "Broken"
-4. Click **"Confirm"** to complete
+   - **Check "Mark item as still damaged"** if the equipment is still non-functional
+     - If unchecked: Equipment status changes to "Available"
+     - If checked: Equipment status changes to "Damaged"
+4. Click **"Confirm Close"** to complete
 
 #### Search & Filtering
 
 - **Search Bar**: Find maintenance by equipment name or technician
 - **Filters** (click Filters button):
-  - By Status (Pending, In Progress, Completed)
-  - By Technician
+  - By Status (Open, Closed)
   - By Date Range
-  - By Equipment Type
 
 ---
