@@ -133,7 +133,6 @@ export class CloseLoanForm {
     };
     this.setMenuOpen(false);
     this.logger?.mock("Close loan", payload);
-    this.toaster?.info("Loan closed successfully");
     if (this.onSubmit) this.onSubmit(payload);
   }
 }
