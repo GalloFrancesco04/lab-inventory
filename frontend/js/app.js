@@ -83,8 +83,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     loginView.showMainApp(user);
   }
 
-  initRouter(routes, handleRouteChange, "#/loans");
-
   // Load the backend data before the views render it
   if (isLoggedIn) {
     try {
@@ -119,4 +117,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initClientsView(clientsPresenter, mediator);
   initLoansView(loansPresenter, mediator);
   initMaintenanceView(maintenancePresenter, mediator);
+
+  // Start routing once the views exist, so the first route renders its view
+  initRouter(routes, handleRouteChange, "#/loans");
 });
