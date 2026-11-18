@@ -44,7 +44,7 @@ export class LoginView extends BaseView {
     });
   }
 
-  handleLogin() {
+  async handleLogin() {
     const username = this.usernameInput.value.trim();
     const password = this.passwordInput.value.trim();
 
@@ -53,7 +53,7 @@ export class LoginView extends BaseView {
       return;
     }
 
-    const result = this.presenter.login(username, password);
+    const result = await this.presenter.login(username, password);
 
     if (result.success) {
       this.hideError();
@@ -73,8 +73,8 @@ export class LoginView extends BaseView {
     }
   }
 
-  handleLogout() {
-    this.presenter.logout();
+  async handleLogout() {
+    await this.presenter.logout();
     this.showLoginView();
 
     // Show info toast if available
