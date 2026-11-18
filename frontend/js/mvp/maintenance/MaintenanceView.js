@@ -392,7 +392,7 @@ class MaintenanceView extends BaseView {
     });
   }
 
-  handleCloseMaintenance() {
+  async handleCloseMaintenance() {
     if (!this.currentMaintenanceId) return;
     const maintenance = this.presenter.getMaintenanceById(
       this.currentMaintenanceId,
@@ -410,10 +410,16 @@ class MaintenanceView extends BaseView {
       return;
     }
 
-    const success = this.presenter.closeMaintenance(
-      this.currentMaintenanceId,
-      closeOptions,
-    );
+    let success = false;
+    try {
+      success = await this.presenter.closeMaintenance(
+        this.currentMaintenanceId,
+        closeOptions,
+      );
+    } catch (error) {
+      this.handleError("Unable to close maintenance", error);
+      return;
+    }
     if (success) {
       const updated = this.presenter.getMaintenanceById(
         this.currentMaintenanceId,
@@ -641,21 +647,14 @@ class MaintenanceView extends BaseView {
     this.operationDescInput.value = op.desc || "";
     this.operationCostInput.value = typeof op.cost === "number" ? op.cost : "";
 
-    const formatDateForInput = (dateStr) => {
-      if (!dateStr) return "";
-      const [day, month, year] = dateStr.split("/");
-      return `${year}-${month}-${day}`;
-    };
-
-    this.operationStartInput.value = formatDateForInput(op.startDate);
-    this.operationEndInput.value = formatDateForInput(
-      op.endDate || op.startDate,
-    );
+    // Dates come from the API as YYYY-MM-DD, the format date inputs expect
+    this.operationStartInput.value = op.startDate || "";
+    this.operationEndInput.value = op.endDate || op.startDate || "";
 
     this.openModal("add-operation-modal");
   }
 
-  handleSubmitOperation() {
+  async handleSubmitOperation() {
     const desc = this.operationDescInput.value.trim();
     const cost = parseFloat(this.operationCostInput.value);
     const startDate = this.operationStartInput.value;
@@ -666,30 +665,25 @@ class MaintenanceView extends BaseView {
       return;
     }
 
-    const formatDateForDisplay = (dateStr) => {
-      const [year, month, day] = dateStr.split("-");
-      return `${day}/${month}/${year}`;
-    };
-
-    const operationPayload = {
-      desc,
-      cost,
-      startDate: formatDateForDisplay(startDate),
-      endDate: formatDateForDisplay(endDate),
-    };
+    const operationPayload = { desc, cost, startDate, endDate };
 
     let success = false;
-    if (this.isEditingOperation && this.currentOperationIndex !== null) {
-      success = this.presenter.updateOperation(
-        this.currentMaintenanceId,
-        this.currentOperationIndex,
-        operationPayload,
-      );
-    } else {
-      success = this.presenter.addOperation(
-        this.currentMaintenanceId,
-        operationPayload,
-      );
+    try {
+      if (this.isEditingOperation && this.currentOperationIndex !== null) {
+        success = await this.presenter.updateOperation(
+          this.currentMaintenanceId,
+          this.currentOperationIndex,
+          operationPayload,
+        );
+      } else {
+        success = await this.presenter.addOperation(
+          this.currentMaintenanceId,
+          operationPayload,
+        );
+      }
+    } catch (error) {
+      this.handleError("Unable to save operation", error);
+      return;
     }
 
     if (success) {

@@ -1,10 +1,10 @@
 import { BasePresenter } from "../core/BasePresenter.js";
-import { MockDatabase } from "../../utils/MockDatabase.js";
+import { ApiStore, request } from "../../api/ApiClient.js";
 
 export class MaintenancePresenter extends BasePresenter {
   constructor(inventoryPresenter, authPresenter = null) {
     super([]);
-    this.db = MockDatabase.getInstance();
+    this.db = ApiStore.getInstance();
     this.inventoryPresenter = inventoryPresenter;
     this.authPresenter = authPresenter;
   }
@@ -148,26 +148,31 @@ export class MaintenancePresenter extends BasePresenter {
     return itemMaintenances;
   }
 
-  addOperation(maintenanceId, operation) {
+  async addOperation(maintenanceId, operation) {
     const today = new Date().toISOString().split("T")[0];
 
-    const newOperation = this.db.addOperation({
-      maintenanceId: maintenanceId,
+    const { id } = await request("POST", "/operations", {
+      maintenance_id: maintenanceId,
       description: operation.desc || "",
-      startDate: operation.startDate || today,
-      endDate: operation.endDate || null,
+      start_date: operation.startDate || today,
       cost: operation.cost || 0,
     });
 
-    if (newOperation) {
-      this.notifyListeners();
-      return true;
+    // The end date can only be set by updating the operation
+    if (operation.endDate) {
+      await request("PUT", `/operations/${id}`, {
+        description: operation.desc || "",
+        end_date: operation.endDate,
+        cost: operation.cost || 0,
+      });
     }
 
-    return false;
+    await this.db.load();
+    this.notifyListeners();
+    return true;
   }
 
-  updateOperation(maintenanceId, operationIndex, updates) {
+  async updateOperation(maintenanceId, operationIndex, updates) {
     const operations = this.db.getOperationsByMaintenanceId(maintenanceId);
 
     if (operationIndex < 0 || operationIndex >= operations.length) {
@@ -176,53 +181,28 @@ export class MaintenancePresenter extends BasePresenter {
 
     const operation = operations[operationIndex];
 
-    const updatedOperation = this.db.updateOperation(operation.id, {
+    await request("PUT", `/operations/${operation.id}`, {
       description: updates.desc,
       cost:
         typeof updates.cost === "number" && !Number.isNaN(updates.cost)
           ? updates.cost
           : operation.cost,
-      startDate: updates.startDate || operation.startDate,
-      endDate: updates.endDate || operation.endDate,
+      end_date: updates.endDate || operation.endDate,
     });
 
-    if (updatedOperation) {
-      this.notifyListeners();
-      return true;
-    }
-
-    return false;
+    await this.db.load();
+    this.notifyListeners();
+    return true;
   }
 
-  closeMaintenance(maintenanceId, options = {}) {
-    const today = new Date().toISOString().split("T")[0];
+  async closeMaintenance(maintenanceId, options = {}) {
+    if (!this.db.getMaintenanceById(maintenanceId)) return false;
 
-    const maintenance = this.db.getMaintenanceById(maintenanceId);
-    if (!maintenance) return false;
-
-    // Update maintenance record
-    this.db.updateMaintenance(maintenanceId, {
-      endDate: today,
+    await request("PUT", `/maintenance/${maintenanceId}`, {
+      damaged: options.stillBroken ? 1 : 0,
     });
 
-    // Update object state
-    if (options.stillBroken) {
-      this.db.updateObject(maintenance.objectId, { state: 5 }); // outofservice
-    } else {
-      this.db.updateObject(maintenance.objectId, { state: 1 }); // available
-    }
-
-    // Update via inventory presenter if available
-    if (this.inventoryPresenter) {
-      try {
-        this.inventoryPresenter.updateItem(maintenance.objectId, {
-          status: options.stillBroken ? "outofservice" : "available",
-        });
-      } catch (error) {
-        console.error("Unable to update item status", error);
-      }
-    }
-
+    await this.db.load();
     this.notifyListeners();
     return true;
   }
