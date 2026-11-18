@@ -44,7 +44,7 @@ export class SendToMaintenanceForm {
     return true;
   }
 
-  handleSubmit(e) {
+  async handleSubmit(e) {
     e.preventDefault();
     if (!this.validate()) return;
 
@@ -53,7 +53,7 @@ export class SendToMaintenanceForm {
 
     if (!this.onSubmit) return;
 
-    const result = this.onSubmit({ description, technician });
+    const result = await this.onSubmit({ description, technician });
     if (result) {
       this.reset();
     }

@@ -71,7 +71,7 @@ export class NewItemForm {
     return true;
   }
 
-  handleSubmit(e) {
+  async handleSubmit(e) {
     e.preventDefault();
     if (!this.validate()) return;
 
@@ -90,7 +90,7 @@ export class NewItemForm {
 
     if (!this.onCreate) return;
 
-    const result = this.onCreate(typeData);
+    const result = await this.onCreate(typeData);
     if (result) {
       this.reset();
     }
