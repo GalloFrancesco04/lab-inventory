@@ -612,15 +612,7 @@
                 <button class="modal-close" aria-label="Close modal" id="block-client-close">&times;</button>
             </div>
             <form class="form" id="block-client-form">
-                <p style="margin: 0; color: var(--text-muted);">Block client temporarily from making new loans.</p>
-                <div class="form-group">
-                    <label for="block-days">Block Duration (days)</label>
-                    <input type="number" id="block-days" min="1" max="365" value="30" required>
-                </div>
-                <div class="form-group">
-                    <label for="block-reason">Reason</label>
-                    <textarea id="block-reason" rows="3" placeholder="Optional reason for blocking"></textarea>
-                </div>
+                <p style="margin: 0; color: var(--text-muted);">Block client from making new loans until unblocked.</p>
                 <div class="form-actions">
                     <button type="button" class="btn btn-ghost" id="block-client-cancel">Cancel</button>
                     <button type="submit" class="btn btn-primary">Block Client</button>

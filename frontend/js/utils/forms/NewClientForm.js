@@ -51,7 +51,7 @@ export class NewClientForm {
     return true;
   }
 
-  handleSubmit(e) {
+  async handleSubmit(e) {
     e.preventDefault();
     if (!this.validate()) return;
 
@@ -62,7 +62,7 @@ export class NewClientForm {
 
     if (!this.onCreate) return;
 
-    const created = this.onCreate({ displayName, email, first, last });
+    const created = await this.onCreate({ displayName, email, first, last });
     if (created) {
       this.reset();
     }
