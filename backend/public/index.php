@@ -30,6 +30,7 @@ require_once __DIR__ . '/../src/Http/Controllers/ObjectsController.php';
 require_once __DIR__ . '/../src/Http/Controllers/ClientsController.php';
 require_once __DIR__ . '/../src/Http/Controllers/MaintenanceController.php';
 require_once __DIR__ . '/../src/Http/Controllers/OperationController.php';
+require_once __DIR__ . '/../src/Http/Controllers/UsersController.php';
 
 
 
@@ -59,11 +60,11 @@ $router->add('PUT',    '/api/objecttypes/{code}',   ['ObjectTypesController', 'u
 
 // Physical Objects Routes
 $router->add('GET',  '/api/objects',                ['ObjectsController', 'getAll']);
+$router->add('GET',    '/api/objects/available',    ['ObjectsController', 'getAvailable']);
 $router->add('POST', '/api/objects',                ['ObjectsController', 'create']);
 $router->add('GET',    '/api/objects/{id}',         ['ObjectsController', 'getById']);
 $router->add('POST',   '/api/objects/maintenance',  ['ObjectsController', 'sendMaintenance']);
 $router->add('PUT',    '/api/objects/{id}',         ['ObjectsController', 'update']);
-$router->add('GET',    '/api/objects/available',    ['ObjectsController', 'getAvailable']);
 $router->add('PUT',    '/api/objects/{id}/toggle-service',['ObjectsController', 'toggleStatus']);
 
 
@@ -78,6 +79,9 @@ $router->add('POST', '/api/loans/{id}/close',           ['LoansController', 'clo
 $router->add('POST',   '/api/login',                ['AuthController', 'login']);
 $router->add('POST',   '/api/logout',               ['AuthController', 'logout']);
 $router->add('GET',    '/api/auth/status',          ['AuthController', 'checkStatus']);
+
+// Users Routes
+$router->add('GET',    '/api/technicians',          ['UsersController', 'getTechnicians']);
 
 // Maintenance Routes
 // Maintenance
