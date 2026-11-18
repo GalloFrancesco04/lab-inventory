@@ -1,5 +1,6 @@
 <?php
 
+#[AllowDynamicProperties]
 class Maintenance {
     private ?int $id;
     private int $objectId;

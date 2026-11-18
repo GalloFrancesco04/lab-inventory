@@ -1,5 +1,6 @@
 <?php
 
+#[AllowDynamicProperties]
 class Client {
     private $id;
     private $email;

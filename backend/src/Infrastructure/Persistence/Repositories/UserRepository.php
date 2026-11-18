@@ -1,6 +1,5 @@
 <?php
 
-use PDO;
 
 require_once __DIR__ . '/../../../Domain/Entities/User.php';
 
