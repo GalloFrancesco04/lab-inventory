@@ -503,7 +503,6 @@ select.input-error {
   gap: var(--space-2);
   flex: 1;
   max-width: none;
-  position: relative;
 }
 
 .btn-filters {
@@ -528,11 +527,12 @@ select.input-error {
 }
 
 /* Inline Filters Panel */
+/* Anchored to the sticky toolbar and inset like the page content, so it lines up with the table */
 .filters-inline {
   position: absolute;
   top: 100%;
-  left: 0;
-  right: 0;
+  left: var(--space-5);
+  right: var(--space-5);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
