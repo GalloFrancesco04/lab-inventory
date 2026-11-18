@@ -16,7 +16,7 @@ The system supports two distinct user roles, each with specific permissions and 
 
 ### 1. ADMINISTRATOR (Admin)
 
-**Credentials Example**: `admin@library.com` / `admin123`
+**Credentials Example**: `admin@lab.it` / `admin123`
 
 The Administrator has full access to all features of the system and is responsible for overall management.
 
@@ -58,10 +58,7 @@ When an Admin logs in, they see all four navigation tabs:
 
 **Credentials Examples**:
 
-- `mario.rossi@library.com` / `tech123`
-- `sara.bianchi@library.com` / `tech123`
-- `roberto.verdi@library.com` / `tech123`
-- `anna.neri@library.com` / `tech123`
+- `luca.tecnico@lab.it` / `tech123`
 
 The Technician has limited access focused on maintenance operations and equipment service.
 
