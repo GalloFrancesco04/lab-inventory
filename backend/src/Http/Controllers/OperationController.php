@@ -86,7 +86,7 @@ class OperationsController {
         try {
             // Extract fields to update
             $description = $data['description'] ?? null;
-            $end_date = $data['end_date'] ?? null;
+            $end_date = isset($data['end_date']) ? new DateTime($data['end_date']) : null;
             $cost = $data['cost'] ?? null;
 
             // Create and send the command
