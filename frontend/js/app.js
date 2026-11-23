@@ -11,8 +11,9 @@ import { initLoginView } from "./mvp/auth/LoginView.js";
 import { AuthPresenter } from "./mvp/auth/LoginPresenter.js";
 import { Mediator } from "./utils/managers/Mediator.js";
 import { FilterManager } from "./utils/managers/FilterManager.js";
+import { ApiStore } from "./api/ApiClient.js";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   // Create mediator instance
   const mediator = new Mediator();
 
@@ -82,7 +83,14 @@ document.addEventListener("DOMContentLoaded", () => {
     loginView.showMainApp(user);
   }
 
-  initRouter(routes, handleRouteChange, "#/loans");
+  // Load the backend data before the views render it
+  if (isLoggedIn) {
+    try {
+      await ApiStore.getInstance().load();
+    } catch (error) {
+      console.error("Unable to load data from the server", error);
+    }
+  }
 
   const inventoryPresenter = new InventoryPresenter(mediator);
   const clientsPresenter = new ClientsPresenter();
@@ -109,4 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initClientsView(clientsPresenter, mediator);
   initLoansView(loansPresenter, mediator);
   initMaintenanceView(maintenancePresenter, mediator);
+
+  // Start routing once the views exist, so the first route renders its view
+  initRouter(routes, handleRouteChange, "#/loans");
 });

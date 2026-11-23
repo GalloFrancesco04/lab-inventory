@@ -1,69 +1,14 @@
 import { BasePresenter } from "../core/BasePresenter.js";
-import { MockDatabase } from "../../utils/MockDatabase.js";
+import { ApiStore, request } from "../../api/ApiClient.js";
 import {
   emailToDisplayName,
   stateToStatus,
-  statusToState,
 } from "../../utils/Transformers.js";
 
 export class InventoryPresenter extends BasePresenter {
-  constructor(mediator = null) {
+  constructor() {
     super([]);
-    this.db = MockDatabase.getInstance();
-    this.mediator = mediator; // For listening to cross-module events
-
-    // Register event listeners for cross-module communication
-    if (this.mediator) {
-      this.registerEventListeners();
-    }
-  }
-
-  registerEventListeners() {
-    // Listen for loan creation to update item states
-    if (this.mediator) {
-      this.mediator.on("loan:created", ({ items }) => {
-        items.forEach((item) => {
-          try {
-            this.updateItem(item.id, { status: "loaned" });
-          } catch (error) {
-            console.error(
-              `Unable to update item ${item.id} on loan:created`,
-              error,
-            );
-          }
-        });
-      });
-
-      // Listen for loan closure to revert item states
-      this.mediator.on("loan:closed", ({ items, damagedItems }) => {
-        items.forEach((item) => {
-          try {
-            // Check if item is damaged
-            const isDamaged = damagedItems?.some((d) => d.id === item.id);
-            const newStatus = isDamaged ? "damaged" : "available";
-            this.updateItem(item.id, { status: newStatus });
-          } catch (error) {
-            console.error(
-              `Unable to update item ${item.id} on loan:closed`,
-              error,
-            );
-          }
-        });
-      });
-
-      // Listen for maintenance completion to revert item to available or damaged
-      this.mediator.on("maintenance:closed", ({ itemId, stillBroken }) => {
-        try {
-          const newStatus = stillBroken ? "damaged" : "available";
-          this.updateItem(itemId, { status: newStatus });
-        } catch (error) {
-          console.error(
-            `Unable to update item ${itemId} on maintenance:closed`,
-            error,
-          );
-        }
-      });
-    }
+    this.db = ApiStore.getInstance();
   }
 
   subscribe(callback) {
@@ -145,7 +90,7 @@ export class InventoryPresenter extends BasePresenter {
     });
   }
 
-  addObjectType(typeData) {
+  async addObjectType(typeData) {
     if (!typeData || !typeData.name || !typeData.code) return null;
 
     // Check if code already exists
@@ -153,42 +98,38 @@ export class InventoryPresenter extends BasePresenter {
       return null;
     }
 
-    const newType = this.db.addObjectType({
+    await request("POST", "/objecttypes", {
       code: typeData.code,
       name: typeData.name,
       description: typeData.description || "",
       model: typeData.model || "Various",
       brand: typeData.brand || "Various",
-      quantity: typeData.quantity || 0,
     });
 
     // Create OBJECT instances based on quantity
-    if (typeData.quantity && typeData.quantity > 0) {
-      for (let i = 0; i < typeData.quantity; i++) {
-        this.db.addObject({
-          objectTypeCode: newType.code,
-          state: 1, // available
-          location: typeData.location || "",
-        });
-      }
+    for (let i = 0; i < (typeData.quantity || 0); i++) {
+      await request("POST", "/objects", {
+        object_type_code: typeData.code,
+        location: typeData.location || "",
+      });
     }
 
+    await this.db.load();
     this.notifyListeners();
-    return newType;
+    return this.db.getObjectTypeByCode(typeData.code);
   }
 
-  addObjectInstance(typeCode, location = "") {
-    const typeObj = this.db.getObjectTypeByCode(typeCode);
-    if (!typeObj) return null;
+  async addObjectInstance(typeCode, location = "") {
+    if (!this.db.getObjectTypeByCode(typeCode)) return null;
 
-    const newObject = this.db.addObject({
-      objectTypeCode: typeCode,
-      state: 1, // available
+    const { id } = await request("POST", "/objects", {
+      object_type_code: typeCode,
       location: location,
     });
 
+    await this.db.load();
     this.notifyListeners();
-    return newObject;
+    return this.db.getObjectById(id);
   }
 
   getTechnicians() {
@@ -203,79 +144,37 @@ export class InventoryPresenter extends BasePresenter {
     }));
   }
 
-  createMaintenance(itemId, description, technicianId) {
-    const object = this.db.getObjectById(itemId);
-    if (!object) return null;
+  async createMaintenance(itemId, description, technicianId) {
+    if (!this.db.getObjectById(itemId)) return null;
 
-    // Get technician by ID (technicianId is passed from form value)
-    const tech = this.db.getUserById(parseInt(technicianId));
-    if (!tech) return null;
-
-    const today = new Date().toISOString().split("T")[0];
-
-    const newMaintenance = this.db.addMaintenance({
-      objectId: itemId,
+    await request("POST", "/maintenance", {
+      object_id: itemId,
       description: description,
-      startDate: today,
-      endDate: null,
+      technician_id: parseInt(technicianId),
       type: "repair",
-      technicianId: tech.id,
-      phoneNumber: tech.phoneNumber || "",
-      cost: 0,
     });
 
-    // Update object state to maintenance
-    this.db.updateObject(itemId, { state: 3 });
-
+    await this.db.load();
     this.notifyListeners();
-    return newMaintenance;
+    return true;
   }
 
-  updateItem(id, payload) {
+  async updateItem(id, payload) {
     const object = this.db.getObjectById(id);
     if (!object) throw new Error("Item not found");
 
-    const updates = {};
-
-    if (payload.location !== undefined) {
-      updates.location = payload.location;
+    if (payload.location !== undefined && payload.location !== object.location) {
+      await request("PUT", `/objects/${id}`, { location: payload.location });
     }
 
-    if (payload.status !== undefined) {
-      const allowedStatuses = [
-        "available",
-        "loaned",
-        "maintenance",
-        "damaged",
-        "outofservice",
-      ];
-
-      if (allowedStatuses.includes(payload.status)) {
-        updates.state = statusToState(payload.status);
-      }
+    // The backend only toggles out of service; other states follow loans and maintenance
+    const status = stateToStatus(object.state);
+    if (payload.status !== undefined && payload.status !== status) {
+      await request("PUT", `/objects/${id}/toggle-service`);
     }
 
-    const updated = this.db.updateObject(id, updates);
-    if (updated) {
-      this.notifyListeners();
-    }
-    return updated;
-  }
-
-  markItemsDamaged(itemIds = []) {
-    if (!Array.isArray(itemIds) || itemIds.length === 0) return [];
-    const updated = [];
-
-    itemIds.forEach((id) => {
-      const result = this.db.updateObject(id, { state: 4 }); // damaged
-      if (result) {
-        updated.push(result);
-      }
-    });
-
-    if (updated.length) {
-      this.notifyListeners();
-    }
-    return updated;
+    await this.db.load();
+    this.notifyListeners();
+    return true;
   }
 }

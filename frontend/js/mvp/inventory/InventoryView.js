@@ -103,9 +103,9 @@ class InventoryView extends BaseView {
       quantityInput: this.newItemQuantity,
       locationInput: this.newItemLocation,
       toaster: this.mediator.toaster,
-      onCreate: (typeData) => {
+      onCreate: async (typeData) => {
         try {
-          const newType = this.presenter.addObjectType(typeData);
+          const newType = await this.presenter.addObjectType(typeData);
           if (newType) {
             this.mediator.toaster.success(
               `Type "${newType.name}" added successfully`,
@@ -148,9 +148,9 @@ class InventoryView extends BaseView {
       descInput: this.maintenanceDescInput,
       technicianSelect: this.maintenanceTechnicianSelect,
       toaster: this.mediator.toaster,
-      onSubmit: ({ description, technician }) => {
+      onSubmit: async ({ description, technician }) => {
         try {
-          const result = this.presenter.createMaintenance(
+          const result = await this.presenter.createMaintenance(
             this.currentItemId,
             description,
             technician,
@@ -268,7 +268,7 @@ class InventoryView extends BaseView {
     });
 
     // New Type Form
-    this.newTypeForm?.addEventListener("submit", (e) => {
+    this.newTypeForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const typeName = this.newTypeName?.value?.trim();
 
@@ -287,7 +287,7 @@ class InventoryView extends BaseView {
           model: "Various",
           quantity: 0,
         };
-        const newType = this.presenter.addObjectType(typeData);
+        const newType = await this.presenter.addObjectType(typeData);
         if (newType) {
           this.mediator.toaster.success(
             `Type "${newType.name}" created successfully`,
@@ -325,13 +325,8 @@ class InventoryView extends BaseView {
       this.closeModal("send-to-maintenance-modal");
     });
 
-    this.sendToMaintForm?.addEventListener("submit", (e) => {
-      e.preventDefault();
-      this.handleSendToMaintenance();
-    });
-
     // New Instance Form
-    this.newInstanceForm?.addEventListener("submit", (e) => {
+    this.newInstanceForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const location = this.newInstanceLocation?.value?.trim();
 
@@ -341,7 +336,7 @@ class InventoryView extends BaseView {
       }
 
       try {
-        const result = this.presenter.addObjectInstance(
+        const result = await this.presenter.addObjectInstance(
           this.pendingInstanceTypeCode,
           location,
         );
@@ -360,7 +355,7 @@ class InventoryView extends BaseView {
       }
     });
 
-    this.editItemForm?.addEventListener("submit", (e) => {
+    this.editItemForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
       this.editItemValidator?.clearAll();
 
@@ -375,27 +370,19 @@ class InventoryView extends BaseView {
         return;
       }
 
-      // Business rules: only allow status change between available and outofservice
-      // Damaged items can be sent to maintenance or changed to outofservice only
+      // Business rules (see backend item states): only damaged items can be
+      // retired as Out of Service; other changes follow loans and maintenance
       if (currentItem && currentItem.status !== newStatus) {
         const allowedTransitions = {
-          available: ["outofservice"],
-          outofservice: ["available"],
-          damaged: ["outofservice"], // Damaged items can only go to outofservice
+          damaged: ["outofservice"],
         };
 
         const allowedNewStatuses = allowedTransitions[currentItem.status] || [];
 
         if (!allowedNewStatuses.includes(newStatus)) {
-          if (currentItem.status === "damaged") {
-            this.mediator.toaster.error(
-              "Damaged items can only be marked as Out of Service or sent to maintenance.",
-            );
-          } else {
-            this.mediator.toaster.error(
-              "Status can only be changed between Available and Out of Service. Other status changes require specific workflows (loan, maintenance).",
-            );
-          }
+          this.mediator.toaster.error(
+            "Only damaged items can be marked as Out of Service. Other status changes happen through loans and maintenance.",
+          );
           return;
         }
       }
@@ -430,7 +417,7 @@ class InventoryView extends BaseView {
       }
 
       try {
-        this.presenter.updateItem(this.currentItemId, payload);
+        await this.presenter.updateItem(this.currentItemId, payload);
         this.mediator.toaster.success(SUCCESS_MESSAGES.ITEM_UPDATED);
         this.closeModal("edit-item-modal");
         this.openItemModal(this.currentItemId);

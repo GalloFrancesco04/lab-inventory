@@ -1,5 +1,5 @@
 import { BasePresenter } from "../core/BasePresenter.js";
-import { MockDatabase } from "../../utils/MockDatabase.js";
+import { ApiStore, request } from "../../api/ApiClient.js";
 import { LoanValidator, ValidationError } from "../../utils/Validators.js";
 
 export class LoansPresenter extends BasePresenter {
@@ -9,7 +9,7 @@ export class LoansPresenter extends BasePresenter {
     mediator = null,
   ) {
     super([]);
-    this.db = MockDatabase.getInstance();
+    this.db = ApiStore.getInstance();
     this.clientsPresenter = clientsPresenter;
     this.inventoryPresenter = inventoryPresenter;
     this.mediator = mediator; // For event emission
@@ -66,7 +66,7 @@ export class LoansPresenter extends BasePresenter {
     return loans.find((l) => l.id === id);
   }
 
-  addLoan({ client, startDate, endDate, items }) {
+  async addLoan({ client, startDate, endDate, items }) {
     // Validate loan data
     try {
       LoanValidator.validateCreate({ client, startDate, endDate, items });
@@ -90,57 +90,19 @@ export class LoansPresenter extends BasePresenter {
       throw new ValidationError("Client not found");
     }
 
-    // Create loan
-    const newLoan = this.db.addLoan({
-      startDate: startDate,
-      endDate: endDate || null,
-      returnDate: null,
-      clientId: clientObj.id,
-      notes: "",
-      quantity: items.length,
-      state: true, // active
+    const { id } = await request("POST", "/loans", {
+      client_id: clientObj.id,
+      start_date: startDate,
+      end_date: endDate || null,
+      inventory_items: items.map((item) => ({
+        id: item.id,
+        object_type_code: this.db.getObjectById(item.id)?.objectTypeCode,
+      })),
     });
 
-    // Create loaned objects entries
-    items.forEach((item) => {
-      const object = this.db.getObjectById(item.id);
-      if (object) {
-        this.db.addLoanedObject({
-          objectTypeCode: object.objectTypeCode,
-          objectId: item.id,
-          loanId: newLoan.id,
-          damaged: false,
-        });
-
-        // Update object state to loaned
-        this.db.updateObject(item.id, { state: 2 });
-      }
-    });
-
-    // Update inventory presenter if available
-    if (this.inventoryPresenter) {
-      items.forEach((item) => {
-        try {
-          this.inventoryPresenter.updateItem(item.id, { status: "loaned" });
-        } catch (error) {
-          console.error(`Unable to update item ${item.id} status`, error);
-        }
-      });
-    }
-
-    // Emit event for other modules to listen
-    if (this.mediator) {
-      this.mediator.emit("loan:created", {
-        loanId: newLoan.id,
-        clientId: clientObj.id,
-        items: items,
-        startDate: startDate,
-        endDate: endDate,
-      });
-    }
-
+    await this.db.load();
     this.notifyListeners();
-    return this.getLoanById(newLoan.id);
+    return this.getLoanById(id);
   }
 
   getAvailableItems() {
@@ -176,64 +138,23 @@ export class LoansPresenter extends BasePresenter {
     return clients.map((c) => `${c.name} ${c.surname}`);
   }
 
-  closeLoan(id, actualReturnDate, damagedItems = [], notes = "") {
+  async closeLoan(id, actualReturnDate, damagedItems = [], notes = "") {
     const loan = this.db.getLoanById(id);
     if (!loan) return null;
 
-    // Update loan
-    this.db.updateLoan(id, {
-      state: false, // closed
-      returnDate: actualReturnDate,
-      notes: notes,
+    // Record notes and damaged items first, then close (the backend sets the return date)
+    const damagedIds = damagedItems.map((d) => Number(d.id)); // checkbox values are strings
+    await request("PUT", `/loans/${id}`, {
+      note: notes,
+      inventory_items: this.db.getLoanedObjectsByLoanId(id).map((lo) => ({
+        id: lo.objectId,
+        object_type_code: lo.objectTypeCode,
+        state: damagedIds.includes(lo.objectId) ? 4 : 1,
+      })),
     });
+    await request("POST", `/loans/${id}/close`);
 
-    // Get loaned objects
-    const loanedObjects = this.db.getLoanedObjectsByLoanId(id);
-
-    // Mark damaged items in loaned objects
-    const damagedIds = damagedItems.map((d) => d.id);
-    loanedObjects.forEach((lo) => {
-      if (damagedIds.includes(lo.objectId)) {
-        this.db.updateLoanedObject(lo.objectId, lo.loanId, { damaged: true });
-        this.db.updateObject(lo.objectId, { state: 4 }); // damaged
-      } else {
-        this.db.updateObject(lo.objectId, { state: 1 }); // available
-      }
-    });
-
-    // Update inventory presenter if available
-    if (this.inventoryPresenter) {
-      if (damagedItems.length) {
-        this.inventoryPresenter.markItemsDamaged(damagedIds);
-      }
-
-      loanedObjects.forEach((lo) => {
-        if (!damagedIds.includes(lo.objectId)) {
-          try {
-            this.inventoryPresenter.updateItem(lo.objectId, {
-              status: "available",
-            });
-          } catch (error) {
-            console.error(
-              `Unable to return item ${lo.objectId} to available`,
-              error,
-            );
-          }
-        }
-      });
-    }
-
-    // Emit event for other modules to listen
-    if (this.mediator) {
-      const allItems = loanedObjects.map((lo) => ({ id: lo.objectId }));
-
-      this.mediator.emit("loan:closed", {
-        loanId: id,
-        items: allItems,
-        damagedItems: damagedItems,
-      });
-    }
-
+    await this.db.load();
     this.notifyListeners();
     return this.getLoanById(id);
   }
@@ -255,15 +176,6 @@ export class LoansPresenter extends BasePresenter {
       });
     }
 
-    // Fallback: add directly to DB
-    const newClient = this.db.addClient({
-      name: firstName,
-      surname: lastName,
-      email: email || "",
-      state: 1,
-    });
-
-    this.notifyListeners();
-    return newClient;
+    return null;
   }
 }

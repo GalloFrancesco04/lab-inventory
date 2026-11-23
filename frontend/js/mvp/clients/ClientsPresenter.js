@@ -1,10 +1,10 @@
 import { BasePresenter } from "../core/BasePresenter.js";
-import { MockDatabase } from "../../utils/MockDatabase.js";
+import { ApiStore, request } from "../../api/ApiClient.js";
 
 export class ClientsPresenter extends BasePresenter {
   constructor() {
     super([]);
-    this.db = MockDatabase.getInstance();
+    this.db = ApiStore.getInstance();
   }
 
   getClients() {
@@ -28,21 +28,21 @@ export class ClientsPresenter extends BasePresenter {
         totalLoans: allLoans.length,
         lastLoan: lastLoan,
         state: client.state,
+        blocked: client.state === 0,
       };
     });
   }
 
-  addClient(payload) {
-    const clientData = {
+  async addClient(payload) {
+    const { id } = await request("POST", "/clients", {
       name: payload.firstName || "",
       surname: payload.lastName || "",
       email: payload.email || "",
       state: 1, // active
-    };
-
-    const newClient = this.db.addClient(clientData);
+    });
+    await this.db.load();
     this.notifyListeners();
-    return newClient;
+    return this.db.getClientById(id);
   }
 
   getClientById(id) {
@@ -65,35 +65,35 @@ export class ClientsPresenter extends BasePresenter {
       totalLoans: allLoans.length,
       lastLoan: lastLoan,
       state: client.state,
+      blocked: client.state === 0,
     };
   }
 
-  deleteClient(id) {
-    const deleted = this.db.deleteClient(id);
-    if (deleted) {
-      this.notifyListeners();
-    }
-    return deleted;
+  async setBlocked(id, blocked) {
+    await request("POST", "/clients/toggle-block", {
+      id,
+      action: blocked ? "block" : "unblock",
+    });
+    await this.db.load();
+    this.notifyListeners();
   }
 
   getLoansByClientId(clientId) {
     const client = this.db.getClientById(clientId);
     if (!client) return [];
 
-    return this.db.getLoansByClientId(clientId);
+    return this.db
+      .getLoansByClientId(clientId)
+      .map((loan) => ({ ...loan, status: loan.state ? "active" : "closed" }));
   }
 
-  updateClient(id, payload) {
-    const updates = {
+  async updateClient(id, payload) {
+    await request("PUT", `/clients/${id}`, {
       name: payload.firstName || "",
       surname: payload.lastName || "",
-      email: payload.email || "",
-    };
-
-    const updated = this.db.updateClient(id, updates);
-    if (updated) {
-      this.notifyListeners();
-    }
-    return updated;
+    });
+    await this.db.load();
+    this.notifyListeners();
+    return true;
   }
 }

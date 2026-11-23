@@ -1,47 +1,10 @@
 import { BasePresenter } from "../core/BasePresenter.js";
+import { request } from "../../api/ApiClient.js";
+import { emailToDisplayName } from "../../utils/Transformers.js";
 
 export class AuthPresenter extends BasePresenter {
   constructor() {
     super();
-
-    // Mock users
-    this.users = [
-      {
-        id: 1,
-        email: "admin@library.com",
-        password: "admin123",
-        role: "admin",
-        fullName: "Administrator",
-      },
-      {
-        id: 2,
-        email: "mario.rossi@library.com",
-        password: "tech123",
-        role: "technician",
-        fullName: "Mario Rossi",
-      },
-      {
-        id: 3,
-        email: "sara.bianchi@library.com",
-        password: "tech123",
-        role: "technician",
-        fullName: "Sara Bianchi",
-      },
-      {
-        id: 4,
-        email: "roberto.verdi@library.com",
-        password: "tech123",
-        role: "technician",
-        fullName: "Roberto Verdi",
-      },
-      {
-        id: 5,
-        email: "anna.neri@library.com",
-        password: "tech123",
-        role: "technician",
-        fullName: "Anna Neri",
-      },
-    ];
 
     // Load current user from localStorage if exists
     this.loadCurrentUser();
@@ -60,28 +23,25 @@ export class AuthPresenter extends BasePresenter {
     }
   }
 
-  login(email, password) {
-    const user = this.users.find(
-      (u) => u.email === email && u.password === password,
-    );
-
-    if (user) {
-      // Don't store password in currentUser
+  async login(email, password) {
+    try {
+      const user = await request("POST", "/login", { email, password });
       this.currentUser = {
         id: user.id,
         email: user.email,
-        role: user.role,
-        fullName: user.fullName,
+        role: user.role === 1 ? "admin" : "technician",
+        fullName: emailToDisplayName(user.email),
       };
       this.saveCurrentUser();
       this.notifyListeners();
       return { success: true, user: this.currentUser };
+    } catch (error) {
+      return { success: false, error: "Invalid email or password" };
     }
-
-    return { success: false, error: "Invalid email or password" };
   }
 
-  logout() {
+  async logout() {
+    await request("POST", "/logout").catch(() => {});
     this.currentUser = null;
     this.saveCurrentUser();
     this.notifyListeners();

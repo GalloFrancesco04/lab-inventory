@@ -11,7 +11,8 @@ export const VALIDATION_ERRORS = {
 export const SUCCESS_MESSAGES = {
   CLIENT_ADDED: "Client created successfully",
   CLIENT_UPDATED: "Client updated successfully",
-  CLIENT_BLOCKED: (days) => `Client blocked for ${days} days`,
+  CLIENT_BLOCKED: "Client blocked",
+  CLIENT_UNBLOCKED: "Client unblocked",
   CLIENT_DELETED: "Client deleted successfully",
   ITEM_ADDED: "Item created successfully",
   ITEM_UPDATED: "Item updated successfully",

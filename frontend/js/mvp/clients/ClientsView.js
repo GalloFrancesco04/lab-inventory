@@ -47,8 +47,6 @@ class ClientsView extends BaseView {
 
     // Block client modal
     this.blockClientForm = this.getElement("block-client-form");
-    this.blockDaysInput = this.getElement("block-days");
-    this.blockReasonInput = this.getElement("block-reason");
 
     this.newClientValidator = new FormValidator(this.newClientForm);
     this.editClientValidator = new FormValidator(this.editClientForm);
@@ -95,8 +93,10 @@ class ClientsView extends BaseView {
       this.openModal("new-client-modal"),
     );
 
-    this.newClientForm?.addEventListener("submit", (e) => {
+    this.newClientForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
+      // The new-client form is shared with the loans view: only handle it on this page
+      if (this.getElement("clients-view")?.classList.contains("hidden")) return;
       this.newClientValidator.clearAll();
 
       const payload = {
@@ -132,7 +132,7 @@ class ClientsView extends BaseView {
       }
 
       try {
-        this.presenter.addClient(payload);
+        await this.presenter.addClient(payload);
         this.mediator.toaster.success(SUCCESS_MESSAGES.CLIENT_ADDED);
         this.closeModal("new-client-modal");
       } catch (error) {
@@ -140,7 +140,7 @@ class ClientsView extends BaseView {
       }
     });
 
-    this.editClientForm?.addEventListener("submit", (e) => {
+    this.editClientForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
       this.editClientValidator.clearAll();
 
@@ -166,7 +166,7 @@ class ClientsView extends BaseView {
       }
 
       try {
-        this.presenter.updateClient(this.currentClientId, payload);
+        await this.presenter.updateClient(this.currentClientId, payload);
         this.mediator.toaster.success(SUCCESS_MESSAGES.CLIENT_UPDATED);
         this.closeModal("edit-client-modal");
         this.openClientDetail(this.currentClientId);
@@ -185,14 +185,28 @@ class ClientsView extends BaseView {
       this.openModal("delete-client-modal");
     });
 
-    this.blockClientForm?.addEventListener("submit", (e) => {
+    this.clientBlockBtn?.addEventListener("click", async () => {
+      if (!this.currentClientId) return;
+      const client = this.presenter.getClientById(this.currentClientId);
+      if (!client?.blocked) {
+        this.openModal("block-client-modal");
+        return;
+      }
+      try {
+        await this.presenter.setBlocked(this.currentClientId, false);
+        this.mediator.toaster.success(SUCCESS_MESSAGES.CLIENT_UNBLOCKED);
+        this.openClientDetail(this.currentClientId);
+      } catch (error) {
+        this.handleError("Unable to unblock client", error);
+      }
+    });
+
+    this.blockClientForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!this.currentClientId) return;
       try {
-        const days = Number(this.blockDaysInput?.value || 30);
-        const reason = this.blockReasonInput?.value?.trim() || "";
-        this.presenter.blockClient(this.currentClientId, days, reason);
-        this.mediator.toaster.warning(SUCCESS_MESSAGES.CLIENT_BLOCKED(days));
+        await this.presenter.setBlocked(this.currentClientId, true);
+        this.mediator.toaster.warning(SUCCESS_MESSAGES.CLIENT_BLOCKED);
         this.closeModal("block-client-modal");
         this.openClientDetail(this.currentClientId);
       } catch (error) {
@@ -324,13 +338,13 @@ class ClientsView extends BaseView {
     this.clientDetailLast.textContent = client.lastLoan;
 
     if (client.blocked) {
-      this.clientDetailStatus.textContent = `Blocked until ${client.blockedUntil}`;
+      this.clientDetailStatus.textContent = "Blocked";
       this.clientDetailStatus.style.color = "var(--danger)";
-      this.clientBlockBtn.style.display = "none";
+      this.clientBlockBtn.textContent = "Unblock Client";
     } else {
       this.clientDetailStatus.textContent = "Active";
       this.clientDetailStatus.style.color = "";
-      this.clientBlockBtn.style.display = "";
+      this.clientBlockBtn.textContent = "Block Client";
     }
 
     this.renderClientLoans(clientId);

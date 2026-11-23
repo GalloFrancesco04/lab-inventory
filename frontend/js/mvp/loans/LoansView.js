@@ -65,9 +65,11 @@ class LoansView extends BaseView {
       lastInput: this.clientLastInput,
       emailInput: this.clientEmailInput,
       toaster: this.mediator.toaster,
-      onCreate: ({ displayName, email }) => {
+      onCreate: async ({ displayName, email }) => {
+        // The new-client form is shared with the clients view: only handle it on this page
+        if (this.getElement("loans-view")?.classList.contains("hidden")) return false;
         try {
-          const result = this.presenter.addClient(displayName, email);
+          const result = await this.presenter.addClient(displayName, email);
           if (result) {
             this.mediator.toaster.success(
               `Client "${displayName}" added successfully`,
@@ -130,15 +132,20 @@ class LoansView extends BaseView {
       damagedTrigger: this.closeLoanDamagedTrigger,
       toaster: this.mediator.toaster,
       logger: this.mediator.logger,
-      onSubmit: ({ damagedItems, notes }) => {
+      onSubmit: async ({ damagedItems, notes }) => {
         if (this.currentLoanId) {
           const today = new Date().toISOString().split("T")[0];
-          this.presenter.closeLoan(
-            this.currentLoanId,
-            today,
-            damagedItems,
-            notes,
-          );
+          try {
+            await this.presenter.closeLoan(
+              this.currentLoanId,
+              today,
+              damagedItems,
+              notes,
+            );
+          } catch (error) {
+            this.handleError("Unable to close loan", error);
+            return;
+          }
           this.renderLoansTable();
           // Refresh available items after closing loan
           this.refreshAvailableItems();
@@ -206,7 +213,7 @@ class LoansView extends BaseView {
       this.openModal("new-loan-modal");
     });
 
-    this.newLoanForm?.addEventListener("submit", (e) => {
+    this.newLoanForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const items = this.itemPicker?.getSelectedItems() || [];
       const client = this.loanClient?.value?.trim();
@@ -243,7 +250,7 @@ class LoansView extends BaseView {
       const startDate = today.toISOString().split("T")[0];
 
       try {
-        const newLoan = this.presenter.addLoan({
+        const newLoan = await this.presenter.addLoan({
           client,
           startDate,
           endDate,
