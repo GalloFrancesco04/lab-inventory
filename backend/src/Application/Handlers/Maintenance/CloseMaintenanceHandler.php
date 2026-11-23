@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/Object
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/MaintenanceRepository.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/OperationsRepository.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Connection/TransactionManager.php';
+require_once __DIR__ . '/../../../Infrastructure/Security/SessionManager.php';
 
 require_once __DIR__ . '/../../../../config/Database.php';
 
@@ -17,6 +18,7 @@ class CloseMaintenanceHandler {
     private $maintenanceRepository;
     private $operationsRepository;
     private $transaction;
+    private $session;
 
 
     public function __construct() {
@@ -28,6 +30,7 @@ class CloseMaintenanceHandler {
         $this->maintenanceRepository = new MaintenanceRepository($connection);
         $this->operationsRepository = new OperationsRepository($connection);
         $this->transaction = new TransactionManager($connection);
+        $this->session = new SessionManager();
 
     }
 
@@ -43,6 +46,11 @@ class CloseMaintenanceHandler {
 
             if(empty($maintenance)) {
                 throw new Exception("L'id inviato non corrisponde a nessuna manutenzione");
+            }
+
+            // a Technician can only work on the Maintenances assigned to him
+            if($this->session->getUserRole() == 2 && $maintenance->getTechnicianId() != $this->session->getUserId()) {
+                throw new Exception("La Manutenzione non e' assegnata a questo Tecnico");
             }
 
 
