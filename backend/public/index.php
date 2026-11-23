@@ -103,8 +103,17 @@ $uri = $request->getPath();
 // Every route except authentication requires a logged-in user
 if (!in_array($uri, ['/api/login', '/api/logout', '/api/auth/status'])) {
     require_once __DIR__ . '/../src/Infrastructure/Security/SessionManager.php';
-    if (!(new SessionManager())->isLoggedIn()) {
+    $session = new SessionManager();
+    if (!$session->isLoggedIn()) {
         Response::error("Login required", "UNAUTHORIZED", 401);
+    }
+
+    // Technicians (role 2) can read everything but only change maintenances and their operations
+    $technicianWrite = ($method === 'PUT' && preg_match('#^/api/maintenance/[^/]+$#', $uri))
+        || ($method === 'POST' && $uri === '/api/operations')
+        || ($method === 'PUT' && preg_match('#^/api/operations/[^/]+$#', $uri));
+    if ($session->getUserRole() == 2 && $method !== 'GET' && !$technicianWrite) {
+        Response::error("Not allowed for technicians", "FORBIDDEN", 403);
     }
 }
 
