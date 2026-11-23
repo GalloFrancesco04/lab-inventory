@@ -1,3 +1,4 @@
+import { formatDate } from "../../utils/Transformers.js";
 import { BaseView } from "../core/BaseView.js";
 import {
   VALIDATION_ERRORS,
@@ -48,7 +49,6 @@ class MaintenanceView extends BaseView {
       "maintenance-close-confirm-cancel",
     );
     this.closeConfirmClose = this.getElement("maintenance-close-confirm-close");
-    this.closeNotesInput = this.getElement("maintenance-close-notes");
     this.closeStillBrokenCheckbox = this.getElement(
       "maintenance-close-still-broken",
     );
@@ -80,7 +80,6 @@ class MaintenanceView extends BaseView {
       "maintenance-close-confirm-modal": {
         options: {
           onOpen: () => {
-            if (this.closeNotesInput) this.closeNotesInput.value = "";
             if (this.closeStillBrokenCheckbox)
               this.closeStillBrokenCheckbox.checked = false;
           },
@@ -140,9 +139,11 @@ class MaintenanceView extends BaseView {
   getSortedHistory() {
     const history = this.getFilteredHistory();
     return this.applySorting(history, {
-      date: (entry) => entry.date,
+      id: (entry) => entry.id,
+      startDate: (entry) => entry.startDate || "",
+      endDate: (entry) => entry.endDate || "",
       objectName: (entry) => entry.itemName.toLowerCase(),
-      type: (entry) => entry.type.toLowerCase(),
+      cost: (entry) => entry.totalCost,
       tech: (entry) => (entry.tech || "").toLowerCase(),
       desc: (entry) => (entry.desc || "").toLowerCase(),
       status: (entry) => (entry.status || "").toLowerCase(),
@@ -185,10 +186,10 @@ class MaintenanceView extends BaseView {
       idCell.textContent = entry.id;
 
       const startCell = document.createElement("td");
-      startCell.textContent = entry.startDate;
+      startCell.textContent = formatDate(entry.startDate);
 
       const endCell = document.createElement("td");
-      endCell.textContent = entry.endDate;
+      endCell.textContent = formatDate(entry.endDate);
       if (hideEndDate) endCell.style.display = "none";
 
       const itemCell = document.createElement("td");
@@ -233,8 +234,8 @@ class MaintenanceView extends BaseView {
     this.currentMaintenanceId = id;
     this.detailModalTitle.textContent = `Maintenance #${id}`;
     this.detailId.textContent = id;
-    this.detailStart.textContent = maintenance.startDate;
-    this.detailEnd.textContent = maintenance.endDate || "-";
+    this.detailStart.textContent = formatDate(maintenance.startDate);
+    this.detailEnd.textContent = formatDate(maintenance.endDate);
     this.detailItem.textContent = maintenance.itemName;
 
     this.detailTech.textContent = maintenance.tech || "-";
@@ -357,8 +358,8 @@ class MaintenanceView extends BaseView {
       const details = [
         { label: "Technician", value: maint.tech || "-" },
         { label: "Cost", value: `€${maint.totalCost?.toFixed(2) || "0.00"}` },
-        { label: "Start Date", value: maint.startDate || "-" },
-        { label: "End Date", value: maint.endDate || "-" },
+        { label: "Start Date", value: formatDate(maint.startDate) },
+        { label: "End Date", value: formatDate(maint.endDate) },
       ];
 
       details.forEach(({ label, value }) => {
@@ -400,15 +401,8 @@ class MaintenanceView extends BaseView {
     if (!maintenance || maintenance.status === "closed") return;
 
     const closeOptions = {
-      notes: this.closeNotesInput?.value.trim() || "",
       stillBroken: Boolean(this.closeStillBrokenCheckbox?.checked),
     };
-
-    if (!closeOptions.notes) {
-      this.mediator?.toaster?.error(VALIDATION_ERRORS.REQUIRED);
-      this.closeNotesInput?.focus();
-      return;
-    }
 
     let success = false;
     try {
@@ -425,7 +419,7 @@ class MaintenanceView extends BaseView {
         this.currentMaintenanceId,
       );
       if (updated) {
-        this.detailEnd.textContent = updated.endDate || "-";
+        this.detailEnd.textContent = formatDate(updated.endDate);
       }
       if (this.closeMaintenanceBtn) {
         this.closeMaintenanceBtn.style.display = "none";
@@ -529,7 +523,7 @@ class MaintenanceView extends BaseView {
       startLabel.style.letterSpacing = "0.05em";
 
       const startValue = document.createElement("div");
-      startValue.textContent = op.startDate || "-";
+      startValue.textContent = formatDate(op.startDate);
       startValue.style.fontSize = "0.875rem";
       startValue.style.color = "var(--text-primary)";
 
@@ -575,7 +569,7 @@ class MaintenanceView extends BaseView {
       endLabel.style.letterSpacing = "0.05em";
 
       const endValue = document.createElement("div");
-      endValue.textContent = op.endDate || "-";
+      endValue.textContent = formatDate(op.endDate);
       endValue.style.fontSize = "0.875rem";
       endValue.style.color = "var(--text-primary)";
 
@@ -611,18 +605,11 @@ class MaintenanceView extends BaseView {
       this.currentMaintenanceId,
     );
     if (maintenance) {
-      // Convert DD/MM/YYYY to YYYY-MM-DD for input[type="date"]
-      const formatDateForInput = (dateStr) => {
-        const [day, month, year] = dateStr.split("/");
-        return `${year}-${month}-${day}`;
-      };
-
-      this.operationStartInput.value = formatDateForInput(
-        maintenance.startDate,
-      );
-      const effectiveEndDate = maintenance.endDate || maintenance.startDate;
-      this.operationEndInput.value = formatDateForInput(effectiveEndDate);
+      // API dates are YYYY-MM-DD, the format date inputs expect
+      this.operationStartInput.value = maintenance.startDate;
+      this.operationEndInput.value = maintenance.endDate || maintenance.startDate;
     }
+    this.operationStartInput.disabled = false;
 
     this.openModal("add-operation-modal");
   }
@@ -649,6 +636,8 @@ class MaintenanceView extends BaseView {
 
     // Dates come from the API as YYYY-MM-DD, the format date inputs expect
     this.operationStartInput.value = op.startDate || "";
+    // The backend cannot change an operation's start date
+    this.operationStartInput.disabled = true;
     this.operationEndInput.value = op.endDate || op.startDate || "";
 
     this.openModal("add-operation-modal");

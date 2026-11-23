@@ -33,6 +33,10 @@ Seeded accounts:
 
 To reset the database to the seed data, run `docker compose down -v` and start again.
 
+# Tests
+
+With the stack running, `backend/tests/run.sh` runs every backend test. Each test file starts from a fresh copy of the seed data in a separate `laboratorio_inventario_test` database, so the application's data is never touched.
+
 # Contribute
 
 > To contribute to the project use the following commit convention

@@ -1,3 +1,4 @@
+import { formatDate } from "../../utils/Transformers.js";
 import { BaseView } from "../core/BaseView.js";
 import { FormValidator } from "../../utils/Validators.js";
 import {
@@ -39,6 +40,8 @@ class ClientsView extends BaseView {
     this.clientLoansHistory = this.getElement("client-loans-history");
     this.clientEditBtn = this.getElement("client-edit-btn");
     this.clientBlockBtn = this.getElement("client-block-btn");
+    this.clientDeleteBtn = this.getElement("client-delete-btn");
+    this.deleteClientForm = this.getElement("delete-client-form");
 
     // Edit client modal
     this.editClientForm = this.getElement("edit-client-form");
@@ -84,6 +87,9 @@ class ClientsView extends BaseView {
       },
       "block-client-modal": {
         closeButtons: ["block-client-close", "block-client-cancel"],
+      },
+      "delete-client-modal": {
+        closeButtons: ["delete-client-close", "delete-client-cancel"],
       },
     });
   }
@@ -183,6 +189,24 @@ class ClientsView extends BaseView {
     this.clientDeleteBtn?.addEventListener("click", () => {
       if (!this.currentClientId) return;
       this.openModal("delete-client-modal");
+    });
+
+    this.deleteClientForm?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!this.currentClientId) return;
+      if (this.presenter.getClientById(this.currentClientId)?.totalLoans > 0) {
+        this.mediator.toaster.error("Clients with loans cannot be deleted");
+        return;
+      }
+      try {
+        await this.presenter.deleteClient(this.currentClientId);
+        this.mediator.toaster.success(SUCCESS_MESSAGES.CLIENT_DELETED);
+        this.closeModal("delete-client-modal");
+        this.closeModal("client-detail-modal");
+        this.render();
+      } catch (error) {
+        this.handleError("Unable to delete client", error);
+      }
     });
 
     this.clientBlockBtn?.addEventListener("click", async () => {
@@ -301,7 +325,7 @@ class ClientsView extends BaseView {
       totalLoansCell.textContent = client.totalLoans;
 
       const lastLoanCell = document.createElement("td");
-      lastLoanCell.textContent = client.lastLoan;
+      lastLoanCell.textContent = formatDate(client.lastLoan);
 
       tr.append(
         idCell,
@@ -335,7 +359,7 @@ class ClientsView extends BaseView {
     this.clientDetailEmail.textContent = client.email;
     this.clientDetailActive.textContent = client.activeLoans;
     this.clientDetailTotal.textContent = client.totalLoans;
-    this.clientDetailLast.textContent = client.lastLoan;
+    this.clientDetailLast.textContent = formatDate(client.lastLoan);
 
     if (client.blocked) {
       this.clientDetailStatus.textContent = "Blocked";
@@ -411,8 +435,8 @@ class ClientsView extends BaseView {
       `;
 
       const details = [
-        { label: "Start Date", value: loan.startDate || "-" },
-        { label: "Return Date", value: loan.endDate || "-" },
+        { label: "Start Date", value: formatDate(loan.startDate) },
+        { label: "Due Date", value: formatDate(loan.endDate) },
         { label: "Items", value: loan.items?.length || loan.quantity || 0 },
         {
           label: "Return Status",

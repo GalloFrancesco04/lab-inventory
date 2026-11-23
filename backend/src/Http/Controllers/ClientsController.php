@@ -24,6 +24,8 @@ require_once __DIR__ . '/../../Application/Handlers/Clients/UpdateClientHandler.
 // Import specific Commands and Handlers for Blocking/Unblocking Clients
 require_once __DIR__ . '/../../Application/Commands/Clients/BlockClientCommand.php';
 require_once __DIR__ . '/../../Application/Handlers/Clients/BlockClientHandler.php';
+require_once __DIR__ . '/../../Application/Commands/Clients/DeleteClientCommand.php';
+require_once __DIR__ . '/../../Application/Handlers/Clients/DeleteClientHandler.php';
 require_once __DIR__ . '/../../Application/Commands/Clients/UnblockClientCommand.php';
 require_once __DIR__ . '/../../Application/Handlers/Clients/UnblockClientHandler.php';
 
@@ -49,7 +51,7 @@ class ClientsController {
         // When 'CreateClientCommand' is dispatched, 'CreateClientHandler' handles it.
         $this->mediator->register(CreateClientCommand::class, CreateClientHandler::class);
         $this->mediator->register(UpdateClientCommand::class, UpdateClientHandler::class);
-      //$this->mediator->register(DeleteClientCommand::class, DeleteClientHandler::class);
+        $this->mediator->register(DeleteClientCommand::class, DeleteClientHandler::class);
         $this->mediator->register(BlockClientCommand::class, BlockClientHandler::class);
         $this->mediator->register(UnblockClientCommand::class, UnblockClientHandler::class);
         $this->mediator->register(ViewClientsCommand::class, ViewClientsHandler::class);
@@ -209,6 +211,18 @@ class ClientsController {
 
         } catch (Exception $e) {
             Response::error($e->getMessage(), "BLOCK_ERROR", 400);
+        }
+    }
+
+    /**
+     * DELETE /api/clients/{id}
+     */
+    public function delete(Request $request, $id) {
+        try {
+            $this->mediator->send(new DeleteClientCommand((int)$id));
+            Response::success(["message" => "Client deleted successfully"]);
+        } catch (Exception $e) {
+            Response::error($e->getMessage(), "DELETE_ERROR", 400);
         }
     }
 }

@@ -71,20 +71,9 @@
 /* Item Detail Modal */
 .item-detail-grid {
   display: grid;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 1fr;
   gap: var(--space-4);
   align-items: start;
-}
-
-.item-image-box {
-  width: 100%;
-  aspect-ratio: 4/3;
-  background: var(--surface-muted);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  display: grid;
-  place-items: center;
-  color: var(--text-muted);
 }
 
 .item-detail-grid .item-info-stack {

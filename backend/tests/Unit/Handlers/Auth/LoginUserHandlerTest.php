@@ -14,7 +14,7 @@ try {
     // 1. CASO: Credenziali errate
     echo "Test 1: Tentativo con password errata... ";
     try {
-        $badCommand = new LoginUserCommand("admin@example.com", "wrong_password");
+        $badCommand = new LoginUserCommand("admin@lab.it", "wrong_password");
         $mediator->send($badCommand);
         echo "❌ ERRORE: Il sistema ha permesso il login con password errata!\n";
     } catch (Exception $e) {
@@ -25,8 +25,8 @@ try {
 
     // 2. CASO: Credenziali corrette
     // Sostituisci con una email e password reali presenti nel tuo DB (hashata)
-    $email = "admin@example.com";
-    $pass = "password123"; 
+    $email = "admin@lab.it";
+    $pass = "admin123";
 
     echo "Test 2: Tentativo con credenziali corrette ($email)... ";
     

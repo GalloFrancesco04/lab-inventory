@@ -146,6 +146,7 @@ class LoansView extends BaseView {
             this.handleError("Unable to close loan", error);
             return;
           }
+          this.mediator.toaster.success(SUCCESS_MESSAGES.LOAN_CLOSED);
           this.renderLoansTable();
           // Refresh available items after closing loan
           this.refreshAvailableItems();

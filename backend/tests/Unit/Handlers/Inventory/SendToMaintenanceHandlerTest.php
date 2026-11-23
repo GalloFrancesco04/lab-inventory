@@ -13,7 +13,7 @@ echo "========== TEST: INVIO IN MANUTENZIONE ========== \n\n";
 
 try {
     // 1. Prepariamo i dati del comando
-    $objectId = 3;              // ID dell'esemplare da riparare
+    $objectId = 1;              // ID dell'esemplare da riparare
     $description = "Sostituzione batteria e pulizia sensori";
     $technicianId = 2;          // ID del tecnico assegnato
     $type = "Riparazione";       // Tipo di intervento

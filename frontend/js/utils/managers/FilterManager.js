@@ -26,7 +26,9 @@ export class FilterManager {
 
     this.activeFilters = {};
     this.currentView = null;
-    this.onApplyCallback = null;
+    // Each view has its own apply callback and its own saved filters
+    this.callbacks = {};
+    this.filtersByView = {};
     this.clientFilter = null;
     this.locationFilter = null;
 
@@ -89,8 +91,10 @@ export class FilterManager {
 
   setView(viewName) {
     this.currentView = viewName;
+    this.activeFilters = this.filtersByView[viewName] || {};
     this.presenter = this.presenters[viewName] || this.presenter;
     this.renderFilters();
+    this.updateBadge();
   }
 
   renderFilters() {
@@ -117,10 +121,10 @@ export class FilterManager {
           type: "select",
           options: [
             { value: "", label: "All" },
-            { value: "PC", label: "PC" },
-            { value: "Hardware", label: "Hardware" },
-            { value: "Peripherals", label: "Peripherals" },
-            { value: "Other", label: "Other" },
+            ...(this.presenters.inventory?.getItemTypes() || []).map((t) => ({
+              value: t.code,
+              label: t.name,
+            })),
           ],
         },
         {
@@ -340,12 +344,11 @@ export class FilterManager {
       }
     });
 
+    this.filtersByView[this.currentView] = this.activeFilters;
     this.updateBadge();
     this.closePanel();
 
-    if (this.onApplyCallback) {
-      this.onApplyCallback(this.activeFilters);
-    }
+    this.callbacks[this.currentView]?.(this.activeFilters);
   }
 
   clearAllFilters() {
@@ -355,11 +358,10 @@ export class FilterManager {
       input.value = "";
     });
 
+    this.filtersByView[this.currentView] = this.activeFilters;
     this.updateBadge();
 
-    if (this.onApplyCallback) {
-      this.onApplyCallback({});
-    }
+    this.callbacks[this.currentView]?.({});
   }
 
   updateBadge() {
@@ -378,12 +380,13 @@ export class FilterManager {
     return this.activeFilters;
   }
 
-  onApply(callback) {
-    this.onApplyCallback = callback;
+  onApply(viewName, callback) {
+    this.callbacks[viewName] = callback;
   }
 
   destroy() {
     this.activeFilters = {};
-    this.onApplyCallback = null;
+    this.callbacks = {};
+    this.filtersByView = {};
   }
 }

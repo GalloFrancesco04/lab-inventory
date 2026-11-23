@@ -106,7 +106,7 @@ export class ItemDetailModal extends BaseModal {
 
   show(item) {
     if (!item) return;
-    const { title, name, type, location, status, id, brand, model, note } =
+    const { title, name, type, location, status, id, brand, model } =
       this.fields;
     if (title) title.textContent = `Item #${item.id}`;
     if (name) name.textContent = item.name;
@@ -115,7 +115,6 @@ export class ItemDetailModal extends BaseModal {
     if (id) id.textContent = item.id || "-";
     if (brand) brand.textContent = item.brand || "-";
     if (model) model.textContent = item.model || "-";
-    if (note) note.textContent = item.note || "-";
     this.setStatusBadge(item.status);
     this.updateActionButtons(item.status);
     if (this.renderMaintenance) this.renderMaintenance(item.maintenance);
