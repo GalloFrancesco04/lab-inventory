@@ -144,8 +144,8 @@ CREATE TABLE operations (
 -- =========================
 -- Role: 1 = Admin, 2 = Tecnico
 INSERT INTO `user` (email, pass, role) VALUES 
-('admin@lab.it', '$2a$12$srdWkI8c3ADcYQHpHH7OBOHUpD00Oq4mLKexaXO.uhntNlEYZJZe2', 1),
-('luca.tecnico@lab.it', '$2a$12$vQz71VwpxqFdJVX5kzek1eLj846rYfp8RFEFjMbzhAGn7V3Aui6vW', 2);
+('admin@lab.it', '$2y$10$Fy/k9CpTmXaBKMAN.xffHObQEROe5aArm96gOj8ipujrtsJb03NyC', 1),
+('luca.tecnico@lab.it', '$2y$10$vmhixYvpq61YJXu0QpFOs./JwPki1JyWuJErmOytUyOIMAM0X4SbO', 2);
 
 -- =========================
 -- 2. POPOLAMENTO CLIENTI (Studenti/Professori)

@@ -85,6 +85,9 @@ class ObjectTypesController {
        try {
             $command = new ViewSingleObjectTypeCommand($code);
             $typeObject = $this->mediator->send($command);
+            if (empty($typeObject)) {
+                Response::error("Not found", "NOT_FOUND", 404);
+            }
             
             // Mapping manuale
             $typeArray = $this->mapToArray($typeObject);

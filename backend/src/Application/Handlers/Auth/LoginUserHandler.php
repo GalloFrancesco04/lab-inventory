@@ -44,6 +44,8 @@ class LoginUserHandler {
 
         $this->session->setUser($user->getId(), $user->getEmail(), $user->getRole());
 
+        return ['id' => $user->getId(), 'email' => $user->getEmail(), 'role' => $user->getRole()];
+
         }catch(Exception $ex) {
             throw new Exception("Non e' stato possibile fare il Login per l'Utente: " . $ex->getMessage(), 0, $ex);
 

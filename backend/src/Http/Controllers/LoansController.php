@@ -45,12 +45,17 @@ class LoansController {
         return [
             'id' => method_exists($loan, 'getId') ? $loan->getId() : null,
             'client_id' => method_exists($loan, 'getClientId') ? $loan->getClientId() : null,
-            'start_date' => method_exists($loan, 'getStartDate') ? $loan->getStartDate() : null,
-            'end_date' => method_exists($loan, 'getEndDate') ? $loan->getEndDate() : null,
-            'state' => method_exists($loan, 'getState') ? $loan->getState() : null,
-            'note' => method_exists($loan, 'getNote') ? $loan->getNote() : null,
-            // Se l'entità ha un getter per gli item, usalo qui
-            'inventory_items' => method_exists($loan, 'getInventoryItems') ? $loan->getInventoryItems() : []
+            'start_date' => $loan->getStartDate()->format('Y-m-d'),
+            'end_date' => $loan->getEndDate()->format('Y-m-d'),
+            'return_date' => $loan->getReturnDate()?->format('Y-m-d'),
+            'state' => $loan->getState(),
+            'note' => $loan->getNotes(),
+            'quantity' => $loan->getQuantity(),
+            'loaned_objects' => array_map(fn($lo) => [
+                'object_id' => $lo->getObjectId(),
+                'object_type_code' => $lo->getObjectTypeCode(),
+                'damaged' => $lo->isDamaged(),
+            ], $loan->loanedObjects ?? [])
         ];
     }
 
@@ -85,6 +90,9 @@ class LoansController {
        try {
             $command = new ViewSingleLoanCommand((int)$id);
             $loanObject = $this->mediator->send($command);
+            if (empty($loanObject)) {
+                Response::error("Not found", "NOT_FOUND", 404);
+            }
 
             // Mapping manuale
             $loanArray = $this->mapToArray($loanObject);
@@ -113,14 +121,14 @@ class LoansController {
             $objectInstances = [];
 
             foreach ($rawItems as $itemData) {
-                // retrieve id, quantity, state
+                // retrieve id, object type code, state
                 $itemId = is_array($itemData) ? ($itemData['id'] ?? null) : $itemData;
-                $quantity = is_array($itemData) ? ($itemData['quantity'] ?? 1) : 1;
+                $typeCode = is_array($itemData) ? ($itemData['object_type_code'] ?? '') : '';
                 $state = is_array($itemData) ? ($itemData['state'] ?? '1') : '1';
                 $state=(int)$state;
                 // Create InventoryItem instance
                 // Not using null coalescing here to ensure id is set
-                $item = new InventoryItem($itemId, $quantity, $state);
+                $item = new InventoryItem($itemId, $typeCode, $state);
                 
                 $objectInstances[] = $item;
             }
@@ -156,12 +164,12 @@ class LoansController {
             // Create InventoryItem instances
             foreach ($rawItems as $itemData) {
                 $itemId = is_array($itemData) ? ($itemData['id'] ?? null) : $itemData;
-                $quantity = is_array($itemData) ? ($itemData['quantity'] ?? 1) : 1;
+                $typeCode = is_array($itemData) ? ($itemData['object_type_code'] ?? '') : '';
                 $state = is_array($itemData) ? ($itemData['state'] ?? '1') : '1';
                 $state = (int)$state;
 
                 // Create InventoryItem instance
-                $item = new InventoryItem($itemId, $quantity, $state);
+                $item = new InventoryItem($itemId, $typeCode, $state);
                 
                 $objectInstances[] = $item;
             }

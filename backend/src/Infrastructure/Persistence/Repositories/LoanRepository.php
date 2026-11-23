@@ -2,7 +2,6 @@
 
 require_once __DIR__ . '/../../../Domain/Entities/Loan.php';
 
-use DateTime;
 
 require_once __DIR__ . '/../../../Domain/Entities/Loan.php';
 

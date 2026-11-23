@@ -38,10 +38,22 @@ class MaintenanceController {
             'id' => method_exists($maintenance, 'getId') ? $maintenance->getId() : null,
             'object_id' => method_exists($maintenance, 'getObjectId') ? $maintenance->getObjectId() : null,
             'description' => method_exists($maintenance, 'getDescription') ? $maintenance->getDescription() : null,
-            'start_date' => method_exists($maintenance, 'getStartDate') ? $maintenance->getStartDate() : null,
-            'end_date' => method_exists($maintenance, 'getEndDate') ? $maintenance->getEndDate() : null,
+            'start_date' => $maintenance->getStartDate()->format('Y-m-d'),
+            'end_date' => $maintenance->getEndDate()?->format('Y-m-d'),
+            'type' => $maintenance->getType(),
+            'phone_number' => $maintenance->getPhoneNumber(),
+            'cost' => $maintenance->getCost(),
             'technician_id' => method_exists($maintenance, 'getTechnicianId') ? $maintenance->getTechnicianId() : null,
-            'damaged' => method_exists($maintenance, 'isDamaged') ? $maintenance->isDamaged() : (method_exists($maintenance, 'getDamaged') ? $maintenance->getDamaged() : 0)
+            'technician' => $maintenance->technician ?? null,
+            'object_name' => $maintenance->objectName ?? null,
+            'operations' => array_map(fn($op) => [
+                'id' => $op->getId(),
+                'maintenance_id' => $op->getMaintenanceId(),
+                'description' => $op->getDescription(),
+                'start_date' => $op->getStartDate()->format('Y-m-d'),
+                'end_date' => $op->getEndDate()?->format('Y-m-d'),
+                'cost' => $op->getCost(),
+            ], $maintenance->operations ?? [])
         ];
     }
 
@@ -75,6 +87,9 @@ class MaintenanceController {
         try {
             $command = new ViewSingleMaintenanceCommand((int)$id);
             $logObject = $this->mediator->send($command);
+            if (empty($logObject)) {
+                Response::error("Not found", "NOT_FOUND", 404);
+            }
             
             $logArray = $this->mapToArray($logObject);
             Response::success($logArray);

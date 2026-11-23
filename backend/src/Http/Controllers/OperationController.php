@@ -62,7 +62,7 @@ class OperationsController {
             $maintenance_id = $data['maintenance_id'];
             $description = $data['description'];
             // Extract optional fields with defaults
-            $start_date = $data['start_date'] ?? date('Y-m-d H:i:s');
+            $start_date = new DateTime($data['start_date'] ?? 'now');
             $cost = $data['cost'] ?? 0;
 
             // Create and send the command
@@ -86,7 +86,7 @@ class OperationsController {
         try {
             // Extract fields to update
             $description = $data['description'] ?? null;
-            $end_date = $data['end_date'] ?? null;
+            $end_date = isset($data['end_date']) ? new DateTime($data['end_date']) : null;
             $cost = $data['cost'] ?? null;
 
             // Create and send the command

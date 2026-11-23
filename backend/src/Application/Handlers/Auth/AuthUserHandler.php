@@ -21,6 +21,12 @@ class AuthUserHandler {
                throw new Exception("Il cookie e' sbagliato o la sessione e' scaduta, riautenticarsi");
             }
 
+            return [
+                'id' => $this->session->getUserId(),
+                'email' => $this->session->getUserName(),
+                'role' => $this->session->getUserRole(),
+            ];
+
 
         }catch(Exception $ex) {
             throw new Exception("Non e' stato possibile autenticare l'Utente: " . $ex->getMessage(), 0, $ex);

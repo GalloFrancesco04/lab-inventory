@@ -1,5 +1,6 @@
 <?php
 
+#[AllowDynamicProperties]
 class Loan {
     private ?int $id;
     private DateTime $startDate;

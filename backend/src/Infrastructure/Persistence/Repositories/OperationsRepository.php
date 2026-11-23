@@ -1,7 +1,5 @@
 <?php
 
-use DateTime;
-use PDO;
 
 require_once __DIR__ . '/../../../Domain/Entities/Operation.php';
 

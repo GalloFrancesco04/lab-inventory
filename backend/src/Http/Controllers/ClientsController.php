@@ -75,7 +75,7 @@ class ClientsController {
             'email' => method_exists($client, 'getEmail') ? $client->getEmail() : null,
             'state' => method_exists($client, 'getState') ? $client->getState() : null,
             // Handle loans (if present as a public property)
-            'loans' => !empty($client->loans) ? $client->loans : []
+            'loans' => array_map(fn($loan) => $loan->getId(), $client->loans ?? [])
         ];
     }
 
@@ -110,6 +110,9 @@ class ClientsController {
         try {
             $command = new ViewSingleClientCommand((int)$id);
             $clientObject = $this->mediator->send($command);
+            if (empty($clientObject)) {
+                Response::error("Not found", "NOT_FOUND", 404);
+            }
             
             // Convert the single Object into an Array
             $clientArray = $this->mapToArray($clientObject);

@@ -9,10 +9,10 @@ class Operation {
     private float $cost;
 
     public function __construct(
-        ?int $id = null,
+        ?int $id,
         int $maintenance_id,
         DateTime $start_date,
-        ?DateTime $end_date = null,
+        ?DateTime $end_date,
         string $description,
         float $cost
     ) {

@@ -41,9 +41,9 @@ class AddOperationHandler {
                 $command->description,
                 $command->cost
             );
-            $createdOperationId = $this->operationsRepository->create($operation);
-       
-            return $createdOperationId;
+            $this->operationsRepository->create($operation);
+
+            return $operation->getId();
 
         }catch(Exception $ex) {
             throw new Exception("Si e' verificato un errore durante l'aggiunta dell'Operazione " . $ex->getMessage(), 0, $ex);

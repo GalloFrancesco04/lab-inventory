@@ -1,8 +1,5 @@
 <?php
 
-use PDO;
-use Exception;
-use Throwable;
 
 class TransactionManager
 {

@@ -6,6 +6,7 @@ require_once __DIR__ . '/../States/InMaintenanceState.php';
 require_once __DIR__ . '/../States/DamagedState.php';
 require_once __DIR__ . '/../States/OutOfServiceState.php';
 
+#[AllowDynamicProperties]
 class InventoryItem {
     private ?int $id;
     private string $objectTypeCode;
