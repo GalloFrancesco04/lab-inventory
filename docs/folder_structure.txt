@@ -3,11 +3,17 @@ INGSW-2526-T14/
 ├── Dockerfile
 ├── README.md
 ├── docs/
+│   ├── API.md
+│   ├── Documentation.pdf
+│   ├── WorkDivision.pdf
 │   ├── folder_structure.txt       
 │   ├── USER_MANUAL.md              
 │   ├── diagrams/
+│   │   ├── ControllerDiagr/
+│   │   ├── Infrastructure/
 │   │   ├── class/
 │   │   │   └── handlers/          
+│   │   ├── http/
 │   │   └── sequence/               
 │
 ├── database/
@@ -32,7 +38,8 @@ INGSW-2526-T14/
 │   │   │       ├── MaintenanceController.php
 │   │   │       ├── ObjectsController.php
 │   │   │       ├── ObjectTypesController.php
-│   │   │       └── OperationController.php
+│   │   │       ├── OperationController.php
+│   │   │       └── UsersController.php
 │   │   │
 │   │   ├── Application/
 │   │   │   ├── Mediator/
@@ -80,7 +87,7 @@ INGSW-2526-T14/
 │   │   └── Infrastructure/
 │   │       ├── Persistence/
 │   │       │   ├── Connection/
-│   │       │   |   └──TansactionManager.php
+│   │       │   |   └──TransactionManager.php
 │   │       │   |
 │   │       │   └── Repositories/
 |   |       |       ├──UserRepository.php
@@ -90,13 +97,14 @@ INGSW-2526-T14/
 |   |       |       ├──LoanRepository.php
 |   |       |       ├──LoanedObjectRepository.php
 |   |       |       ├──MaintenanceRepository.php
-|   |       |       └──OperationRepository.php
+|   |       |       └──OperationsRepository.php
 |   |       |
 │   │       └── Security/
 │   │           ├── PasswordHasher.php
 │   │           └── SessionManager.php
 │   │
 │   └── tests/
+│       ├── run.sh
 │       ├── Unit/
 │       │   └── Handlers/
 │       │       ├── Auth/
