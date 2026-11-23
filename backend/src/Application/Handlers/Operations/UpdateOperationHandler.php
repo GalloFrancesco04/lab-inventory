@@ -7,10 +7,12 @@ require_once __DIR__ . '/../../../Domain/Entities/Operation.php';
 require_once __DIR__ . '/../../Commands/Operations/UpdateOperationCommand.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/MaintenanceRepository.php';
 require_once __DIR__ . '/../../../Infrastructure/Persistence/Repositories/OperationsRepository.php';
+require_once __DIR__ . '/../../../Infrastructure/Security/SessionManager.php';
 
 class UpdateOperationHandler {
     private $maintenanceRepository;
     private $operationsRepository;
+    private $session;
 
     public function __construct() {
         $db = new Database();
@@ -18,6 +20,7 @@ class UpdateOperationHandler {
 
         $this->maintenanceRepository = new MaintenanceRepository($connection);
         $this->operationsRepository = new OperationsRepository($connection);
+        $this->session = new SessionManager();
     }
 
     public function handle(UpdateOperationCommand $command) {
@@ -31,6 +34,13 @@ class UpdateOperationHandler {
 
             if(empty($oldOperation)) {
                 throw new Exception("Non e' stata trovata alcuna operazione con quell'Id");
+            }
+
+            $maintenance = $this->maintenanceRepository->findById($oldOperation->getMaintenanceId());
+
+            // a Technician can only work on the Maintenances assigned to him
+            if($this->session->getUserRole() == 2 && $maintenance->getTechnicianId() != $this->session->getUserId()) {
+                throw new Exception("La Manutenzione non e' assegnata a questo Tecnico");
             }
 
 
