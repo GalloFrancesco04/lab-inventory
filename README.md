@@ -5,8 +5,6 @@ A web app for running a university computer lab: it keeps track of the equipment
 - **Administrators** manage the inventory, the clients (students and staff) and their loans, and send broken items to maintenance.
 - **Technicians** see the maintenances assigned to them, log the work done and its cost, and close them.
 
-Team project for the Software Engineering course (Ingegneria del Software, 2025/26) at the University of Parma, by Francesco Gallo (frontend), Ivan (HTTP layer and controllers), Morris Roberti (handlers and domain model) and Simone De Rensis (database and repositories).
-
 **Stack:** PHP 8.3 and MySQL 8 on Docker, with a plain JavaScript frontend (MVP pattern, no frameworks).
 
 **Docs:** [user manual](docs/USER_MANUAL.md), [API](docs/API.md), [design document](docs/Documentation.pdf), [diagrams](docs/diagrams).
