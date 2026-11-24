@@ -1,8 +1,19 @@
-# INGSW-2526-T14
+# Lab Inventory
 
-# Build
+A web app for running a university computer lab: it keeps track of the equipment, who has borrowed what, and what is being repaired.
 
-create an .env file in the root folder
+- **Administrators** manage the inventory, the clients (students and staff) and their loans, and send broken items to maintenance.
+- **Technicians** see the maintenances assigned to them, log the work done and its cost, and close them.
+
+Team project for the Software Engineering course (Ingegneria del Software, 2025/26) at the University of Parma, by Francesco Gallo (frontend), Ivan (HTTP layer and controllers), Morris Roberti (handlers and domain model) and Simone De Rensis (database and repositories).
+
+**Stack:** PHP 8.3 and MySQL 8 on Docker, with a plain JavaScript frontend (MVP pattern, no frameworks).
+
+**Docs:** [user manual](docs/USER_MANUAL.md), [API](docs/API.md), [design document](docs/Documentation.pdf), [diagrams](docs/diagrams).
+
+## Build
+
+Create a `.env` file in the root folder:
 
 ```bash
 PHP_PORT=8080
@@ -33,11 +44,11 @@ Seeded accounts:
 
 To reset the database to the seed data, run `docker compose down -v` and start again.
 
-# Tests
+## Tests
 
 With the stack running, `backend/tests/run.sh` runs every backend test. Each test file starts from a fresh copy of the seed data in a separate `laboratorio_inventario_test` database, so the application's data is never touched.
 
-# Contribute
+## Contribute
 
 > To contribute to the project use the following commit convention
 
